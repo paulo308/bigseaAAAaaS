@@ -1,0 +1,34 @@
+version: '2'
+services:
+    cfssl:
+        image: cfssl/cfssl:latest
+        container_name: cfssl
+        ports:
+          - "8888:8888"
+        volumes:
+            - ./certs/:/certs
+        entrypoint: cfssl serve -address "172.250.0.87" -ca /certs/root_ca.pem -ca-key /certs/root_ca-key.pem
+        networks:
+            backend:
+                ipv4_address: 172.250.0.87
+    mongo:
+        image: mongo:3.3
+        container_name: mongo_test
+        volumes:
+            - ./data/:/data/db
+        ports:
+            - "27017:27017"
+        command: --smallfiles --rest
+        entrypoint: mongod --dbpath /data/db
+        networks:
+            backend:
+                ipv4_address: 172.250.0.88
+
+networks:
+    backend:
+        driver: bridge
+        ipam:
+            driver: default
+            config:
+                - subnet: 172.250.0.0/24
+                  gateway: 172.250.0.1
