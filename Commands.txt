@@ -15,3 +15,12 @@ OR
 docker run -p 80:80 -d -P -v /home/admin/master/testsite:/usr/share/nginx/html \
 
 then, enter: --name mysite nginx
+
+Copy file from a container:
+docker cp testsite:/usr/share/nginx/html/index.html .
+(docker cp <container>:/path/to/file.ext .)
+
+Put it back in the container:
+docker cp index.html testsite:/usr/share/nginx/html/index.html
+(docker cp file.ext <container>:/path/to/file.ext)
+
