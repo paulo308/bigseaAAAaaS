@@ -1,12 +1,13 @@
+
 version: '2'
 services:
     nginx:
         image: nginx:latest
         container_name: nginx
         ports:
-            - "8081:8081"
+            - "80:80"
         volumes:
-            - ./web/:/usr/share/nginx/html/
+            - /home/admin/master/testsite:/usr/share/nginx/html
         networks:
             backend:
                 ipv4_address: 172.250.0.86
