@@ -1,10 +1,20 @@
 version: '2'
 services:
-    cfssl:
+    nginx:
+        image: nginx:latest
+        container_name: nginx
+        ports:
+            - "8081:8081"
+        volumes:
+            - ./web/:/usr/share/nginx/html/
+        networks:
+            backend:
+                ipv4_address: 172.250.0.86
+    cfssl:  
         image: cfssl/cfssl:latest
         container_name: cfssl
         ports:
-          - "8888:8888"
+            - "8888:8888"
         volumes:
             - ./certs/:/certs
         entrypoint: cfssl serve -address "172.250.0.87" -ca /certs/root_ca.pem -ca-key /certs/root_ca-key.pem
