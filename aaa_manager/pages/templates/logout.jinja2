@@ -1,0 +1,21 @@
+{% extends "base_template.jinja2" %}
+
+{% set description = 'Logout page' %}
+{% set title = 'Logout' %}
+
+{% block scripts %}
+    {{ super() }}
+    <script src="https://unpkg.com/leaflet@1.0.0-rc.3/dist/leaflet.js"></script>
+    <script src="/static/js/login.js"></script>
+{% endblock %}
+
+{% block styles %}
+    {{ super() }}
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.0-rc.3/dist/leaflet.css"/>
+{% endblock %}
+
+{% block main_content %}
+
+<p>logged out.</p>
+
+{% endblock %}
