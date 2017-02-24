@@ -6,4 +6,4 @@ for network in $(docker network ls -q -f "type=custom"); do
     docker network rm $network
 done
 
-docker-compose -f demo.yml up --build 
+docker-compose -f docker-compose.yml up --build 

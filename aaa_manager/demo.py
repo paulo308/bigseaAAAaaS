@@ -1,12 +1,9 @@
 from aaa_manager.route import Route
 from pyramid.view import view_config
+from aaa_manager.authentication import AuthenticationManager
 import logging
 import json
 import jsonschema
-#from evaluation_engine.exceptions import InvalidJsonError
-#from evaluation_engine.model.internal_scan import InternalScan
-#from evaluation_engine.model.connection_data import ConnectionData
-#from evaluation_engine.tasks.connection_data_analysis import ConnectionDataDisplayTask
 
 log = logging.getLogger(__name__)
 
@@ -16,6 +13,7 @@ class DemoWebView:
     def __init__(self, request):
         self.request = request
         self._settings = request.registry.settings
+        self.authentication = AuthenticationManager()
 
     @view_config(route_name=Route.WEB,
                  renderer='home.jinja2')
@@ -47,7 +45,7 @@ class DemoRestView:
         self._data = self._settings['data']
 
     @view_config(route_name=Route.GET_CHECKIN, renderer='json')
-    def get_checkin_state(self):
+    def checkin_data(self):
         """
         Retrives the checkin state.
 
@@ -58,14 +56,12 @@ class DemoRestView:
         Returns:
             (dict): containing the checkin state
         """
-
-        # Dummy data to test webpage (create device info)
         self._settings['data'] = json_body
         return {}
 
         
     @view_config(route_name=Route.GET_CHECKOUT, renderer='json')
-    def checkout_state(self):
+    def checkout_data(self):
         """
         Retrives the checkout.
 

@@ -1,13 +1,8 @@
 """Main module of backend, where controller and view paths are defined"""
 import logging
 
-#from evaluation_engine.model.connection_data import ConnectionData
-#from evaluation_engine.model.internal_scan import InternalScan
-#from evaluation_engine.model.mobile_data import MobileDataRequest
-#from evaluation_engine.tasks.internal_scan_analysis import InternalScanAnalysisTask
-#from evaluation_engine.tasks.connection_data_analysis import ConnectionDataDisplayTask
-#from evaluation_engine.tasks.mobile_analysis import MobileRequest, MobileTask
 from aaa_manager import Route
+from aaa_manager.authentication import AuthenticationManager, Auth
 from pyramid.view import view_config
 
 log = logging.getLogger(__name__)
@@ -20,21 +15,33 @@ class RestView:
         self.request = request
         self._settings = request.registry.settings
         self._data = self._settings['data']
+        self.authentication = AuthenticationManager()
 
     @view_config(route_name=Route.CHECKIN,
                  request_method='POST',
-                 accept='application/json',
-                 renderer='json')
+                 renderer='string')
     def checkin(self):
         """ This method is called from **/engine/api/checkin**.
         """
-        if self.request.params['user'] == 'dc' and \
-                        self.request.params['password'] ==\
-                        'egJz7Rqw7tsJOLLE9UaXaSN09OAhNawq8HhZg7KrGmM=':
+        log.info('entrou')
+        #result = self.authentication.insert_user(1, {'infra': {'username': 'testeinfra', 'password': '4321'}, 'users': [{'username': 'teste', 'password': '1234'}]})
+        #log.info('result: %s' % result[0])
+
+        #if self.request.params['user'] == 'teste' and \
+        #                self.request.params['pwd'] == '1234':
+        usr = self.request.params['user']
+        pwd = self.request.params['pwd']
+        log.info('usr: %s' % usr)
+        log.info('pwd: %s' % pwd)
+        result = self.authentication.access_app(usr, self.authentication._hash_password(pwd), Auth.USERS)
+        log.info('result: %s' % result)
+        if result is not None:
             # REST API logged in
+            log.info('#### authenticated!!!!')
             return {}
         else:
             return 401
+        return {}
 
     @view_config(route_name=Route.CHECKOUT,
                  request_method='POST',

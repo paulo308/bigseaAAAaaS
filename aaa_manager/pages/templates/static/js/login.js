@@ -1,22 +1,26 @@
-// Login functions
-function onSignIn(googleUser) {
-  var profile = googleUser.getBasicProfile();
-  var id_token = googleUser.getAuthResponse().id_token;
-  
-  console.log('ID: ' + profile.getId()); // Do not send to your backend! Use an ID token instead.
-  console.log('Name: ' + profile.getName());
-  console.log('Image URL: ' + profile.getImageUrl());
-  console.log('Email: ' + profile.getEmail()); // This is null if the 'email' scope is not present.
 
-  $('#is_logged').text('logged');
-  window.location.replace('http://localhost:9000/')
+$(function() {
+  // Handler for .ready() called.
+  console.log('ok1');
+  insert_user();
+});
+
+function get_apps(){
+
 }
 
-function signOut() {
-  var auth2 = gapi.auth2.getAuthInstance();
-  auth2.signOut().then(function () {
-    console.log('User signed out.');
-  });
-  $('#is_logged').text('not logged');
-  window.location.replace('http://localhost:9000/web/logout')
+function get_users(app_id){
+
+}
+
+function insert_user(){
+	$.ajax({
+            url: '/engine/api/checkin_data',
+            type: 'post',
+            dataType: 'json',
+            data: {},
+            success: function (result) {
+                console.log(result)
+            },
+        });
 }
