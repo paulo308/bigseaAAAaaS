@@ -19,8 +19,11 @@ services:
         container_name: nginx
         ports:
             - "80:80"
+            - "443:443"
+            - "8080:8080"
         volumes:
             - /home/admin/master/testsite:/usr/share/nginx/html
+            - /etc/letsencrypt:/etc/letsencrypt
         networks:
             backend:
                 ipv4_address: 172.250.0.86
