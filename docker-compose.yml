@@ -1,23 +1,6 @@
 
 version: '2'
 services:
-    nginx:
-        image: nginx:latest
-        container_name: nginx
-        expose:
-	    - "443"
-	    - "8080"
-	    - "80"
-	ports:
-            - "80:80"
-            - "8080:8080"
-            - "443:443" 
-        volumes:
-            - /home/admin/master/testsite:/usr/share/nginx/html
-            - /etc/letsencrypt:/etc/letsencrypt
-        networks:
-            backend:
-                ipv4_address: 172.250.0.86
     aaa_manager:
         build: .
         image: aaa_manager:latest
@@ -31,6 +14,19 @@ services:
         networks:
             backend:
                 ipv4_address: 172.250.0.85
+    nginx:
+        image: nginx:latest
+        container_name: nginx
+        ports:
+            - "80:80"
+            - "443:443"
+            - "8080:8080"
+        volumes:
+            - /home/admin/master/testsite:/usr/share/nginx/html
+            - /etc/letsencrypt:/etc/letsencrypt
+        networks:
+            backend:
+                ipv4_address: 172.250.0.86
     cfssl:  
         image: cfssl/cfssl:latest
         container_name: cfssl

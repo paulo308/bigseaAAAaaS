@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="{{ description }}"/>
+	<meta name="google-signin-client_id" content="1034044363493-ivkretpt8g6o47pub0rdtg73mp2gpt8k.apps.googleusercontent.com">
+        <title>{{title}}</title>
+        
+        {% block scripts %}
+        <script src="/static/js/jquery-2.2.1.min.js"></script>
+        <script src="/static/js/bootstrap.min.js"></script>
+        {% endblock %}
+
+        {% block styles %}
+        <link rel="stylesheet" href="/static/css/bootstrap.min.css">
+        <link rel="stylesheet" href="/static/css/proto.css">
+        {% endblock %}
+
+    </head>
+    <body>
+
+        <div id="content" class="container-fluid">     
+            <nav class="navbar navbar-default navbar-inverse" role="navigation">
+                <div class="container-fluid">
+                    <div class="navbar-header">
+                        <button type="button" class="navbar-toggle" 
+                        data-toggle="collapse" data-target="#navSection">
+                            <span class="sr-only">Toggle navigation</span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                        </button>
+                    </div>
+                    <div class="collapse navbar-collapse" id="navSection">
+                        <ul class="nav navbar-nav navbar-left">
+                             <li><a href="/web">Home</a></li>
+                        </ul>
+                        <ul class="nav navbar-nav navbar-right">
+                            <li class="item.status">
+                                <a href="/web/checkin">Login</a>
+                            </li>
+                            <li class="item.status">
+                                <a href="/web/checkout">Logout</a>
+                            </li>
+                        </ul> 
+                    </div><!-- /.navbar-collapse -->
+                </div><!-- /.container-fluid -->
+            </nav>
+
+            {% block main_content %}
+            {% endblock %}
+        </div>
+    </body>
+</html>

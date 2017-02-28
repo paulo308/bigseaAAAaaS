@@ -1,0 +1,14 @@
+pyramid==1.7.3
+pyramid_chameleon==0.3
+pyramid_debugtoolbar==3.0.4
+pyramid-exclog==0.7
+pyramid_jinja2==2.6.2
+jsonschema==2.5.1
+behave==1.2.5
+waitress==1.0.0
+paste==2.0.3
+gunicorn==19.6.0
+gevent==1.1.2
+greenlet==0.4.10
+requests==2.11.1
+pymongo==3.1.1
