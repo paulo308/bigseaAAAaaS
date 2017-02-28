@@ -1,0 +1,67 @@
+
+version: '2'
+services:
+    nginx:
+        image: nginx:latest
+        container_name: nginx
+        expose:
+	    - "443"
+	    - "8080"
+	    - "80"
+	ports:
+            - "80:80"
+            - "8080:8080"
+            - "443:443" 
+        volumes:
+            - /home/admin/master/testsite:/usr/share/nginx/html
+            - /etc/letsencrypt:/etc/letsencrypt
+        networks:
+            backend:
+                ipv4_address: 172.250.0.86
+    aaa_manager:
+        build: .
+        image: aaa_manager:latest
+        volumes:
+            - ./:/usr/src/app
+        ports:
+            - "9000:9000"
+        depends_on:
+            - mongo
+            - cfssl
+        networks:
+            backend:
+                ipv4_address: 172.250.0.85
+    cfssl:  
+        image: cfssl/cfssl:latest
+        container_name: cfssl
+        ports:
+            - "8888:8888"
+        volumes:
+            - ./certs/:/certs
+        entrypoint: cfssl serve -address "172.250.0.87" -ca /certs/root_ca.pem -ca-key /certs/root_ca-key.pem
+        networks:
+            backend:
+                ipv4_address: 172.250.0.87
+    mongo:
+        image: mongo:3.3
+        container_name: mongo_test
+        volumes:
+            - ./data/:/data/db
+            - ./certs/:/certs
+        ports:
+            - "27017:27017"
+        command: --smallfiles --rest
+        #entrypoint: mongod --port 27017 --clusterAuthMode x509 --sslMode requireSSL --sslPEMKeyFile /certs/mongo_crt.pem --sslCAFile /certs/root_ca.pem --dbpath /data/db
+        entrypoint: mongod --port 27017 --dbpath /data/db
+        networks:
+            backend:
+                ipv4_address: 172.250.0.88
+
+networks:
+    backend:
+        driver: bridge
+        ipam:
+            driver: default
+            config:
+                - subnet: 172.250.0.0/24
+                  gateway: 172.250.0.1
