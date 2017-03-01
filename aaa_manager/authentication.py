@@ -2,6 +2,8 @@
 import logging
 import hashlib
 import copy
+import json
+import datetime
 from enum import Enum
 from aaa_manager.basedb import BaseDB
 
@@ -81,8 +83,8 @@ class AuthenticationManager:
                         return False
         return True
 
-    def _hash_password(self, password):
-        """Hashes a password using SHA-512.
+    def _hash(self, data):
+        """Hashes a string using SHA-512.
 
         Args:
             password (str): the password to be hashed
@@ -90,7 +92,7 @@ class AuthenticationManager:
         Returns:
             str: the digest of the hashed password in hexadecimal digits
         """
-        return hashlib.sha512(password.encode()).hexdigest()
+        return hashlib.sha512(data.encode()).hexdigest()
 
     def get_all_users(self):
         """Get all users
@@ -130,11 +132,11 @@ class AuthenticationManager:
             return None, 'infra'
         auth = copy.deepcopy(auth_info)
         for user in auth['users']:
-            user['password'] = self._hash_password(user['password'])
+            user['password'] = self._hash(user['password'])
             if not self._is_user_unique(app_id, user['username']):
                 return None, 'users'
 
-        auth['infra']['password'] = self._hash_password(
+        auth['infra']['password'] = self._hash(
             auth['infra']['password'])
 
         return self.basedb.insert(USER_COLLECTION, USER_KEY, app_id,
@@ -186,11 +188,11 @@ class AuthenticationManager:
             return None, 'infra'
         auth = copy.deepcopy(auth_new_info)
         for user in auth['users']:
-            user['password'] = self._hash_password(user['password'])
+            user['password'] = self._hash(user['password'])
             if not self._is_app_unique(app_id, user['username']):
                 return None, 'users'
 
-        auth['infra']['password'] = self._hash_password(
+        auth['infra']['password'] = self._hash(
             auth['infra']['password'])
         return self.basedb.update(USER_COLLECTION, USER_KEY, app_id,
                                         USER_ITEM, auth_old_info,
@@ -216,11 +218,41 @@ class AuthenticationManager:
         if data is not None:
             data = data[USER_ITEM]['infra']
             if data['username'] == username and \
-                data['password'] == self._hash_password(password):
+                data['password'] == self._hash(password):
                 return True, 'match'
             else:
                 status = 'username and/or password do not match'
         return False, status
+
+    def generate_token(self, user):
+        return self._hash(json.dumps(user)+datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+    
+    def insert_token(self, app_id, user, token):
+        return self.basedb.insert('Token', 'token', token, 'data', {'app_id': app_id, 'user': user})
+
+    def verify_token(self, app_id, user, token):
+        LOG.info('#### verify_token %s %s %s' % (app_id, user, token))
+        result = list(self.basedb.get('Token', 'token', token))
+        LOG.info('#### result: %s' % result)
+        for item in result:
+            LOG.info('#### item: %s' % item)
+            if 'data' in item:
+                for data in item['data']:
+                    LOG.info('#### data: %s' % data)
+                    if 'app_id' in data and data['app_id'] == app_id and\
+                        'user' in data and data['user'] == user:
+                            return True;
+        return False
+
+    def get_token(self, app_id, user):
+        result = list(self.basedb.get_all('Token'))
+        for item in result:
+            if 'data' in item:
+                for data in item['data']:
+                    if 'app_id' in data and data['app_id'] == app_id and\
+                        'user' in data and data['user'] == user:
+                            return item['token']
+        return None
 
     def access_app(self, username, password, auth_type=Auth.USERS):
         """Retrieves a user based on a user username/password pair
@@ -235,7 +267,6 @@ class AuthenticationManager:
                 or None if any
         """
         users = self.get_all_users()
-        LOG.info('#### users: %s' % users)
         for user in users:
             if auth_type == Auth.USERS:
                 for user in user[USER_ITEM]['users']:
@@ -267,3 +298,4 @@ class AuthenticationManager:
             if infra['username'] == username:
                 return user[USER_KEY]
         return None
+

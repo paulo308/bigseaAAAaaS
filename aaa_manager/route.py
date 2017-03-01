@@ -8,6 +8,7 @@ class Route:
     WEB_SETTINGS = "settings"
     # REST API routes
     GET_CHECKIN = "checkin_data"
+    VERIFY_TOKEN = "verify_token"
     GET_CHECKOUT = "checkout_data"
     # REST API routes
     CHECKIN = "checkin_state"

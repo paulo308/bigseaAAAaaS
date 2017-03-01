@@ -23,25 +23,46 @@ class RestView:
     def checkin(self):
         """ This method is called from **/engine/api/checkin**.
         """
-        log.info('entrou')
         #result = self.authentication.insert_user(1, {'infra': {'username': 'testeinfra', 'password': '4321'}, 'users': [{'username': 'teste', 'password': '1234'}]})
         #log.info('result: %s' % result[0])
 
-        #if self.request.params['user'] == 'teste' and \
-        #                self.request.params['pwd'] == '1234':
         usr = self.request.params['user']
         pwd = self.request.params['pwd']
         log.info('usr: %s' % usr)
         log.info('pwd: %s' % pwd)
-        result = self.authentication.access_app(usr, self.authentication._hash_password(pwd), Auth.USERS)
-        log.info('result: %s' % result)
-        if result is not None:
-            # REST API logged in
+        user = self.authentication.access_app(usr, self.authentication._hash(pwd), Auth.USERS)
+        token = self.authentication.generate_token(user)
+        log.info('user: %s' % user)
+        log.info('token: %s' % token)
+        response = self.authentication.insert_token(1, user, token)
+        log.info('response: %s' % response)
+        verify = self.authentication.verify_token(1, user, token)
+        log.info('verify: %s' % verify)
+        
+        if user is not None:
             log.info('#### authenticated!!!!')
-            return {}
+            return {'token': token}
         else:
             return 401
         return {}
+    
+    @view_config(route_name=Route.VERIFY_TOKEN,
+                 request_method='POST',
+                 accept='application/json',
+                 renderer='json')
+    def verify_token(self):
+        """ This method is called from **/engine/api/verify_token**.
+        """
+        usr = self.request.params['user']
+        pwd = self.request.params['pwd']
+        log.info('usr: %s' % usr)
+        log.info('pwd: %s' % pwd)
+        user = self.authentication.access_app(usr, self.authentication._hash(pwd), Auth.USERS)
+        log.info('user: %s' % user)
+        token = self.authentication.get_token(1, user)
+        log.info('token: %s' % token)
+        response = self.authentication.verify_token(1, user, token)
+        return {'response': response}
 
     @view_config(route_name=Route.CHECKOUT,
                  request_method='POST',
@@ -50,11 +71,5 @@ class RestView:
     def checkout(self):
         """ This method is called from **/engine/api/checkout**.
         """
-        int_scan = Checkout(self.request.json_body)
-        if self.request.params['user'] == 'dc' and\
-                        self.request.params['password'] ==\
-                        'egJz7Rqw7tsJOLLE9UaXaSN09OAhNawq8HhZg7KrGmM=':
-            # REST API logged out
-            return {}
-        else:
-            return 401
+        data = self.request.json_body
+        return {}

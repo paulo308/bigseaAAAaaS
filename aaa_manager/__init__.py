@@ -21,6 +21,7 @@ def main(global_config, **settings):
     config.add_route(Route.GET_CHECKOUT, '/json/checkout')
     # Add device REST API routes
     config.add_route(Route.CHECKIN, '/engine/api/checkin_data')
+    config.add_route(Route.VERIFY_TOKEN, '/engine/api/verify_token')
     config.add_route(Route.CHECKOUT, '/engine/api/checkout_data')
     # Scan and load classes with configuration decoration (@view_config)
     config.scan()
