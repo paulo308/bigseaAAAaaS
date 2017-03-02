@@ -28,20 +28,12 @@ class RestView:
 
         usr = self.request.params['user']
         pwd = self.request.params['pwd']
-        log.info('usr: %s' % usr)
-        log.info('pwd: %s' % pwd)
         user = self.authentication.access_app(usr, self.authentication._hash(pwd), Auth.USERS)
         token = self.authentication.generate_token(user)
-        log.info('user: %s' % user)
-        log.info('token: %s' % token)
         response = self.authentication.insert_token(1, user, token)
-        log.info('response: %s' % response)
-        verify = self.authentication.verify_token(1, user, token)
-        log.info('verify: %s' % verify)
         
         if user is not None:
-            log.info('#### authenticated!!!!')
-            return {'token': token}
+            return {'token': token, 'user': user}
         else:
             return 401
         return {}
@@ -53,15 +45,8 @@ class RestView:
     def verify_token(self):
         """ This method is called from **/engine/api/verify_token**.
         """
-        usr = self.request.params['user']
-        pwd = self.request.params['pwd']
-        log.info('usr: %s' % usr)
-        log.info('pwd: %s' % pwd)
-        user = self.authentication.access_app(usr, self.authentication._hash(pwd), Auth.USERS)
-        log.info('user: %s' % user)
-        token = self.authentication.get_token(1, user)
-        log.info('token: %s' % token)
-        response = self.authentication.verify_token(1, user, token)
+        token = self.request.params['token']
+        response = self.authentication.verify_token(1, token)
         return {'response': response}
 
     @view_config(route_name=Route.CHECKOUT,

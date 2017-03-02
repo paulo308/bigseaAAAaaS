@@ -33,7 +33,7 @@ function verify_token(){
     $.ajax({
         url: '/engine/api/verify_token',
         type: 'post',
-        data: {'user': $('#usr').val(), 'pwd': $('#pwd').val()},
+        data: {'user': $('#usr').val(), 'pwd': $('#pwd').val(), 'token': $('#token').val()},
         success: function (result) {
             console.log(result)
         }

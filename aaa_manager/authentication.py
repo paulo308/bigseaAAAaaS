@@ -230,19 +230,14 @@ class AuthenticationManager:
     def insert_token(self, app_id, user, token):
         return self.basedb.insert('Token', 'token', token, 'data', {'app_id': app_id, 'user': user})
 
-    def verify_token(self, app_id, user, token):
-        LOG.info('#### verify_token %s %s %s' % (app_id, user, token))
+    def verify_token(self, app_id, token):
         result = list(self.basedb.get('Token', 'token', token))
-        LOG.info('#### result: %s' % result)
         for item in result:
-            LOG.info('#### item: %s' % item)
             if 'data' in item:
                 for data in item['data']:
-                    LOG.info('#### data: %s' % data)
-                    if 'app_id' in data and data['app_id'] == app_id and\
-                        'user' in data and data['user'] == user:
-                            return True;
-        return False
+                    if 'app_id' in data and data['app_id'] == app_id:
+                        return data['user']['username'];
+        return 'invalid token'
 
     def get_token(self, app_id, user):
         result = list(self.basedb.get_all('Token'))
