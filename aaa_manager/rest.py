@@ -23,7 +23,7 @@ class RestView:
     def checkin(self):
         """ This method is called from **/engine/api/checkin**.
         """
-        #result = self.authentication.insert_user(1, {'infra': {'username': 'testeinfra', 'password': '4321'}, 'users': [{'username': 'teste', 'password': '1234'}]})
+        #result = self.authentication.insert_user(1, {'admin': {'username': 'testeadmin', 'password': '4321'}, 'users': [{'username': 'teste', 'password': '1234'}]})
         #log.info('result: %s' % result[0])
 
         usr = self.request.params['user']

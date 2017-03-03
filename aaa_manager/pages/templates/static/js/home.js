@@ -1,11 +1,9 @@
 
 $(function() {
     $( "#btn_login" ).click(function() {
-        console.log('ok2');
         login();
     });
     $( "#btn_verify_token" ).click(function() {
-        console.log('ok3');
         verify_token();
     });
 });
