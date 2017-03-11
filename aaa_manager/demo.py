@@ -29,10 +29,10 @@ class DemoWebView:
         """This method is called from **/web/checkin**"""
         return ''
 
-    @view_config(route_name=Route.WEB_CHECKOUT,
-                 renderer='logout.jinja2')
-    def checkout(self):
-        """This method is called from **/web/checkout**"""
+    @view_config(route_name=Route.WEB_SIGNUP,
+                 renderer='signup.jinja2')
+    def signup(self):
+        """This method is called from **/web/signup**"""
         return ''
 
 
@@ -60,14 +60,14 @@ class DemoRestView:
         return {}
 
         
-    @view_config(route_name=Route.GET_CHECKOUT, renderer='json')
-    def checkout_data(self):
+    @view_config(route_name=Route.GET_SIGNUP, renderer='json')
+    def signup_data(self):
         """
         Retrives the checkout.
 
         Note:
             Used by the web interface from 
-            **/json/get_checkout**
+            **/json/get_signup**
 
         Returns:
             (dict): containing the checkout state

@@ -2,6 +2,8 @@
 import logging
 import hashlib
 import copy
+import json
+import datetime
 from enum import Enum
 from aaa_manager.basedb import BaseDB
 
@@ -10,14 +12,13 @@ _DEFAULT_DB_HOST = 'mongo'
 _DEFAULT_DB_PORT = 27017
 
 USER_COLLECTION = 'users'
-USER_KEY = 'app_id'
+APP_KEY = 'app_id'
 USER_ITEM = 'auth'
 
 
 class Auth(Enum):
     """ Authentication being verified """
-    ADMIN = 0
-    INFRA = 1
+    ADMIN = 1
     USERS = 2
 
 class AuthenticationManager:
@@ -30,59 +31,49 @@ class AuthenticationManager:
 
     def _format_user_dict(self, user):
         return {
-            USER_KEY: user[USER_KEY],
+            APP_KEY: user[APP_KEY],
             USER_ITEM: user[USER_ITEM][0]
         }
 
-    def _is_infra_unique(self, app_id, username):
-        """Verifies if the infra username on a user data is unique
+    def _is_admin_unique(self, app_id, username):
+        """Verifies if the admin username on a app data is unique
 
         Args:
-            app_id (int): the user key
+            app_id (int): the app key
             username (str): the username being tested
 
         Returns:
-            boolean: False if the infra username is already present, True
+            boolean: False if the admin username is already present, True
                 otherwise
         """
-        users = self.get_all_users()
+        users = list(self.basedb.get(USER_COLLECTION, APP_KEY, app_id))
         for elem in users:
-            if elem[USER_KEY] != app_id:
-                if elem[USER_ITEM]['infra']['username'] == username:
+            for elem_item in elem[USER_ITEM]:
+                if elem_item['admin']['username'] == username:
                     return False
         return True
 
 
     def _is_user_unique(self, app_id, username):
-        """Verifies if the username on a user data is unique
+        """Verifies if the username on a app data is unique
 
         Args:
-            app_id (int): the user key
+            app_id (int): the app key
             username (str): the username being tested
 
         Returns:
             boolean: False if the user username is already present, True
                 otherwise
         """
-        users = self.get_all_users()
+        users = list(self.basedb.get(USER_COLLECTION, APP_KEY, app_id))
         for user in users:
-            # Verifies repetition for the userlist of the same app
-            if user[USER_KEY] == app_id:
-                count = 0
-                for elem in user[USER_ITEM]['users']:
-                    if elem['username'] == username:
-                        count += 1
-                if count > 1:
+            for elem in user[USER_ITEM]:
+                if elem['username'] == username:
                     return False
-            # Verifies others users
-            else:
-                for elem in user[USER_ITEM]['users']:
-                    if elem['username'] == username:
-                        return False
         return True
 
-    def _hash_password(self, password):
-        """Hashes a password using SHA-512.
+    def _hash(self, data):
+        """Hashes a string using SHA-512.
 
         Args:
             password (str): the password to be hashed
@@ -90,7 +81,7 @@ class AuthenticationManager:
         Returns:
             str: the digest of the hashed password in hexadecimal digits
         """
-        return hashlib.sha512(password.encode()).hexdigest()
+        return hashlib.sha512(data.encode()).hexdigest()
 
     def get_all_users(self):
         """Get all users
@@ -103,44 +94,33 @@ class AuthenticationManager:
             users.append(self._format_user_dict(user))
         return users
 
-    def insert_user(self, app_id, auth_info):
+    def insert_user(self, app_id, user_info):
         """Inserts a new user entry on users collection in DB
 
         Args:
             app_id (int): the user key
             auth_info (dict): the user dict, should contain the users and
-                the infra's data, and a username/password pair
+                the admin's data, and a username/password pair
 
         Returns:
             object: The inserted object or None on failure
-            str: 'infra' if the cause of failure was repeated infra
+            str: 'admin' if the cause of failure was repeated admin
                 authentication, 'users' for a non unique username,
                 'id' if the app_id already exists,
                 'username' for duplicated username on the auth_info
         """
-        users = self.get_all_users()
-        for user in users:
-            if user[USER_KEY] == app_id:
-                return None, 'id'
-        if (len(set([user['username'] for user in auth_info['users']])) <
-            len(auth_info['users'])):
-            return None, 'username'
-        if not self._is_infra_unique(app_id,
-                                      auth_info['infra']['username']):
-            return None, 'infra'
-        auth = copy.deepcopy(auth_info)
-        for user in auth['users']:
-            user['password'] = self._hash_password(user['password'])
-            if not self._is_user_unique(app_id, user['username']):
-                return None, 'users'
+        users = self.basedb.get(USER_COLLECTION, APP_KEY, app_id)
+        if user_info['username'] == 'admin':
+            return None, 'admin'
+        auth = copy.deepcopy(user_info)
+        auth['password'] = self._hash(auth['password'])
+        if not self._is_user_unique(app_id, auth['username']):
+            return None, 'users'
 
-        auth['infra']['password'] = self._hash_password(
-            auth['infra']['password'])
-
-        return self.basedb.insert(USER_COLLECTION, USER_KEY, app_id,
+        return self.basedb.insert(USER_COLLECTION, APP_KEY, app_id,
                                         USER_ITEM, auth), ''
 
-    def remove_user(self, app_id):
+    def remove_app(self, app_id):
         """Removes a user entry on users collection in DB
 
         Args:
@@ -149,80 +129,78 @@ class AuthenticationManager:
         Returns:
             The kdb remove operation result
         """
-        return self.basedb.remove(USER_COLLECTION, USER_KEY, app_id)
+        return self.basedb.remove(USER_COLLECTION, APP_KEY, app_id)
 
-    def get_user(self, app_id):
-        """Gets the infra info for a given user id
 
-        Args:
-            app_id (int): the user key
-
-        Returns:
-            dict: the dict containing the retrieved result, or None if not found
-        """
-
-        ret = list(self.basedb.get(USER_COLLECTION, USER_KEY, app_id))
-
-        if len(ret) == 0:
-            return None
-        else:
-            return self._format_user_dict(ret[0])
-
-    def update_user(self, app_id, auth_old_info, auth_new_info):
-        """Updates a user entry on users collection in DB
+    def generate_token(self, user):
+        """Generates a token that can be used to authenticate user to access
+        app. 
 
         Args:
-            app_id (int): the user key
-            auth_old_info (dict): the current item part of the user data
-            auth_new_info (dict): the modified item part of the user data
+            user (dict): user information
 
-        Returns:
-            int: the number of elements modified, None if failure
-            str: 'infra' if the cause of failure was repeated infra
-                authentication or 'user' for a not unique username
+        Returns: 
+            str: hexadecimal representation of token
         """
-        if not self._is_infra_unique(app_id,
-                                      auth_new_info['infra']['username']):
-            return None, 'infra'
-        auth = copy.deepcopy(auth_new_info)
-        for user in auth['users']:
-            user['password'] = self._hash_password(user['password'])
-            if not self._is_app_unique(app_id, user['username']):
-                return None, 'users'
-
-        auth['infra']['password'] = self._hash_password(
-            auth['infra']['password'])
-        return self.basedb.update(USER_COLLECTION, USER_KEY, app_id,
-                                        USER_ITEM, auth_old_info,
-                                        auth), ''
-
-
-    def verify_infra_credential(self, app_id, username, password):
-        """Verifies if the given infra username/password pair matches the
-        expected for a given user
+        return self._hash(json.dumps(user)+datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+    
+    def remove_token(self, token):
+        """Remove token from DB.
 
         Args:
-            app_id (int): the user key
-            username (str): the inserted username
-            password (str): the inserted password
+            token (str): hexidecimal token
+
+        Returns: 
+            obj: mongodb result
+        """
+        return self.basedb.remove('Token', 'token', token)
+
+    def insert_token(self, app_id, user, token):
+        """Insert token into DB.
+
+        Args:
+            app_id (int): application id
+            user (dict): user information
+            token (str): hexidecimal token
+
+        Returns: 
+            obj: mongodb result
+        """
+        return self.basedb.insert('Token', 'token', token, 'data', {'app_id': app_id, 'user': user})
+
+    def verify_token(self, app_id, token):
+        """Verify token validity.
+
+        Args:
+            app_id (int): application id
+            token (str): hexidecimal token
 
         Returns:
-            boolean: if the username and password are a match or not
-            str: a string informing 'match', 'user not found' or
-                'username and/or password do not match' to describe the result
+            str: username corresponding to token if valid, 
+            'invalid token' otherwise
         """
-        data = self.get_user(app_id)
-        status = 'user not found'
-        if data is not None:
-            data = data[USER_ITEM]['infra']
-            if data['username'] == username and \
-                data['password'] == self._hash_password(password):
-                return True, 'match'
-            else:
-                status = 'username and/or password do not match'
-        return False, status
+        result = list(self.basedb.get('Token', 'token', token))
+        for item in result:
+            if 'data' in item:
+                for data in item['data']:
+                    if 'app_id' in data and data['app_id'] == app_id:
+                        return data['user']['username'];
+        return 'invalid token'
 
-    def access_app(self, username, password, auth_type=Auth.USERS):
+    def get_token(self, app_id, user):
+        """Get token from database
+
+        """
+        result = list(self.basedb.get_all('Token'))
+        for item in result:
+            if 'data' in item:
+                for data in item['data']:
+                    if 'app_id' in data and data['app_id'] == app_id and\
+                        'user' in data and data['user'] == user:
+                            return item['token']
+        return None
+
+    def access_app(self, app_id, username, password, auth_type=Auth.USERS):
         """Retrieves a user based on a user username/password pair
 
         Args:
@@ -234,36 +212,12 @@ class AuthenticationManager:
             dict: the user corresponding to the authentication pair match,
                 or None if any
         """
-        users = self.get_all_users()
-        LOG.info('#### users: %s' % users)
+        users = self.basedb.get(USER_COLLECTION, APP_KEY, app_id)
         for user in users:
             if auth_type == Auth.USERS:
-                for user in user[USER_ITEM]['users']:
-                    if user['username'] == username and user['password'] == \
+                for user_info in user[USER_ITEM]:
+                    if user_info['username'] == username and user_info['password'] == \
                         password:
-                        return user
-            else:
-                if user[USER_ITEM]['infra']['username'] == username and \
-                        user[USER_ITEM]['infra']['password'] == \
-                        password:
-                    return user
-        return None
-
-    def get_user_id(self, username):
-        """Retrieves a user id by identifing the user
-
-        Args:
-            username (str): the username to be used
-
-        Returns:
-            int: the user id, or None if not found
-        """
-        users = self.get_all_users()
-        for user in users:
-            for user in user[USER_ITEM]['users']:
-                if user['username'] == username:
-                    return user[USER_KEY]
-            infra = user[USER_ITEM]['infra']
-            if infra['username'] == username:
-                return user[USER_KEY]
+                        del user_info['password']
+                        return user_info
         return None

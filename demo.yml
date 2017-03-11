@@ -28,6 +28,7 @@ services:
         depends_on:
             - mongo
             - cfssl
+            - nginx
         networks:
             backend:
                 ipv4_address: 172.250.0.85

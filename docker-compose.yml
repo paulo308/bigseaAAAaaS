@@ -11,12 +11,17 @@ services:
         depends_on:
             - mongo
             - cfssl
+            - nginx
         networks:
             backend:
                 ipv4_address: 172.250.0.85
     nginx:
         image: nginx:latest
         container_name: nginx
+        expose:
+            - "80"
+            - "443"
+            - "8080"
         ports:
             - "80:80"
             - "443:443"
