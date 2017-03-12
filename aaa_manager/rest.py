@@ -93,5 +93,3 @@ class RestView:
             log.info('Username already exists...')
             return {'error': 'Username already exists. Please choose a different one.'}
         return {}
-
-
