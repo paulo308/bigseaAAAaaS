@@ -114,6 +114,8 @@ class AuthenticationManager:
             return None, 'admin'
         auth = copy.deepcopy(user_info)
         auth['password'] = self._hash(auth['password'])
+        LOG.info('#### users: %s' % list(users))
+        LOG.info('#### auth: %s' % auth)
         if not self._is_user_unique(app_id, auth['username']):
             return None, 'users'
 
@@ -166,7 +168,11 @@ class AuthenticationManager:
         Returns: 
             obj: mongodb result
         """
-        return self.basedb.insert('Token', 'token', token, 'data', {'app_id': app_id, 'user': user})
+        self.basedb.update('Token', 'token', token, 'data', 
+                {'app_id': app_id, 'user': user, 'status': 'valid'}, 
+                {'app_id': app_id, 'user': user, 'status': 'invalid'})
+        return self.basedb.insert('Token', 'token', token, 'data', 
+                {'app_id': app_id, 'user': user, 'status': 'valid'})
 
     def verify_token(self, app_id, token):
         """Verify token validity.
@@ -183,7 +189,8 @@ class AuthenticationManager:
         for item in result:
             if 'data' in item:
                 for data in item['data']:
-                    if 'app_id' in data and data['app_id'] == app_id:
+                    if 'app_id' in data and data['app_id'] == app_id\
+                            and 'status' in data and data['status'] == 'valid':
                         return data['user']['username'];
         return 'invalid token'
 
