@@ -95,19 +95,16 @@ class AuthenticationManager:
         return users
 
     def insert_user(self, app_id, user_info):
-        """Inserts a new user entry on users collection in DB
+        """
+        Inserts a new user entry on users collection in DB
 
         Args:
             app_id (int): the user key
-            auth_info (dict): the user dict, should contain the users and
-                the admin's data, and a username/password pair
+            auth_info (dict): the user dict, should contain the users and the admin's data, and a username/password pair
 
         Returns:
             object: The inserted object or None on failure
-            str: 'admin' if the cause of failure was repeated admin
-                authentication, 'users' for a non unique username,
-                'id' if the app_id already exists,
-                'username' for duplicated username on the auth_info
+            str: 'admin' if the cause of failure was repeated admin authentication, 'users' for a non unique username, 'id' if the app_id already exists, 'username' for duplicated username on the auth_info
         """
         users = self.basedb.get(USER_COLLECTION, APP_KEY, app_id)
         if user_info['username'] == 'admin':

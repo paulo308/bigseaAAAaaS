@@ -1,0 +1,319 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>aaa_manager.authentication &#8212; build  documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for aaa_manager.authentication</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;A interface for accessing users collection on DB&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">hashlib</span>
+<span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">datetime</span>
+<span class="kn">from</span> <span class="nn">enum</span> <span class="k">import</span> <span class="n">Enum</span>
+<span class="kn">from</span> <span class="nn">aaa_manager.basedb</span> <span class="k">import</span> <span class="n">BaseDB</span>
+
+<span class="n">LOG</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+<span class="n">_DEFAULT_DB_HOST</span> <span class="o">=</span> <span class="s1">&#39;mongo&#39;</span>
+<span class="n">_DEFAULT_DB_PORT</span> <span class="o">=</span> <span class="mi">27017</span>
+
+<span class="n">USER_COLLECTION</span> <span class="o">=</span> <span class="s1">&#39;users&#39;</span>
+<span class="n">APP_KEY</span> <span class="o">=</span> <span class="s1">&#39;app_id&#39;</span>
+<span class="n">USER_ITEM</span> <span class="o">=</span> <span class="s1">&#39;auth&#39;</span>
+
+
+<div class="viewcode-block" id="Auth"><a class="viewcode-back" href="../../index.html#aaa_manager.authentication.Auth">[docs]</a><span class="k">class</span> <span class="nc">Auth</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Authentication being verified &quot;&quot;&quot;</span>
+    <span class="n">ADMIN</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">USERS</span> <span class="o">=</span> <span class="mi">2</span></div>
+
+<div class="viewcode-block" id="AuthenticationManager"><a class="viewcode-back" href="../../index.html#aaa_manager.authentication.AuthenticationManager">[docs]</a><span class="k">class</span> <span class="nc">AuthenticationManager</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot; Provides an interface to access and manipulate user data collections&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="n">_DEFAULT_DB_HOST</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="n">_DEFAULT_DB_PORT</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">host</span> <span class="o">=</span> <span class="n">host</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">port</span> <span class="o">=</span> <span class="n">port</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">basedb</span> <span class="o">=</span> <span class="n">BaseDB</span><span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_format_user_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="n">APP_KEY</span><span class="p">:</span> <span class="n">user</span><span class="p">[</span><span class="n">APP_KEY</span><span class="p">],</span>
+            <span class="n">USER_ITEM</span><span class="p">:</span> <span class="n">user</span><span class="p">[</span><span class="n">USER_ITEM</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="p">}</span>
+
+    <span class="k">def</span> <span class="nf">_is_admin_unique</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_id</span><span class="p">,</span> <span class="n">username</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Verifies if the admin username on a app data is unique</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            app_id (int): the app key</span>
+<span class="sd">            username (str): the username being tested</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            boolean: False if the admin username is already present, True</span>
+<span class="sd">                otherwise</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">users</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">basedb</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">USER_COLLECTION</span><span class="p">,</span> <span class="n">APP_KEY</span><span class="p">,</span> <span class="n">app_id</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="n">users</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">elem_item</span> <span class="ow">in</span> <span class="n">elem</span><span class="p">[</span><span class="n">USER_ITEM</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="n">elem_item</span><span class="p">[</span><span class="s1">&#39;admin&#39;</span><span class="p">][</span><span class="s1">&#39;username&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">username</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="kc">True</span>
+
+
+    <span class="k">def</span> <span class="nf">_is_user_unique</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_id</span><span class="p">,</span> <span class="n">username</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Verifies if the username on a app data is unique</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            app_id (int): the app key</span>
+<span class="sd">            username (str): the username being tested</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            boolean: False if the user username is already present, True</span>
+<span class="sd">                otherwise</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">users</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">basedb</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">USER_COLLECTION</span><span class="p">,</span> <span class="n">APP_KEY</span><span class="p">,</span> <span class="n">app_id</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">user</span> <span class="ow">in</span> <span class="n">users</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="n">user</span><span class="p">[</span><span class="n">USER_ITEM</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="n">elem</span><span class="p">[</span><span class="s1">&#39;username&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">username</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="k">def</span> <span class="nf">_hash</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Hashes a string using SHA-512.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            password (str): the password to be hashed</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: the digest of the hashed password in hexadecimal digits</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha512</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
+
+<div class="viewcode-block" id="AuthenticationManager.get_all_users"><a class="viewcode-back" href="../../index.html#aaa_manager.authentication.AuthenticationManager.get_all_users">[docs]</a>    <span class="k">def</span> <span class="nf">get_all_users</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get all users</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dict: all users data</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">users</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">user</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">basedb</span><span class="o">.</span><span class="n">get_all</span><span class="p">(</span><span class="n">USER_COLLECTION</span><span class="p">):</span>
+            <span class="n">users</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_format_user_dict</span><span class="p">(</span><span class="n">user</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">users</span></div>
+
+<div class="viewcode-block" id="AuthenticationManager.insert_user"><a class="viewcode-back" href="../../index.html#aaa_manager.authentication.AuthenticationManager.insert_user">[docs]</a>    <span class="k">def</span> <span class="nf">insert_user</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_id</span><span class="p">,</span> <span class="n">user_info</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Inserts a new user entry on users collection in DB</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            app_id (int): the user key</span>
+<span class="sd">            auth_info (dict): the user dict, should contain the users and</span>
+<span class="sd">                the admin&#39;s data, and a username/password pair</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            object: The inserted object or None on failure</span>
+<span class="sd">            str: &#39;admin&#39; if the cause of failure was repeated admin</span>
+<span class="sd">                authentication, &#39;users&#39; for a non unique username,</span>
+<span class="sd">                &#39;id&#39; if the app_id already exists,</span>
+<span class="sd">                &#39;username&#39; for duplicated username on the auth_info</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">users</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">basedb</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">USER_COLLECTION</span><span class="p">,</span> <span class="n">APP_KEY</span><span class="p">,</span> <span class="n">app_id</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">user_info</span><span class="p">[</span><span class="s1">&#39;username&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;admin&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;admin&#39;</span>
+        <span class="n">auth</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">user_info</span><span class="p">)</span>
+        <span class="n">auth</span><span class="p">[</span><span class="s1">&#39;password&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hash</span><span class="p">(</span><span class="n">auth</span><span class="p">[</span><span class="s1">&#39;password&#39;</span><span class="p">])</span>
+        <span class="n">LOG</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;#### users: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="nb">list</span><span class="p">(</span><span class="n">users</span><span class="p">))</span>
+        <span class="n">LOG</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;#### auth: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">auth</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_user_unique</span><span class="p">(</span><span class="n">app_id</span><span class="p">,</span> <span class="n">auth</span><span class="p">[</span><span class="s1">&#39;username&#39;</span><span class="p">]):</span>
+            <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;users&#39;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">basedb</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">USER_COLLECTION</span><span class="p">,</span> <span class="n">APP_KEY</span><span class="p">,</span> <span class="n">app_id</span><span class="p">,</span>
+                                        <span class="n">USER_ITEM</span><span class="p">,</span> <span class="n">auth</span><span class="p">),</span> <span class="s1">&#39;&#39;</span></div>
+
+<div class="viewcode-block" id="AuthenticationManager.remove_app"><a class="viewcode-back" href="../../index.html#aaa_manager.authentication.AuthenticationManager.remove_app">[docs]</a>    <span class="k">def</span> <span class="nf">remove_app</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_id</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Removes a user entry on users collection in DB</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            app_id (int): the user key</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The kdb remove operation result</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">basedb</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">USER_COLLECTION</span><span class="p">,</span> <span class="n">APP_KEY</span><span class="p">,</span> <span class="n">app_id</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="AuthenticationManager.generate_token"><a class="viewcode-back" href="../../index.html#aaa_manager.authentication.AuthenticationManager.generate_token">[docs]</a>    <span class="k">def</span> <span class="nf">generate_token</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Generates a token that can be used to authenticate user to access</span>
+<span class="sd">        app. </span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            user (dict): user information</span>
+
+<span class="sd">        Returns: </span>
+<span class="sd">            str: hexadecimal representation of token</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hash</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">user</span><span class="p">)</span><span class="o">+</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M:%S&quot;</span><span class="p">))</span></div>
+    
+<div class="viewcode-block" id="AuthenticationManager.remove_token"><a class="viewcode-back" href="../../index.html#aaa_manager.authentication.AuthenticationManager.remove_token">[docs]</a>    <span class="k">def</span> <span class="nf">remove_token</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">token</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Remove token from DB.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            token (str): hexidecimal token</span>
+
+<span class="sd">        Returns: </span>
+<span class="sd">            obj: mongodb result</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">basedb</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s1">&#39;Token&#39;</span><span class="p">,</span> <span class="s1">&#39;token&#39;</span><span class="p">,</span> <span class="n">token</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AuthenticationManager.insert_token"><a class="viewcode-back" href="../../index.html#aaa_manager.authentication.AuthenticationManager.insert_token">[docs]</a>    <span class="k">def</span> <span class="nf">insert_token</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_id</span><span class="p">,</span> <span class="n">user</span><span class="p">,</span> <span class="n">token</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Insert token into DB.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            app_id (int): application id</span>
+<span class="sd">            user (dict): user information</span>
+<span class="sd">            token (str): hexidecimal token</span>
+
+<span class="sd">        Returns: </span>
+<span class="sd">            obj: mongodb result</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">basedb</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s1">&#39;Token&#39;</span><span class="p">,</span> <span class="s1">&#39;token&#39;</span><span class="p">,</span> <span class="n">token</span><span class="p">,</span> <span class="s1">&#39;data&#39;</span><span class="p">,</span> 
+                <span class="p">{</span><span class="s1">&#39;app_id&#39;</span><span class="p">:</span> <span class="n">app_id</span><span class="p">,</span> <span class="s1">&#39;user&#39;</span><span class="p">:</span> <span class="n">user</span><span class="p">,</span> <span class="s1">&#39;status&#39;</span><span class="p">:</span> <span class="s1">&#39;valid&#39;</span><span class="p">},</span> 
+                <span class="p">{</span><span class="s1">&#39;app_id&#39;</span><span class="p">:</span> <span class="n">app_id</span><span class="p">,</span> <span class="s1">&#39;user&#39;</span><span class="p">:</span> <span class="n">user</span><span class="p">,</span> <span class="s1">&#39;status&#39;</span><span class="p">:</span> <span class="s1">&#39;invalid&#39;</span><span class="p">})</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">basedb</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="s1">&#39;Token&#39;</span><span class="p">,</span> <span class="s1">&#39;token&#39;</span><span class="p">,</span> <span class="n">token</span><span class="p">,</span> <span class="s1">&#39;data&#39;</span><span class="p">,</span> 
+                <span class="p">{</span><span class="s1">&#39;app_id&#39;</span><span class="p">:</span> <span class="n">app_id</span><span class="p">,</span> <span class="s1">&#39;user&#39;</span><span class="p">:</span> <span class="n">user</span><span class="p">,</span> <span class="s1">&#39;status&#39;</span><span class="p">:</span> <span class="s1">&#39;valid&#39;</span><span class="p">})</span></div>
+
+<div class="viewcode-block" id="AuthenticationManager.verify_token"><a class="viewcode-back" href="../../index.html#aaa_manager.authentication.AuthenticationManager.verify_token">[docs]</a>    <span class="k">def</span> <span class="nf">verify_token</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_id</span><span class="p">,</span> <span class="n">token</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Verify token validity.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            app_id (int): application id</span>
+<span class="sd">            token (str): hexidecimal token</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: username corresponding to token if valid, </span>
+<span class="sd">            &#39;invalid token&#39; otherwise</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">basedb</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;Token&#39;</span><span class="p">,</span> <span class="s1">&#39;token&#39;</span><span class="p">,</span> <span class="n">token</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">result</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s1">&#39;data&#39;</span> <span class="ow">in</span> <span class="n">item</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">item</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]:</span>
+                    <span class="k">if</span> <span class="s1">&#39;app_id&#39;</span> <span class="ow">in</span> <span class="n">data</span> <span class="ow">and</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;app_id&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">app_id</span>\
+                            <span class="ow">and</span> <span class="s1">&#39;status&#39;</span> <span class="ow">in</span> <span class="n">data</span> <span class="ow">and</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;status&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;valid&#39;</span><span class="p">:</span>
+                        <span class="k">return</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;user&#39;</span><span class="p">][</span><span class="s1">&#39;username&#39;</span><span class="p">];</span>
+        <span class="k">return</span> <span class="s1">&#39;invalid token&#39;</span></div>
+
+<div class="viewcode-block" id="AuthenticationManager.get_token"><a class="viewcode-back" href="../../index.html#aaa_manager.authentication.AuthenticationManager.get_token">[docs]</a>    <span class="k">def</span> <span class="nf">get_token</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_id</span><span class="p">,</span> <span class="n">user</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get token from database</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">basedb</span><span class="o">.</span><span class="n">get_all</span><span class="p">(</span><span class="s1">&#39;Token&#39;</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">result</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s1">&#39;data&#39;</span> <span class="ow">in</span> <span class="n">item</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">item</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]:</span>
+                    <span class="k">if</span> <span class="s1">&#39;app_id&#39;</span> <span class="ow">in</span> <span class="n">data</span> <span class="ow">and</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;app_id&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">app_id</span> <span class="ow">and</span>\
+                        <span class="s1">&#39;user&#39;</span> <span class="ow">in</span> <span class="n">data</span> <span class="ow">and</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;user&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">user</span><span class="p">:</span>
+                            <span class="k">return</span> <span class="n">item</span><span class="p">[</span><span class="s1">&#39;token&#39;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="AuthenticationManager.access_app"><a class="viewcode-back" href="../../index.html#aaa_manager.authentication.AuthenticationManager.access_app">[docs]</a>    <span class="k">def</span> <span class="nf">access_app</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_id</span><span class="p">,</span> <span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="p">,</span> <span class="n">auth_type</span><span class="o">=</span><span class="n">Auth</span><span class="o">.</span><span class="n">USERS</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Retrieves a user based on a user username/password pair</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            auth_type (Auth): the authentification to be searched for</span>
+<span class="sd">            username (str): the inserted username</span>
+<span class="sd">            password (str): the inserted password</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dict: the user corresponding to the authentication pair match,</span>
+<span class="sd">                or None if any</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">users</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">basedb</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">USER_COLLECTION</span><span class="p">,</span> <span class="n">APP_KEY</span><span class="p">,</span> <span class="n">app_id</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">user</span> <span class="ow">in</span> <span class="n">users</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">auth_type</span> <span class="o">==</span> <span class="n">Auth</span><span class="o">.</span><span class="n">USERS</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">user_info</span> <span class="ow">in</span> <span class="n">user</span><span class="p">[</span><span class="n">USER_ITEM</span><span class="p">]:</span>
+                    <span class="k">if</span> <span class="n">user_info</span><span class="p">[</span><span class="s1">&#39;username&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">username</span> <span class="ow">and</span> <span class="n">user_info</span><span class="p">[</span><span class="s1">&#39;password&#39;</span><span class="p">]</span> <span class="o">==</span> \
+                        <span class="n">password</span><span class="p">:</span>
+                        <span class="k">del</span> <span class="n">user_info</span><span class="p">[</span><span class="s1">&#39;password&#39;</span><span class="p">]</span>
+                        <span class="k">return</span> <span class="n">user_info</span>
+        <span class="k">return</span> <span class="kc">None</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  <li><a href="../aaa_manager.html">aaa_manager</a><ul>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Author.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

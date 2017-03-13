@@ -63,8 +63,7 @@ class BaseDB:
             collection (str): collection to be searched and inserted/updated
             search_key (str): name of field to be searched
             search_val (str): value to be searched
-            insert_key (str): name of the list field in which `insert_val` will
-                be inserted
+            insert_key (str): name of the list field in which `insert_val` will be inserted
             insert_val (str): the element to be inserted in the list
         """
         self._connect()
@@ -95,10 +94,8 @@ class BaseDB:
         Args:
             collection (str): collection to be searched
             search_key (str): name of field to be searched
-            search_val (str): value to be searched, so that `old_item` will be
-                replaced for `new_item`
-            update_key (str): name of the list field in which `old_item` will be
-                replaced
+            search_val (str): value to be searched, so that `old_item` will be replaced for `new_item`
+            update_key (str): name of the list field in which `old_item` will be replaced
             old_item (str): element to be replaced
             new_item (str): new element to replace old element
         """
@@ -119,10 +116,8 @@ class BaseDB:
         Args:
             collection (str): collection to be searched
             search_key (str): name of field to be searched
-            search_val (str): value to be searched, so that `remove_item` will
-                be removed into it
-            remove_key (str): name of the list field from which `remove_item`
-                will be removed
+            search_val (str): value to be searched, so that `remove_item` will be removed into it
+            remove_key (str): name of the list field from which `remove_item` will be removed
             remove_val (str): the element to be removed
         """
         self._connect()
@@ -140,8 +135,7 @@ class BaseDB:
         Args:
             collection (str): collection to be searched
             search_key (str): name of field to be searched
-            search_val (str): value to be searched, so that its list will be
-                removed
+            search_val (str): value to be searched, so that its list will be removed
         """
         self._connect()
         condition = {search_key: search_val}
@@ -157,10 +151,8 @@ class BaseDB:
         Args:
             collection (str): collection to be searched
             search_key (str): name of field to be searched
-            search_val (str): value to be searched, so that `verify_val` item
-                will be verified
-            verify_key (str): name of the list field in which `verify_val` item
-                will be verified
+            search_val (str): value to be searched, so that `verify_val` item will be verified
+            verify_key (str): name of the list field in which `verify_val` item will be verified
             verify_val (str): the element to be verified
         """
         self._connect()

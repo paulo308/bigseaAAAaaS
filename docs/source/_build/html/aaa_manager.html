@@ -1,0 +1,661 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>aaa_manager package &#8212; build  documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="aaa-manager-package">
+<h1>aaa_manager package<a class="headerlink" href="#aaa-manager-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-aaa_manager.authentication">
+<span id="aaa-manager-authentication-module"></span><h2>aaa_manager.authentication module<a class="headerlink" href="#module-aaa_manager.authentication" title="Permalink to this headline">¶</a></h2>
+<p>A interface for accessing users collection on DB</p>
+<dl class="class">
+<dt id="aaa_manager.authentication.Auth">
+<em class="property">class </em><code class="descclassname">aaa_manager.authentication.</code><code class="descname">Auth</code><a class="reference internal" href="_modules/aaa_manager/authentication.html#Auth"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aaa_manager.authentication.Auth" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">enum.Enum</span></code></p>
+<p>Authentication being verified</p>
+<dl class="attribute">
+<dt id="aaa_manager.authentication.Auth.ADMIN">
+<code class="descname">ADMIN</code><em class="property"> = 1</em><a class="headerlink" href="#aaa_manager.authentication.Auth.ADMIN" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="aaa_manager.authentication.Auth.USERS">
+<code class="descname">USERS</code><em class="property"> = 2</em><a class="headerlink" href="#aaa_manager.authentication.Auth.USERS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="aaa_manager.authentication.AuthenticationManager">
+<em class="property">class </em><code class="descclassname">aaa_manager.authentication.</code><code class="descname">AuthenticationManager</code><span class="sig-paren">(</span><em>host='mongo'</em>, <em>port=27017</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aaa_manager/authentication.html#AuthenticationManager"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aaa_manager.authentication.AuthenticationManager" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Provides an interface to access and manipulate user data collections</p>
+<dl class="method">
+<dt id="aaa_manager.authentication.AuthenticationManager.access_app">
+<code class="descname">access_app</code><span class="sig-paren">(</span><em>app_id</em>, <em>username</em>, <em>password</em>, <em>auth_type=&lt;Auth.USERS: 2&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aaa_manager/authentication.html#AuthenticationManager.access_app"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aaa_manager.authentication.AuthenticationManager.access_app" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieves a user based on a user username/password pair</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>auth_type (Auth): the authentification to be searched for
+username (str): the inserted username
+password (str): the inserted password</dd>
+<dt>Returns:</dt>
+<dd><dl class="first last docutils">
+<dt>dict: the user corresponding to the authentication pair match,</dt>
+<dd>or None if any</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="aaa_manager.authentication.AuthenticationManager.generate_token">
+<code class="descname">generate_token</code><span class="sig-paren">(</span><em>user</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aaa_manager/authentication.html#AuthenticationManager.generate_token"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aaa_manager.authentication.AuthenticationManager.generate_token" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates a token that can be used to authenticate user to access
+app.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>user (dict): user information</dd>
+<dt>Returns: </dt>
+<dd>str: hexadecimal representation of token</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="aaa_manager.authentication.AuthenticationManager.get_all_users">
+<code class="descname">get_all_users</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/aaa_manager/authentication.html#AuthenticationManager.get_all_users"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aaa_manager.authentication.AuthenticationManager.get_all_users" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get all users</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>dict: all users data</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="aaa_manager.authentication.AuthenticationManager.get_token">
+<code class="descname">get_token</code><span class="sig-paren">(</span><em>app_id</em>, <em>user</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aaa_manager/authentication.html#AuthenticationManager.get_token"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aaa_manager.authentication.AuthenticationManager.get_token" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get token from database</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="aaa_manager.authentication.AuthenticationManager.insert_token">
+<code class="descname">insert_token</code><span class="sig-paren">(</span><em>app_id</em>, <em>user</em>, <em>token</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aaa_manager/authentication.html#AuthenticationManager.insert_token"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aaa_manager.authentication.AuthenticationManager.insert_token" title="Permalink to this definition">¶</a></dt>
+<dd><p>Insert token into DB.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>app_id (int): application id
+user (dict): user information
+token (str): hexidecimal token</dd>
+<dt>Returns: </dt>
+<dd>obj: mongodb result</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="aaa_manager.authentication.AuthenticationManager.insert_user">
+<code class="descname">insert_user</code><span class="sig-paren">(</span><em>app_id</em>, <em>user_info</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aaa_manager/authentication.html#AuthenticationManager.insert_user"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aaa_manager.authentication.AuthenticationManager.insert_user" title="Permalink to this definition">¶</a></dt>
+<dd><p>Inserts a new user entry on users collection in DB</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">app_id (int): the user key
+auth_info (dict): the user dict, should contain the users and</p>
+<blockquote class="last">
+<div>the admin&#8217;s data, and a username/password pair</div></blockquote>
+</dd>
+<dt>Returns:</dt>
+<dd><p class="first">object: The inserted object or None on failure
+str: &#8216;admin&#8217; if the cause of failure was repeated admin</p>
+<blockquote class="last">
+<div>authentication, &#8216;users&#8217; for a non unique username,
+&#8216;id&#8217; if the app_id already exists,
+&#8216;username&#8217; for duplicated username on the auth_info</div></blockquote>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="aaa_manager.authentication.AuthenticationManager.remove_app">
+<code class="descname">remove_app</code><span class="sig-paren">(</span><em>app_id</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aaa_manager/authentication.html#AuthenticationManager.remove_app"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aaa_manager.authentication.AuthenticationManager.remove_app" title="Permalink to this definition">¶</a></dt>
+<dd><p>Removes a user entry on users collection in DB</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>app_id (int): the user key</dd>
+<dt>Returns:</dt>
+<dd>The kdb remove operation result</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="aaa_manager.authentication.AuthenticationManager.remove_token">
+<code class="descname">remove_token</code><span class="sig-paren">(</span><em>token</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aaa_manager/authentication.html#AuthenticationManager.remove_token"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aaa_manager.authentication.AuthenticationManager.remove_token" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove token from DB.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>token (str): hexidecimal token</dd>
+<dt>Returns: </dt>
+<dd>obj: mongodb result</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="aaa_manager.authentication.AuthenticationManager.verify_token">
+<code class="descname">verify_token</code><span class="sig-paren">(</span><em>app_id</em>, <em>token</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aaa_manager/authentication.html#AuthenticationManager.verify_token"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aaa_manager.authentication.AuthenticationManager.verify_token" title="Permalink to this definition">¶</a></dt>
+<dd><p>Verify token validity.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>app_id (int): application id
+token (str): hexidecimal token</dd>
+<dt>Returns:</dt>
+<dd>str: username corresponding to token if valid, 
+&#8216;invalid token&#8217; otherwise</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-aaa_manager.basedb">
+<span id="aaa-manager-basedb-module"></span><h2>aaa_manager.basedb module<a class="headerlink" href="#module-aaa_manager.basedb" title="Permalink to this headline">¶</a></h2>
+<p>Provides access to knowledgeDB features</p>
+<dl class="class">
+<dt id="aaa_manager.basedb.BaseDB">
+<em class="property">class </em><code class="descclassname">aaa_manager.basedb.</code><code class="descname">BaseDB</code><span class="sig-paren">(</span><em>host='mongo'</em>, <em>port=27017</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aaa_manager/basedb.html#BaseDB"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aaa_manager.basedb.BaseDB" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Provides an interface to use the database</p>
+<dl class="method">
+<dt id="aaa_manager.basedb.BaseDB.drop">
+<code class="descname">drop</code><span class="sig-paren">(</span><em>collection</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aaa_manager/basedb.html#BaseDB.drop"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aaa_manager.basedb.BaseDB.drop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Drops the entire <cite>collection</cite> from database.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>collection (str): name of collection to be dropped.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="aaa_manager.basedb.BaseDB.get">
+<code class="descname">get</code><span class="sig-paren">(</span><em>collection</em>, <em>key</em>, <em>value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aaa_manager/basedb.html#BaseDB.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aaa_manager.basedb.BaseDB.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finds all items whose <cite>key</cite> field is equal to <cite>value</cite> in <cite>collection</cite>.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>collection (str): collection to be searched
+key (str): name of field to be searched
+value (str): value to be searched</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="aaa_manager.basedb.BaseDB.get_all">
+<code class="descname">get_all</code><span class="sig-paren">(</span><em>collection</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aaa_manager/basedb.html#BaseDB.get_all"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aaa_manager.basedb.BaseDB.get_all" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finds all items in <cite>collection</cite>.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>collection (str): collection to be searched</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="aaa_manager.basedb.BaseDB.insert">
+<code class="descname">insert</code><span class="sig-paren">(</span><em>collection</em>, <em>search_key</em>, <em>search_val</em>, <em>insert_key</em>, <em>insert_val</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aaa_manager/basedb.html#BaseDB.insert"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aaa_manager.basedb.BaseDB.insert" title="Permalink to this definition">¶</a></dt>
+<dd><p>Inserts <cite>item</cite> into <cite>insert_list</cite> list whose
+<cite>search_key</cite> field value is <cite>search_val</cite>.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">collection (str): collection to be searched and inserted/updated
+search_key (str): name of field to be searched
+search_val (str): value to be searched
+insert_key (str): name of the list field in which <cite>insert_val</cite> will</p>
+<blockquote>
+<div>be inserted</div></blockquote>
+<p class="last">insert_val (str): the element to be inserted in the list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="aaa_manager.basedb.BaseDB.remove">
+<code class="descname">remove</code><span class="sig-paren">(</span><em>collection</em>, <em>search_key</em>, <em>search_val</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aaa_manager/basedb.html#BaseDB.remove"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aaa_manager.basedb.BaseDB.remove" title="Permalink to this definition">¶</a></dt>
+<dd><p>Removes the whole list whose <cite>search_key</cite> field value is <cite>search_val</cite>.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">collection (str): collection to be searched
+search_key (str): name of field to be searched
+search_val (str): value to be searched, so that its list will be</p>
+<blockquote class="last">
+<div>removed</div></blockquote>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="aaa_manager.basedb.BaseDB.remove_list_item">
+<code class="descname">remove_list_item</code><span class="sig-paren">(</span><em>collection</em>, <em>search_key</em>, <em>search_val</em>, <em>remove_key</em>, <em>remove_val</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aaa_manager/basedb.html#BaseDB.remove_list_item"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aaa_manager.basedb.BaseDB.remove_list_item" title="Permalink to this definition">¶</a></dt>
+<dd><p>Removes <cite>remove_val</cite> item from <cite>remove_key</cite> list whose
+<cite>search_key</cite> field value is <cite>search_val</cite>.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">collection (str): collection to be searched
+search_key (str): name of field to be searched
+search_val (str): value to be searched, so that <cite>remove_item</cite> will</p>
+<blockquote>
+<div>be removed into it</div></blockquote>
+<dl class="docutils">
+<dt>remove_key (str): name of the list field from which <cite>remove_item</cite></dt>
+<dd>will be removed</dd>
+</dl>
+<p class="last">remove_val (str): the element to be removed</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="aaa_manager.basedb.BaseDB.update">
+<code class="descname">update</code><span class="sig-paren">(</span><em>collection</em>, <em>search_key</em>, <em>search_val</em>, <em>update_key</em>, <em>old_item</em>, <em>new_item</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aaa_manager/basedb.html#BaseDB.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aaa_manager.basedb.BaseDB.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Updates <cite>old_item</cite> for <cite>new_item</cite> into <cite>update_key</cite> list whose
+<cite>search_key</cite> value is <cite>search_id</cite>.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">collection (str): collection to be searched
+search_key (str): name of field to be searched
+search_val (str): value to be searched, so that <cite>old_item</cite> will be</p>
+<blockquote>
+<div>replaced for <cite>new_item</cite></div></blockquote>
+<dl class="docutils">
+<dt>update_key (str): name of the list field in which <cite>old_item</cite> will be</dt>
+<dd>replaced</dd>
+</dl>
+<p class="last">old_item (str): element to be replaced
+new_item (str): new element to replace old element</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="aaa_manager.basedb.BaseDB.verify">
+<code class="descname">verify</code><span class="sig-paren">(</span><em>collection</em>, <em>search_key</em>, <em>search_val</em>, <em>verify_key</em>, <em>verify_val</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aaa_manager/basedb.html#BaseDB.verify"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aaa_manager.basedb.BaseDB.verify" title="Permalink to this definition">¶</a></dt>
+<dd><p>Verifies if <cite>verify_val</cite> item belongs to the <cite>verify_key</cite> list
+whose <cite>search_key</cite> value is <cite>search_val</cite>.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">collection (str): collection to be searched
+search_key (str): name of field to be searched
+search_val (str): value to be searched, so that <cite>verify_val</cite> item</p>
+<blockquote>
+<div>will be verified</div></blockquote>
+<dl class="docutils">
+<dt>verify_key (str): name of the list field in which <cite>verify_val</cite> item</dt>
+<dd>will be verified</dd>
+</dl>
+<p class="last">verify_val (str): the element to be verified</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-aaa_manager.db_client">
+<span id="aaa-manager-db-client-module"></span><h2>aaa_manager.db_client module<a class="headerlink" href="#module-aaa_manager.db_client" title="Permalink to this headline">¶</a></h2>
+<p>Database client</p>
+<dl class="class">
+<dt id="aaa_manager.db_client.DBClient">
+<em class="property">class </em><code class="descclassname">aaa_manager.db_client.</code><code class="descname">DBClient</code><span class="sig-paren">(</span><em>host='mongo'</em>, <em>port=27017</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aaa_manager/db_client.html#DBClient"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aaa_manager.db_client.DBClient" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Provides an interface to use the database.</p>
+<dl class="method">
+<dt id="aaa_manager.db_client.DBClient.close">
+<code class="descname">close</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/aaa_manager/db_client.html#DBClient.close"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aaa_manager.db_client.DBClient.close" title="Permalink to this definition">¶</a></dt>
+<dd><p>Closes connection.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="aaa_manager.db_client.DBClient.connect">
+<code class="descname">connect</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/aaa_manager/db_client.html#DBClient.connect"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aaa_manager.db_client.DBClient.connect" title="Permalink to this definition">¶</a></dt>
+<dd><p>Connects to MongoDB.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="aaa_manager.db_client.DBClient.find">
+<code class="descname">find</code><span class="sig-paren">(</span><em>collection</em>, <em>condition</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aaa_manager/db_client.html#DBClient.find"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aaa_manager.db_client.DBClient.find" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finds all items in <cite>collection</cite> respecting <cite>condition</cite>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="aaa_manager.db_client.DBClient.insert">
+<code class="descname">insert</code><span class="sig-paren">(</span><em>collection</em>, <em>data</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aaa_manager/db_client.html#DBClient.insert"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aaa_manager.db_client.DBClient.insert" title="Permalink to this definition">¶</a></dt>
+<dd><p>Inserts <cite>data</cite> into <cite>collection</cite>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="aaa_manager.db_client.DBClient.remove">
+<code class="descname">remove</code><span class="sig-paren">(</span><em>collection</em>, <em>condition</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aaa_manager/db_client.html#DBClient.remove"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aaa_manager.db_client.DBClient.remove" title="Permalink to this definition">¶</a></dt>
+<dd><p>Removes all items in <cite>collection</cite> respecting <cite>condition</cite>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="aaa_manager.db_client.DBClient.use_db">
+<code class="descname">use_db</code><span class="sig-paren">(</span><em>name='AAADB'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aaa_manager/db_client.html#DBClient.use_db"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aaa_manager.db_client.DBClient.use_db" title="Permalink to this definition">¶</a></dt>
+<dd><p>Uses database given by <cite>name</cite>.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-aaa_manager.demo">
+<span id="aaa-manager-demo-module"></span><h2>aaa_manager.demo module<a class="headerlink" href="#module-aaa_manager.demo" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="aaa_manager.demo.DemoRestView">
+<em class="property">class </em><code class="descclassname">aaa_manager.demo.</code><code class="descname">DemoRestView</code><span class="sig-paren">(</span><em>request</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aaa_manager/demo.html#DemoRestView"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aaa_manager.demo.DemoRestView" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Implements the demo REST API</p>
+<dl class="method">
+<dt id="aaa_manager.demo.DemoRestView.checkin_data">
+<code class="descname">checkin_data</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/aaa_manager/demo.html#DemoRestView.checkin_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aaa_manager.demo.DemoRestView.checkin_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrives the checkin state.</p>
+<dl class="docutils">
+<dt>Note:</dt>
+<dd>This method is called from <strong>/json/get_checkin_state</strong>.
+Currently this is called by ajax</dd>
+<dt>Returns:</dt>
+<dd>(dict): containing the checkin state</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="aaa_manager.demo.DemoRestView.signup_data">
+<code class="descname">signup_data</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/aaa_manager/demo.html#DemoRestView.signup_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aaa_manager.demo.DemoRestView.signup_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrives the checkout.</p>
+<dl class="docutils">
+<dt>Note:</dt>
+<dd>Used by the web interface from 
+<strong>/json/get_signup</strong></dd>
+<dt>Returns:</dt>
+<dd>(dict): containing the checkout state</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="aaa_manager.demo.DemoWebView">
+<em class="property">class </em><code class="descclassname">aaa_manager.demo.</code><code class="descname">DemoWebView</code><span class="sig-paren">(</span><em>request</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aaa_manager/demo.html#DemoWebView"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aaa_manager.demo.DemoWebView" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Implements the demo web interface view</p>
+<dl class="method">
+<dt id="aaa_manager.demo.DemoWebView.checkin">
+<code class="descname">checkin</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/aaa_manager/demo.html#DemoWebView.checkin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aaa_manager.demo.DemoWebView.checkin" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method is called from <strong>/web/checkin</strong></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="aaa_manager.demo.DemoWebView.home">
+<code class="descname">home</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/aaa_manager/demo.html#DemoWebView.home"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aaa_manager.demo.DemoWebView.home" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method is called from <strong>/</strong> or <strong>/web</strong></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="aaa_manager.demo.DemoWebView.signup">
+<code class="descname">signup</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/aaa_manager/demo.html#DemoWebView.signup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aaa_manager.demo.DemoWebView.signup" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method is called from <strong>/web/signup</strong></p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-aaa_manager.exceptions">
+<span id="aaa-manager-exceptions-module"></span><h2>aaa_manager.exceptions module<a class="headerlink" href="#module-aaa_manager.exceptions" title="Permalink to this headline">¶</a></h2>
+<dl class="exception">
+<dt id="aaa_manager.exceptions.DBError">
+<em class="property">exception </em><code class="descclassname">aaa_manager.exceptions.</code><code class="descname">DBError</code><a class="reference internal" href="_modules/aaa_manager/exceptions.html#DBError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aaa_manager.exceptions.DBError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">BaseException</span></code></p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-aaa_manager.rest">
+<span id="aaa-manager-rest-module"></span><h2>aaa_manager.rest module<a class="headerlink" href="#module-aaa_manager.rest" title="Permalink to this headline">¶</a></h2>
+<p>Main module of backend, where controller and view paths are defined</p>
+<dl class="class">
+<dt id="aaa_manager.rest.RestView">
+<em class="property">class </em><code class="descclassname">aaa_manager.rest.</code><code class="descname">RestView</code><span class="sig-paren">(</span><em>request</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aaa_manager/rest.html#RestView"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aaa_manager.rest.RestView" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Implements the main REST API</p>
+<dl class="method">
+<dt id="aaa_manager.rest.RestView.checkin">
+<code class="descname">checkin</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/aaa_manager/rest.html#RestView.checkin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aaa_manager.rest.RestView.checkin" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method is called from <strong>/engine/api/checkin</strong>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="aaa_manager.rest.RestView.checkout">
+<code class="descname">checkout</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/aaa_manager/rest.html#RestView.checkout"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aaa_manager.rest.RestView.checkout" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method is called from <strong>/engine/api/checkout</strong>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="aaa_manager.rest.RestView.signup">
+<code class="descname">signup</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/aaa_manager/rest.html#RestView.signup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aaa_manager.rest.RestView.signup" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method is called from <strong>/engine/api/signup</strong>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="aaa_manager.rest.RestView.verify_token">
+<code class="descname">verify_token</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/aaa_manager/rest.html#RestView.verify_token"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aaa_manager.rest.RestView.verify_token" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method is called from <strong>/engine/api/verify_token</strong>.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-aaa_manager.route">
+<span id="aaa-manager-route-module"></span><h2>aaa_manager.route module<a class="headerlink" href="#module-aaa_manager.route" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="aaa_manager.route.Route">
+<em class="property">class </em><code class="descclassname">aaa_manager.route.</code><code class="descname">Route</code><a class="reference internal" href="_modules/aaa_manager/route.html#Route"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aaa_manager.route.Route" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Routes names</p>
+<dl class="attribute">
+<dt id="aaa_manager.route.Route.CHECKIN">
+<code class="descname">CHECKIN</code><em class="property"> = 'checkin_state'</em><a class="headerlink" href="#aaa_manager.route.Route.CHECKIN" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="aaa_manager.route.Route.CHECKIN_STATE">
+<code class="descname">CHECKIN_STATE</code><em class="property"> = 'get_checkin_state'</em><a class="headerlink" href="#aaa_manager.route.Route.CHECKIN_STATE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="aaa_manager.route.Route.CHECKOUT">
+<code class="descname">CHECKOUT</code><em class="property"> = 'checkout_state'</em><a class="headerlink" href="#aaa_manager.route.Route.CHECKOUT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="aaa_manager.route.Route.CHECKOUT_STATE">
+<code class="descname">CHECKOUT_STATE</code><em class="property"> = 'get_checkout_state'</em><a class="headerlink" href="#aaa_manager.route.Route.CHECKOUT_STATE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="aaa_manager.route.Route.GET_CHECKIN">
+<code class="descname">GET_CHECKIN</code><em class="property"> = 'checkin_data'</em><a class="headerlink" href="#aaa_manager.route.Route.GET_CHECKIN" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="aaa_manager.route.Route.GET_CHECKOUT">
+<code class="descname">GET_CHECKOUT</code><em class="property"> = 'checkout_data'</em><a class="headerlink" href="#aaa_manager.route.Route.GET_CHECKOUT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="aaa_manager.route.Route.GET_SIGNUP">
+<code class="descname">GET_SIGNUP</code><em class="property"> = 'signup_data'</em><a class="headerlink" href="#aaa_manager.route.Route.GET_SIGNUP" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="aaa_manager.route.Route.HOME">
+<code class="descname">HOME</code><em class="property"> = 'home'</em><a class="headerlink" href="#aaa_manager.route.Route.HOME" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="aaa_manager.route.Route.SIGNUP">
+<code class="descname">SIGNUP</code><em class="property"> = 'signup_state'</em><a class="headerlink" href="#aaa_manager.route.Route.SIGNUP" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="aaa_manager.route.Route.SIGNUP_STATE">
+<code class="descname">SIGNUP_STATE</code><em class="property"> = 'get_signup_state'</em><a class="headerlink" href="#aaa_manager.route.Route.SIGNUP_STATE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="aaa_manager.route.Route.STATIC_ASSETS">
+<code class="descname">STATIC_ASSETS</code><em class="property"> = 'static'</em><a class="headerlink" href="#aaa_manager.route.Route.STATIC_ASSETS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="aaa_manager.route.Route.VERIFY_TOKEN">
+<code class="descname">VERIFY_TOKEN</code><em class="property"> = 'verify_token'</em><a class="headerlink" href="#aaa_manager.route.Route.VERIFY_TOKEN" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="aaa_manager.route.Route.WEB">
+<code class="descname">WEB</code><em class="property"> = 'home_web'</em><a class="headerlink" href="#aaa_manager.route.Route.WEB" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="aaa_manager.route.Route.WEB_CHECKIN">
+<code class="descname">WEB_CHECKIN</code><em class="property"> = 'checkin'</em><a class="headerlink" href="#aaa_manager.route.Route.WEB_CHECKIN" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="aaa_manager.route.Route.WEB_CHECKOUT">
+<code class="descname">WEB_CHECKOUT</code><em class="property"> = 'checkout'</em><a class="headerlink" href="#aaa_manager.route.Route.WEB_CHECKOUT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="aaa_manager.route.Route.WEB_SETTINGS">
+<code class="descname">WEB_SETTINGS</code><em class="property"> = 'settings'</em><a class="headerlink" href="#aaa_manager.route.Route.WEB_SETTINGS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="aaa_manager.route.Route.WEB_SIGNUP">
+<code class="descname">WEB_SIGNUP</code><em class="property"> = 'signup'</em><a class="headerlink" href="#aaa_manager.route.Route.WEB_SIGNUP" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-aaa_manager">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-aaa_manager" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="aaa_manager.main">
+<code class="descclassname">aaa_manager.</code><code class="descname">main</code><span class="sig-paren">(</span><em>global_config</em>, <em>**settings</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aaa_manager.html#main"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aaa_manager.main" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function called by gunicorn</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">aaa_manager package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-aaa_manager.authentication">aaa_manager.authentication module</a></li>
+<li><a class="reference internal" href="#module-aaa_manager.basedb">aaa_manager.basedb module</a></li>
+<li><a class="reference internal" href="#module-aaa_manager.db_client">aaa_manager.db_client module</a></li>
+<li><a class="reference internal" href="#module-aaa_manager.demo">aaa_manager.demo module</a></li>
+<li><a class="reference internal" href="#module-aaa_manager.exceptions">aaa_manager.exceptions module</a></li>
+<li><a class="reference internal" href="#module-aaa_manager.rest">aaa_manager.rest module</a></li>
+<li><a class="reference internal" href="#module-aaa_manager.route">aaa_manager.route module</a></li>
+<li><a class="reference internal" href="#module-aaa_manager">Module contents</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/aaa_manager.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Author.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="_sources/aaa_manager.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

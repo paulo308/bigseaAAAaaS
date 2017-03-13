@@ -1,0 +1,271 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>aaa_manager.basedb &#8212; build  documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for aaa_manager.basedb</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot; Provides access to knowledgeDB features &quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="kn">from</span> <span class="nn">aaa_manager.db_client</span> <span class="k">import</span> <span class="n">DBClient</span>
+
+<span class="n">LOG</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="n">_DEFAULT_DB_HOST</span> <span class="o">=</span> <span class="s1">&#39;mongo&#39;</span>
+<span class="n">_DEFAULT_DB_PORT</span> <span class="o">=</span> <span class="mi">27017</span>
+<span class="n">_DEFAULT_DB_NAME</span> <span class="o">=</span> <span class="s1">&#39;AAADB&#39;</span>
+
+
+<div class="viewcode-block" id="BaseDB"><a class="viewcode-back" href="../../aaa_manager.html#aaa_manager.basedb.BaseDB">[docs]</a><span class="k">class</span> <span class="nc">BaseDB</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot; Provides an interface to use the database &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="n">_DEFAULT_DB_HOST</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="n">_DEFAULT_DB_PORT</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">host</span> <span class="o">=</span> <span class="n">host</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">port</span> <span class="o">=</span> <span class="n">port</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">db_client</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">_connect</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">db_client</span> <span class="o">=</span> <span class="n">DBClient</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">host</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">port</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">db_client</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">db_client</span><span class="o">.</span><span class="n">use_db</span><span class="p">(</span><span class="n">_DEFAULT_DB_NAME</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">db_client</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    
+<div class="viewcode-block" id="BaseDB.get_all"><a class="viewcode-back" href="../../aaa_manager.html#aaa_manager.basedb.BaseDB.get_all">[docs]</a>    <span class="k">def</span> <span class="nf">get_all</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">collection</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Finds all items in `collection`.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            collection (str): collection to be searched</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_connect</span><span class="p">()</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db_client</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">collection</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_close</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">result</span></div>
+
+
+<div class="viewcode-block" id="BaseDB.get"><a class="viewcode-back" href="../../aaa_manager.html#aaa_manager.basedb.BaseDB.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">collection</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Finds all items whose `key` field is equal to `value` in `collection`.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            collection (str): collection to be searched</span>
+<span class="sd">            key (str): name of field to be searched</span>
+<span class="sd">            value (str): value to be searched</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_connect</span><span class="p">()</span>
+        <span class="n">condition</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">value</span><span class="p">}</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db_client</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">collection</span><span class="p">,</span> <span class="n">condition</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_close</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">result</span></div>
+
+<div class="viewcode-block" id="BaseDB.insert"><a class="viewcode-back" href="../../aaa_manager.html#aaa_manager.basedb.BaseDB.insert">[docs]</a>    <span class="k">def</span> <span class="nf">insert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">collection</span><span class="p">,</span> <span class="n">search_key</span><span class="p">,</span> <span class="n">search_val</span><span class="p">,</span> <span class="n">insert_key</span><span class="p">,</span> <span class="n">insert_val</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Inserts `item` into `insert_list` list whose</span>
+<span class="sd">        `search_key` field value is `search_val`.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            collection (str): collection to be searched and inserted/updated</span>
+<span class="sd">            search_key (str): name of field to be searched</span>
+<span class="sd">            search_val (str): value to be searched</span>
+<span class="sd">            insert_key (str): name of the list field in which `insert_val` will</span>
+<span class="sd">                be inserted</span>
+<span class="sd">            insert_val (str): the element to be inserted in the list</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_connect</span><span class="p">()</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">condition</span> <span class="o">=</span> <span class="p">{</span><span class="n">search_key</span><span class="p">:</span> <span class="n">search_val</span><span class="p">}</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">db_client</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">collection</span><span class="p">,</span> <span class="n">condition</span><span class="p">))</span>
+
+        <span class="c1"># if a search for `search_val` returns an empty list, insert new element</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">output</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="n">search_key</span><span class="p">:</span> <span class="n">search_val</span><span class="p">,</span> <span class="n">insert_key</span><span class="p">:</span> <span class="p">[</span><span class="n">insert_val</span><span class="p">]}</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db_client</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">collection</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+        <span class="c1"># else if `insert_val` is not already in `insert_key` list, insert it</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">condition</span> <span class="o">=</span> <span class="p">{</span><span class="n">search_key</span><span class="p">:</span> <span class="n">search_val</span><span class="p">,</span> 
+                         <span class="n">insert_key</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;$nin&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">insert_val</span><span class="p">]}}</span>
+            <span class="n">new_item</span> <span class="o">=</span> <span class="p">{</span><span class="n">insert_key</span><span class="p">:</span> <span class="n">insert_val</span><span class="p">}</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db_client</span><span class="o">.</span><span class="n">db</span><span class="p">[</span><span class="n">collection</span><span class="p">]</span>\
+                <span class="o">.</span><span class="n">update_many</span><span class="p">(</span><span class="n">condition</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;$push&quot;</span><span class="p">:</span> <span class="n">new_item</span><span class="p">})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_close</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">result</span></div>
+
+<div class="viewcode-block" id="BaseDB.update"><a class="viewcode-back" href="../../aaa_manager.html#aaa_manager.basedb.BaseDB.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">collection</span><span class="p">,</span> <span class="n">search_key</span><span class="p">,</span> <span class="n">search_val</span><span class="p">,</span> <span class="n">update_key</span><span class="p">,</span> <span class="n">old_item</span><span class="p">,</span>
+               <span class="n">new_item</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Updates `old_item` for `new_item` into `update_key` list whose</span>
+<span class="sd">        `search_key` value is `search_id`.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            collection (str): collection to be searched</span>
+<span class="sd">            search_key (str): name of field to be searched</span>
+<span class="sd">            search_val (str): value to be searched, so that `old_item` will be</span>
+<span class="sd">                replaced for `new_item`</span>
+<span class="sd">            update_key (str): name of the list field in which `old_item` will be</span>
+<span class="sd">                replaced</span>
+<span class="sd">            old_item (str): element to be replaced</span>
+<span class="sd">            new_item (str): new element to replace old element</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_connect</span><span class="p">()</span>
+        <span class="n">condition</span> <span class="o">=</span> <span class="p">{</span><span class="n">search_key</span><span class="p">:</span> <span class="n">search_val</span><span class="p">,</span> <span class="n">update_key</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;$in&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">old_item</span><span class="p">]}}</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db_client</span><span class="o">.</span><span class="n">db</span><span class="p">[</span><span class="n">collection</span><span class="p">]</span>\
+                     <span class="o">.</span><span class="n">update_many</span><span class="p">(</span><span class="n">condition</span><span class="p">,</span> 
+                                  <span class="p">{</span><span class="s2">&quot;$set&quot;</span><span class="p">:</span> <span class="p">{</span><span class="n">update_key</span> <span class="o">+</span> <span class="s2">&quot;.$&quot;</span><span class="p">:</span> <span class="n">new_item</span><span class="p">}})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_close</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">result</span><span class="o">.</span><span class="n">modified_count</span></div>
+
+<div class="viewcode-block" id="BaseDB.remove_list_item"><a class="viewcode-back" href="../../aaa_manager.html#aaa_manager.basedb.BaseDB.remove_list_item">[docs]</a>    <span class="k">def</span> <span class="nf">remove_list_item</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">collection</span><span class="p">,</span> <span class="n">search_key</span><span class="p">,</span> <span class="n">search_val</span><span class="p">,</span> <span class="n">remove_key</span><span class="p">,</span>
+                         <span class="n">remove_val</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Removes `remove_val` item from `remove_key` list whose</span>
+<span class="sd">        `search_key` field value is `search_val`.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            collection (str): collection to be searched</span>
+<span class="sd">            search_key (str): name of field to be searched</span>
+<span class="sd">            search_val (str): value to be searched, so that `remove_item` will</span>
+<span class="sd">                be removed into it</span>
+<span class="sd">            remove_key (str): name of the list field from which `remove_item`</span>
+<span class="sd">                will be removed</span>
+<span class="sd">            remove_val (str): the element to be removed</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_connect</span><span class="p">()</span>
+        <span class="n">condition</span> <span class="o">=</span> <span class="p">{</span><span class="n">search_key</span><span class="p">:</span> <span class="n">search_val</span><span class="p">,</span> <span class="n">remove_key</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;$in&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">remove_val</span><span class="p">]}}</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db_client</span><span class="o">.</span><span class="n">db</span><span class="p">[</span><span class="n">collection</span><span class="p">]</span>\
+                <span class="o">.</span><span class="n">update_many</span><span class="p">(</span><span class="n">condition</span><span class="p">,</span> 
+                             <span class="p">{</span><span class="s2">&quot;$pull&quot;</span><span class="p">:</span> <span class="p">{</span><span class="n">remove_key</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;$in&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">remove_val</span><span class="p">]}}})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_close</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">result</span><span class="o">.</span><span class="n">modified_count</span></div>
+
+<div class="viewcode-block" id="BaseDB.remove"><a class="viewcode-back" href="../../aaa_manager.html#aaa_manager.basedb.BaseDB.remove">[docs]</a>    <span class="k">def</span> <span class="nf">remove</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">collection</span><span class="p">,</span> <span class="n">search_key</span><span class="p">,</span> <span class="n">search_val</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Removes the whole list whose `search_key` field value is `search_val`.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            collection (str): collection to be searched</span>
+<span class="sd">            search_key (str): name of field to be searched</span>
+<span class="sd">            search_val (str): value to be searched, so that its list will be</span>
+<span class="sd">                removed</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_connect</span><span class="p">()</span>
+        <span class="n">condition</span> <span class="o">=</span> <span class="p">{</span><span class="n">search_key</span><span class="p">:</span> <span class="n">search_val</span><span class="p">}</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db_client</span><span class="o">.</span><span class="n">db</span><span class="p">[</span><span class="n">collection</span><span class="p">]</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">condition</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_close</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">result</span><span class="p">[</span><span class="s1">&#39;n&#39;</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="BaseDB.verify"><a class="viewcode-back" href="../../aaa_manager.html#aaa_manager.basedb.BaseDB.verify">[docs]</a>    <span class="k">def</span> <span class="nf">verify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">collection</span><span class="p">,</span> <span class="n">search_key</span><span class="p">,</span> <span class="n">search_val</span><span class="p">,</span> <span class="n">verify_key</span><span class="p">,</span> <span class="n">verify_val</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Verifies if `verify_val` item belongs to the `verify_key` list</span>
+<span class="sd">        whose `search_key` value is `search_val`.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            collection (str): collection to be searched</span>
+<span class="sd">            search_key (str): name of field to be searched</span>
+<span class="sd">            search_val (str): value to be searched, so that `verify_val` item</span>
+<span class="sd">                will be verified</span>
+<span class="sd">            verify_key (str): name of the list field in which `verify_val` item</span>
+<span class="sd">                will be verified</span>
+<span class="sd">            verify_val (str): the element to be verified</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_connect</span><span class="p">()</span>
+        <span class="n">condition</span> <span class="o">=</span> <span class="p">{</span><span class="n">search_key</span><span class="p">:</span> <span class="n">search_val</span><span class="p">,</span> <span class="n">verify_key</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;$in&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">verify_val</span><span class="p">]}}</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db_client</span><span class="o">.</span><span class="n">db</span><span class="p">[</span><span class="n">collection</span><span class="p">]</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">condition</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_close</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">result</span> <span class="o">&gt;</span> <span class="mi">0</span></div>
+
+<div class="viewcode-block" id="BaseDB.drop"><a class="viewcode-back" href="../../aaa_manager.html#aaa_manager.basedb.BaseDB.drop">[docs]</a>    <span class="k">def</span> <span class="nf">drop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">collection</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Drops the entire `collection` from database.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            collection (str): name of collection to be dropped.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_connect</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">db_client</span><span class="o">.</span><span class="n">db</span><span class="p">[</span><span class="n">collection</span><span class="p">]</span><span class="o">.</span><span class="n">drop</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_close</span><span class="p">()</span>
+        <span class="k">return</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  <li><a href="../aaa_manager.html">aaa_manager</a><ul>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Author.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

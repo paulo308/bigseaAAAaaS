@@ -1,0 +1,247 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Welcome to build’s documentation! &#8212; build  documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="welcome-to-build-s-documentation">
+<h1>Welcome to build&#8217;s documentation!<a class="headerlink" href="#welcome-to-build-s-documentation" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+</div>
+<span class="target" id="module-aaa_manager.authentication"></span><p>A interface for accessing users collection on DB</p>
+<dl class="class">
+<dt id="aaa_manager.authentication.Auth">
+<em class="property">class </em><code class="descclassname">aaa_manager.authentication.</code><code class="descname">Auth</code><a class="reference internal" href="_modules/aaa_manager/authentication.html#Auth"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aaa_manager.authentication.Auth" title="Permalink to this definition">¶</a></dt>
+<dd><p>Authentication being verified</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="aaa_manager.authentication.AuthenticationManager">
+<em class="property">class </em><code class="descclassname">aaa_manager.authentication.</code><code class="descname">AuthenticationManager</code><span class="sig-paren">(</span><em>host='mongo'</em>, <em>port=27017</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aaa_manager/authentication.html#AuthenticationManager"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aaa_manager.authentication.AuthenticationManager" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provides an interface to access and manipulate user data collections</p>
+<dl class="method">
+<dt id="aaa_manager.authentication.AuthenticationManager.access_app">
+<code class="descname">access_app</code><span class="sig-paren">(</span><em>app_id</em>, <em>username</em>, <em>password</em>, <em>auth_type=&lt;Auth.USERS: 2&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aaa_manager/authentication.html#AuthenticationManager.access_app"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aaa_manager.authentication.AuthenticationManager.access_app" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieves a user based on a user username/password pair</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>auth_type (Auth): the authentification to be searched for
+username (str): the inserted username
+password (str): the inserted password</dd>
+<dt>Returns:</dt>
+<dd><dl class="first last docutils">
+<dt>dict: the user corresponding to the authentication pair match,</dt>
+<dd>or None if any</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="aaa_manager.authentication.AuthenticationManager.generate_token">
+<code class="descname">generate_token</code><span class="sig-paren">(</span><em>user</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aaa_manager/authentication.html#AuthenticationManager.generate_token"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aaa_manager.authentication.AuthenticationManager.generate_token" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates a token that can be used to authenticate user to access
+app.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>user (dict): user information</dd>
+<dt>Returns: </dt>
+<dd>str: hexadecimal representation of token</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="aaa_manager.authentication.AuthenticationManager.get_all_users">
+<code class="descname">get_all_users</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/aaa_manager/authentication.html#AuthenticationManager.get_all_users"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aaa_manager.authentication.AuthenticationManager.get_all_users" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get all users</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>dict: all users data</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="aaa_manager.authentication.AuthenticationManager.get_token">
+<code class="descname">get_token</code><span class="sig-paren">(</span><em>app_id</em>, <em>user</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aaa_manager/authentication.html#AuthenticationManager.get_token"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aaa_manager.authentication.AuthenticationManager.get_token" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get token from database</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="aaa_manager.authentication.AuthenticationManager.insert_token">
+<code class="descname">insert_token</code><span class="sig-paren">(</span><em>app_id</em>, <em>user</em>, <em>token</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aaa_manager/authentication.html#AuthenticationManager.insert_token"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aaa_manager.authentication.AuthenticationManager.insert_token" title="Permalink to this definition">¶</a></dt>
+<dd><p>Insert token into DB.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>app_id (int): application id
+user (dict): user information
+token (str): hexidecimal token</dd>
+<dt>Returns: </dt>
+<dd>obj: mongodb result</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="aaa_manager.authentication.AuthenticationManager.insert_user">
+<code class="descname">insert_user</code><span class="sig-paren">(</span><em>app_id</em>, <em>user_info</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aaa_manager/authentication.html#AuthenticationManager.insert_user"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aaa_manager.authentication.AuthenticationManager.insert_user" title="Permalink to this definition">¶</a></dt>
+<dd><p>Inserts a new user entry on users collection in DB</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">app_id (int): the user key
+auth_info (dict): the user dict, should contain the users and</p>
+<blockquote class="last">
+<div>the admin&#8217;s data, and a username/password pair</div></blockquote>
+</dd>
+<dt>Returns:</dt>
+<dd><p class="first">object: The inserted object or None on failure
+str: &#8216;admin&#8217; if the cause of failure was repeated admin</p>
+<blockquote class="last">
+<div>authentication, &#8216;users&#8217; for a non unique username,
+&#8216;id&#8217; if the app_id already exists,
+&#8216;username&#8217; for duplicated username on the auth_info</div></blockquote>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="aaa_manager.authentication.AuthenticationManager.remove_app">
+<code class="descname">remove_app</code><span class="sig-paren">(</span><em>app_id</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aaa_manager/authentication.html#AuthenticationManager.remove_app"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aaa_manager.authentication.AuthenticationManager.remove_app" title="Permalink to this definition">¶</a></dt>
+<dd><p>Removes a user entry on users collection in DB</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>app_id (int): the user key</dd>
+<dt>Returns:</dt>
+<dd>The kdb remove operation result</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="aaa_manager.authentication.AuthenticationManager.remove_token">
+<code class="descname">remove_token</code><span class="sig-paren">(</span><em>token</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aaa_manager/authentication.html#AuthenticationManager.remove_token"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aaa_manager.authentication.AuthenticationManager.remove_token" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove token from DB.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>token (str): hexidecimal token</dd>
+<dt>Returns: </dt>
+<dd>obj: mongodb result</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="aaa_manager.authentication.AuthenticationManager.verify_token">
+<code class="descname">verify_token</code><span class="sig-paren">(</span><em>app_id</em>, <em>token</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/aaa_manager/authentication.html#AuthenticationManager.verify_token"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#aaa_manager.authentication.AuthenticationManager.verify_token" title="Permalink to this definition">¶</a></dt>
+<dd><p>Verify token validity.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>app_id (int): application id
+token (str): hexidecimal token</dd>
+<dt>Returns:</dt>
+<dd>str: username corresponding to token if valid, 
+&#8216;invalid token&#8217; otherwise</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></li>
+<li><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></li>
+<li><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></li>
+</ul>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="#">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Welcome to build&#8217;s documentation!</a></li>
+<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="#">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/index.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Author.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="_sources/index.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
