@@ -48,9 +48,9 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = 'build'
-copyright = '2017, Author'
-author = 'Author'
+project = 'Bigsea AAA'
+copyright = '2017, Eduardo Morais and Paulo Silva'
+author = 'Eduardo Morais and Paulo Silva'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the

@@ -13,6 +13,12 @@ Welcome to build's documentation!
 .. automodule:: aaa_manager.authentication
    :members:
 
+.. automodule:: aaa_manager.basedb
+   :members:
+
+.. automodule:: aaa_manager.db_client
+   :members:
+
 
 Indices and tables
 ==================

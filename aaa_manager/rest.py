@@ -1,4 +1,7 @@
-"""Main module of backend, where controller and view paths are defined"""
+"""
+This file contains the AAA manager REST interface. The API allows to manage 
+authentication, authorisation and accounting information.
+"""
 import logging
 
 from aaa_manager import Route
@@ -9,7 +12,9 @@ log = logging.getLogger(__name__)
 
 
 class RestView:
-    """ Implements the main REST API """
+    """
+    Implements the main REST API.
+    """
 
     def __init__(self, request):
         self.request = request
@@ -21,27 +26,64 @@ class RestView:
                  request_method='POST',
                  renderer='json')
     def checkin(self):
-        """ This method is called from **/engine/api/checkin**.
+        """ 
+        This method is called from **/engine/api/checkin_data**.
+        This method is used to authentication user to access the application.
+
+        Arguments:
+            user (str): the username;
+            pwd (str): the user password.
+
+        Returns:
+            success (bool): True if sucessfully authenticated and False
+            otherwise;
+            cancelled (bool): True if operation is cancelled by the user and
+            False otherwise;
+            user_info (dict): contains information about the user, such as
+            the authentication token and username;
+            error (str): an error message if an error occured and an empty
+            string otherwise.
         """
         usr = self.request.params['user']
         pwd = self.request.params['pwd']
-        user = self.authentication.access_app(2, usr, self.authentication._hash(pwd), Auth.USERS)
+        # TODO: aap_id = 2 is hardcoded
+        user = self.authentication.access_app(
+                2, 
+                usr, 
+                self.authentication._hash(pwd), 
+                Auth.USERS)
         token = self.authentication.generate_token(user)
         response = self.authentication.insert_token(2, user, token)
 
         if user is not None:
-            log.info('#### authenticated!')
-            return {'success': True, 'cancelled': False, 'user_info': {'user_token': token, 'user': user}, 'error': ''}
+            log.info('Successfully authenticated.')
+            return {
+                    'success': True, 
+                    'cancelled': False, 
+                    'user_info': {'user_token': token, 'user': user}, 
+                    'error': ''
+                    }
         else:
-            log.info('#### not authenticated!')
-            return {'success': False, 'cancelled': False, 'user_info': None, 'error': 'Invalid username or password.'}
+            log.info('User not authenticated.')
+            return {
+                    'success': False, 
+                    'cancelled': False, 
+                    'user_info': None, 
+                    'error': 'Invalid username or password.'
+                    }
         return {}
 
     @view_config(route_name=Route.CHECKOUT,
                  request_method='POST',
                  renderer='json')
     def checkout(self):
-        """ This method is called from **/engine/api/checkout**.
+        """ 
+        This method is called from **/engine/api/checkout_data**.
+        This method is used to logout. It revocates current user token and
+        logs the operation for accounting purposes. 
+
+        Args:
+            token (str): hexadecimal representation of user token.
         """
         token = self.request.params['token']
         self.authentication.remove_token(token)
@@ -52,7 +94,16 @@ class RestView:
                  accept='application/json',
                  renderer='json')
     def verify_token(self):
-        """ This method is called from **/engine/api/verify_token**.
+        """ 
+        This method is called from **/engine/api/verify_token**.
+        Verify the validity of user token. 
+
+        Args:
+            token (str): hexadecimal representation of user token.
+
+        Returns:
+            response (str): username if token is valid and 'invalid token'
+            otherwise. 
         """
         token = self.request.params['token']
         response = self.authentication.verify_token(2, token)
@@ -63,11 +114,19 @@ class RestView:
                  accept='application/json',
                  renderer='json')
     def signup(self):
-        """ This method is called from **/engine/api/signup**.
+        """ 
+        This method is called from **/engine/api/signup**.
+        Method used to register new user into the system.
+
+        Args:
+            user (str): username;
+            pwd (str): user password;
+            fname (str): user first name;
+            lname (str): user last name;
+            email (str): user email address. 
         """
 
-        log.info('#### awaits filling forms...')
-        #needs to collect info from forms, verify them, and input in database
+        log.info('Awaits filling forms...')
 
         usr = self.request.params['user']
         pwd = self.request.params['pwd']
@@ -75,21 +134,22 @@ class RestView:
         lname = self.request.params['lname']
         email = self.request.params['email']
 
-        log.info('usr: %s' % usr)
-        log.info('pwd: %s' % pwd)
-        log.info('fname: %s' % fname)
-        log.info('lname: %s' % lname)
-        log.info('email: %s' % email)
-
-        user_info = {'username': usr, 'password': pwd, 'fname': fname, 'lname': lname}
-	#user = insert_user(1, auth_info)
+        user_info = {
+                'username': usr, 
+                'password': pwd, 
+                'fname': fname, 
+                'lname': lname
+                }
+        # app_id = 2 is hardcoded for now.
+        # TODO: remove hardcoded data
         result = self.authentication.insert_user(2, user_info)
 
-        log.info('#### result: %s, %s' % result)
         if result[0] is not None:
-            log.info('User registered!!!')
-            return {'success': 'User signed up with success!'}
+            log.info('User successfully registered.')
+            return {'success': 'User signed up with success.'}
         else:
-            log.info('Username already exists...')
-            return {'error': 'Username already exists. Please choose a different one.'}
+            log.info('Username already exists.')
+            return {'error':\
+                    'Username already exists. Please choose a different one.'
+            }
         return {}
