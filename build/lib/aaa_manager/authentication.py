@@ -8,7 +8,6 @@ import hashlib
 import copy
 import json
 import datetime
-from jsonschema import validate
 from enum import Enum
 from aaa_manager.basedb import BaseDB
 
@@ -49,15 +48,15 @@ class AuthenticationManager:
 
     def _is_admin_unique(self, app_id, username):
         """
-        Verify if the admin username on app data is unique.
+        Verifies if the admin username on app data is unique.
 
         Args:
-            app_id (int): the app key;
-            username (str): the username being tested.
+            app_id (int): the app key
+            username (str): the username being tested
 
         Returns:
             boolean: False if the admin username is already present, True
-                otherwise.
+                otherwise
         """
         users = list(self.basedb.get(USER_COLLECTION, APP_KEY, app_id))
         for elem in users:
@@ -68,16 +67,15 @@ class AuthenticationManager:
 
 
     def _is_user_unique(self, app_id, username):
-        """
-        Verify if the username on a app data is unique.
+        """Verifies if the username on a app data is unique
 
         Args:
-            app_id (int): the app key;
-            username (str): the username being tested.
+            app_id (int): the app key
+            username (str): the username being tested
 
         Returns:
             boolean: False if the user username is already present, True
-                otherwise.
+                otherwise
         """
         users = list(self.basedb.get(USER_COLLECTION, APP_KEY, app_id))
         for user in users:
@@ -87,23 +85,21 @@ class AuthenticationManager:
         return True
 
     def _hash(self, data):
-        """
-        Compute the hash of a string using SHA-512.
+        """Hashes a string using SHA-512.
 
         Args:
-            password (str): the password to be hashed.
+            password (str): the password to be hashed
 
         Returns:
-            str: the digest of the hashed password in hexadecimal digits.
+            str: the digest of the hashed password in hexadecimal digits
         """
         return hashlib.sha512(data.encode()).hexdigest()
 
     def get_all_users(self):
-        """
-        Get all users.
+        """Get all users
 
         Returns:
-            dict: all users data.
+            dict: all users data
         """
         users = []
         for user in self.basedb.get_all(USER_COLLECTION):
@@ -112,18 +108,15 @@ class AuthenticationManager:
 
     def delete_user(self, app_id, username):
         """
-        Delete a user entry on users collection in database.
+        Deletes a new user entry on users collection in DB
 
         Args:
-            app_id (int): the app id;
-            username (dict): the username.
+            app_id (int): the app id
+            username (dict): the username
 
         Returns:
-            object: The inserted object or None on failure;
-            str: 'admin' if the cause of failure was repeated admin 
-            authentication, 'users' for a non unique username, 'id' if the
-            app_id already exists, 'username' for duplicated username on the 
-            auth_info.
+            object: The inserted object or None on failure
+            str: 'admin' if the cause of failure was repeated admin authentication, 'users' for a non unique username, 'id' if the app_id already exists, 'username' for duplicated username on the auth_info
         """
         users = self.basedb.get(USER_COLLECTION, APP_KEY, app_id)
         auth = copy.deepcopy(user_info)
@@ -132,24 +125,24 @@ class AuthenticationManager:
 
     def insert_user(self, app_id, user_info):
         """
-        Insert a new user entry on users collection in database.
+        Inserts a new user entry on users collection in DB
 
         Args:
-            app_id (int): the app id;
-            auth_info (dict): the user dict, should contain users and admin's 
-            information and credentials.
+            app_id (int): the app id
+            auth_info (dict): the user dict, should contain the users and the admin's data, and a username/password pair
 
         
         Returns:
-            object: the inserted object or None if error;
-            str: 'admin' for repeated admin authentication, or 'users' for 
-            repeated username.
+            object: The inserted object or None on failure
+            str: 'admin' if the cause of failure was repeated admin authentication, 'users' for a non unique username, 'id' if the app_id already exists, 'username' for duplicated username on the auth_info
         """
         users = self.basedb.get(USER_COLLECTION, APP_KEY, app_id)
         if user_info['username'] == 'admin':
             return None, 'admin'
         auth = copy.deepcopy(user_info)
         auth['password'] = self._hash(auth['password'])
+        LOG.info('#### users: %s' % list(users))
+        LOG.info('#### auth: %s' % auth)
         if not self._is_user_unique(app_id, auth['username']):
             return None, 'users'
 
@@ -157,34 +150,31 @@ class AuthenticationManager:
                                         USER_ITEM, auth), ''
 
     def remove_app(self, app_id):
-        """
-        Remove an item from users collection in database.
+        """Removes a user entry on users collection in DB
 
         Args:
-            app_id (int): application id.
+            app_id (int): the user key
 
         Returns:
-            object: result of remove operation. 
+            The kdb remove operation result
         """
         return self.basedb.remove(USER_COLLECTION, APP_KEY, app_id)
 
 
     def generate_token(self, user):
-        """
-        Generate a token that can be used to authenticate user to access app. 
+        """Generates a token that can be used to authenticate user to access
+        app. 
 
         Args:
-            user (dict): user information.
+            user (dict): user information
 
         Returns: 
-            str: hexadecimal representation of token.
+            str: hexadecimal representation of token
         """
-        return self._hash(json.dumps(user)+datetime.datetime.now().
-                strftime("%Y-%m-%d %H:%M:%S"))
+        return self._hash(json.dumps(user)+datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
     
     def remove_token(self, token):
-        """
-        Remove token from DB.
+        """Remove token from DB.
 
         Args:
             token (str): hexidecimal token
@@ -232,14 +222,8 @@ class AuthenticationManager:
         return 'invalid token'
 
     def get_token(self, app_id, user):
-        """Gets token from database.
+        """Get token from database
 
-        Args:
-            app_id (int): application id;
-            user (dict): user information;
-
-        Returns:
-            token if user exists or None otherwise.
         """
         result = list(self.basedb.get_all('Token'))
         for item in result:
@@ -251,87 +235,23 @@ class AuthenticationManager:
         return None
 
     def access_app(self, app_id, username, password, auth_type=Auth.USERS):
-        """Retrieves a user based on a user username/password credential.
+        """Retrieves a user based on a user username/password pair
 
         Args:
-            auth_type (Auth): the authentification to be searched for;
-            app_id (int): application id
-            username (str): the inserted username;
-            password (str): the inserted password.
+            auth_type (Auth): the authentification to be searched for
+            username (str): the inserted username
+            password (str): the inserted password
 
         Returns:
-            dict: the user corresponding to the authentication match, or None
-            otherwise.
-        """
-        users = self.basedb.get(USER_COLLECTION, APP_KEY, app_id)
-        for user in users:  
-            if auth_type == Auth.USERS:
-                for user_info in user[USER_ITEM]:
-                    if user_info['username'] == username and\
-                            user_info['password'] == password:
-                        del user_info['password']
-                        return user_info
-        return None
-
-    def get_user(self, app_id, username):
-        """Returns user information based on username field. 
-
-        Args:
-            username (str): username;
-
-        Returns:
-            (dict) user information or None otherwise.
+            dict: the user corresponding to the authentication pair match,
+                or None if any
         """
         users = self.basedb.get(USER_COLLECTION, APP_KEY, app_id)
         for user in users:
-            for user_info in user[USER_ITEM]:
-                if 'username' in user_info and user_info['username'] == username:
-                    return user_info
+            if auth_type == Auth.USERS:
+                for user_info in user[USER_ITEM]:
+                    if user_info['username'] == username and user_info['password'] == \
+                        password:
+                        del user_info['password']
+                        return user_info
         return None
-
-
-    def update_user(self, app_id, user_new):
-        """Updates user information with `user_new` json content. 
-        
-        Args: 
-            app_id (int): application id
-            username (str): the inserted username;
-            user_new (dict): user information.
-
-        Return: 
-            (dict): user information if exists or None otherwise. 
-        """
-        if not self.validate(user_new):
-            return None
-        else:
-            username = user_new['username']
-            user_old = self.get_user(app_id, username)
-            user_new['password'] = self._hash(user_new['password'])
-            result = self.basedb.update(USER_COLLECTION, APP_KEY, app_id,
-                    USER_ITEM, user_old, user_new)
-            return result
-
-    def validate(self, user):
-        """Validates user information schema.
-        
-        Args: 
-            user (dict): the user json.
-
-        Returns:
-            bool: True if valid or False otherwise.
-        """
-        SCHEMA = {"type" : "object",
-             "properties" : {
-                 "username" : {"type" : "string" },
-                 "fname" : {"type" : "string"},
-                 "lname" : {"type" : "string"},
-                 "email" : {"type" : "string"}
-            },
-             "required" : ["username", "fname", "lname", "email"]
-        }
-        try:
-            validate(user, SCHEMA)
-        except ValidationError as err:
-            LOG.error('Invalid user information')
-            raise Exception('Ivalid user information') from err 
-        return True

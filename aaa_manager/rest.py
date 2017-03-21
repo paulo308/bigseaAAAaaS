@@ -8,7 +8,7 @@ from aaa_manager import Route
 from aaa_manager.authentication import AuthenticationManager, Auth
 from pyramid.view import view_config
 
-log = logging.getLogger(__name__)
+LOG = logging.getLogger(__name__)
 
 
 class RestView:
@@ -56,7 +56,7 @@ class RestView:
         response = self.authentication.insert_token(2, user, token)
 
         if user is not None:
-            log.info('Successfully authenticated.')
+            LOG.info('Successfully authenticated.')
             return {
                     'success': True, 
                     'cancelled': False, 
@@ -64,7 +64,7 @@ class RestView:
                     'error': ''
                     }
         else:
-            log.info('User not authenticated.')
+            LOG.info('User not authenticated.')
             return {
                     'success': False, 
                     'cancelled': False, 
@@ -126,7 +126,7 @@ class RestView:
             email (str): user email address. 
         """
 
-        log.info('Awaits filling forms...')
+        LOG.info('Awaits filling forms...')
 
         usr = self.request.params['user']
         pwd = self.request.params['pwd']
@@ -138,18 +138,70 @@ class RestView:
                 'username': usr, 
                 'password': pwd, 
                 'fname': fname, 
-                'lname': lname
+                'lname': lname,
+                'email': email
                 }
         # app_id = 2 is hardcoded for now.
         # TODO: remove hardcoded data
         result = self.authentication.insert_user(2, user_info)
 
         if result[0] is not None:
-            log.info('User successfully registered.')
+            LOG.info('User successfully registered.')
             return {'success': 'User signed up with success.'}
         else:
-            log.info('Username already exists.')
+            LOG.info('Username already exists.')
             return {'error':\
                     'Username already exists. Please choose a different one.'
             }
         return {}
+
+    
+    @view_config(route_name=Route.UPDATE_USER,
+                 request_method='POST',
+                 accept='application/json',
+                 renderer='json')
+    def update_user(self):
+        """ 
+        This method is called from **/engine/api/update_user**.
+        Method used to update user information on the system.
+
+        Args:
+            user (str): username;
+            pwd (str): user password;
+            fname (str): user first name;
+            lname (str): user last name;
+            email (str): user email address. 
+        """
+
+        usr = self.request.params['user']
+        pwd = self.request.params['pwd']
+        fname = self.request.params['fname']
+        lname = self.request.params['lname']
+        email = self.request.params['email']
+            
+        LOG.info('#### usr: %s' % usr)
+        LOG.info('#### pwd: %s' % pwd)
+        LOG.info('#### fname: %s' % fname)
+        LOG.info('#### lname: %s' % lname)
+        LOG.info('#### email: %s' % email)
+
+        user_info = {
+                'username': usr, 
+                'password': pwd, 
+                'fname': fname, 
+                'lname': lname,
+                'email': email 
+                }
+        result = self.authentication.update_user(2, user_info)
+        LOG.info('#### result: %s' % result)
+        if result > 0:
+            msg = 'User information updated successfully.'
+            LOG.info(msg)
+            return {'success': msg}
+        else:
+            msg = 'Username does not exist.'
+            LOG.info(msg)
+            return {'error': msg}
+
+
+

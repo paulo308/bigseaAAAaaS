@@ -1,8 +1,4 @@
-"""
-Database client implementation. In this file there are methods to access mongo
-database. DBClient class encapsulates the client component that is responsible
-for establishing connections with MongoDB. 
-"""
+""" Database client """
 import logging
 import ssl
 

@@ -1,4 +1,7 @@
-""" Provides access to knowledgeDB features """
+"""
+Provides access to database collections. Methos to do CRUD operations on user
+information. 
+"""
 import logging
 
 from aaa_manager.db_client import DBClient
@@ -11,7 +14,9 @@ _DEFAULT_DB_NAME = 'AAADB'
 
 
 class BaseDB:
-    """ Provides an interface to use the database """
+    """ 
+    Provides an interface to use database.
+    """
 
     def __init__(self, host=_DEFAULT_DB_HOST, port=_DEFAULT_DB_PORT):
         self.host = host
@@ -31,7 +36,10 @@ class BaseDB:
         Finds all items in `collection`.
 
         Args:
-            collection (str): collection to be searched
+            collection (str): collection to be searched.
+
+        Returns: 
+            result (obt): mongodb result object.
         """
         self._connect()
         result = self.db_client.find(collection, {})
@@ -44,9 +52,12 @@ class BaseDB:
         Finds all items whose `key` field is equal to `value` in `collection`.
 
         Args:
-            collection (str): collection to be searched
-            key (str): name of field to be searched
-            value (str): value to be searched
+            collection (str): collection to be searched;
+            key (str): name of field to be searched;
+            value (str): value to be searched.
+   
+        Returns: 
+            result (obt): mongodb result object.
         """
         self._connect()
         condition = {key: value}
@@ -54,24 +65,35 @@ class BaseDB:
         self._close()
         return result
 
-    def insert(self, collection, search_key, search_val, insert_key, insert_val):
+    def insert(
+            self, 
+            collection, 
+            search_key, 
+            search_val, 
+            insert_key, 
+            insert_val):
         """
-        Inserts `item` into `insert_list` list whose
-        `search_key` field value is `search_val`.
+        Inserts `item` into `insert_list` list whose `search_key` field value 
+        is `search_val`.
 
         Args:
-            collection (str): collection to be searched and inserted/updated
-            search_key (str): name of field to be searched
-            search_val (str): value to be searched
-            insert_key (str): name of the list field in which `insert_val` will be inserted
-            insert_val (str): the element to be inserted in the list
+            collection (str): collection to be searched and inserted/updated;
+            search_key (str): name of field to be searched;
+            search_val (str): value to be searched;
+            insert_key (str): name of the list field in which `insert_val` will
+            be inserted;
+            insert_val (str): the element to be inserted in the list.
+        
+        Returns: 
+            result (obt): mongodb result object.
         """
         self._connect()
         result = None
         condition = {search_key: search_val}
         output = list(self.db_client.find(collection, condition))
 
-        # if a search for `search_val` returns an empty list, insert new element
+        # if a search for `search_val` returns an empty list, insert new 
+        # element
         if len(output) == 0:
             data = {search_key: search_val, insert_key: [insert_val]}
             result = self.db_client.insert(collection, data)
@@ -85,19 +107,30 @@ class BaseDB:
         self._close()
         return result
 
-    def update(self, collection, search_key, search_val, update_key, old_item,
-               new_item):
+    def update(
+            self, 
+            collection, 
+            search_key, 
+            search_val, 
+            update_key, 
+            old_item,
+            new_item):
         """
         Updates `old_item` for `new_item` into `update_key` list whose
         `search_key` value is `search_id`.
 
         Args:
-            collection (str): collection to be searched
-            search_key (str): name of field to be searched
-            search_val (str): value to be searched, so that `old_item` will be replaced for `new_item`
-            update_key (str): name of the list field in which `old_item` will be replaced
-            old_item (str): element to be replaced
-            new_item (str): new element to replace old element
+            collection (str): collection to be searched;
+            search_key (str): name of field to be searched;
+            search_val (str): value to be searched, so that `old_item` will be 
+            replaced for `new_item`;
+            update_key (str): name of the list field in which `old_item` will 
+            be replaced;
+            old_item (str): element to be replaced;
+            new_item (str): new element to replace old element.
+
+        Returns:
+            result (obt): mongodb result object.
         """
         self._connect()
         condition = {search_key: search_val, update_key: {"$in": [old_item]}}
@@ -107,24 +140,44 @@ class BaseDB:
         self._close()
         return result.modified_count
 
-    def remove_list_item(self, collection, search_key, search_val, remove_key,
-                         remove_val):
+    def remove_list_item(
+            self, 
+            collection, 
+            search_key, 
+            search_val, 
+            remove_key,
+            remove_val):
         """
-        Removes `remove_val` item from `remove_key` list whose
-        `search_key` field value is `search_val`.
+        Removes `remove_val` item from `remove_key` list whose `search_key` 
+        field value is `search_val`.
 
         Args:
-            collection (str): collection to be searched
-            search_key (str): name of field to be searched
-            search_val (str): value to be searched, so that `remove_item` will be removed into it
-            remove_key (str): name of the list field from which `remove_item` will be removed
-            remove_val (str): the element to be removed
+            collection (str): collection to be searched;
+            search_key (str): name of field to be searched;
+            search_val (str): value to be searched, so that `remove_item` will
+            be removed into it;
+            remove_key (str): name of the list field from which `remove_item`
+            will be removed;
+            remove_val (str): the element to be removed.
+
+        Returns:
+            count (int): number of removed items.
         """
         self._connect()
-        condition = {search_key: search_val, remove_key: {"$in": [remove_val]}}
-        result = self.db_client.db[collection]\
-                .update_many(condition, 
-                             {"$pull": {remove_key: {"$in": [remove_val]}}})
+        condition = {
+                search_key: search_val, 
+                remove_key: {"$in": [remove_val]}
+                }
+        result = self.db_client.db[collection].update_many(
+                condition, 
+                {
+                    "$pull": {
+                        remove_key: {
+                            "$in": [remove_val]
+                            }
+                        }
+                    }
+                )
         self._close()
         return result.modified_count
 
@@ -133,9 +186,13 @@ class BaseDB:
         Removes the whole list whose `search_key` field value is `search_val`.
 
         Args:
-            collection (str): collection to be searched
-            search_key (str): name of field to be searched
-            search_val (str): value to be searched, so that its list will be removed
+            collection (str): collection to be searched;
+            search_key (str): name of field to be searched;
+            search_val (str): value to be searched, such that its list will be
+            removed.
+
+        Returns:
+            count (int): number of items removed.
         """
         self._connect()
         condition = {search_key: search_val}
@@ -149,11 +206,17 @@ class BaseDB:
         whose `search_key` value is `search_val`.
 
         Args:
-            collection (str): collection to be searched
-            search_key (str): name of field to be searched
-            search_val (str): value to be searched, so that `verify_val` item will be verified
-            verify_key (str): name of the list field in which `verify_val` item will be verified
-            verify_val (str): the element to be verified
+            collection (str): collection to be searched;
+            search_key (str): name of field to be searched;
+            search_val (str): value to be searched, so that `verify_val` item
+            will be verified;
+            verify_key (str): name of the list field in which `verify_val` item
+            will be verified;
+            verify_val (str): the element to be verified.
+
+        Returns:
+            belongs (bool): True if item belongs to collection and False
+            otherwise.
         """
         self._connect()
         condition = {search_key: search_val, verify_key: {"$in": [verify_val]}}
