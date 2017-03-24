@@ -26,6 +26,7 @@ def main(global_config, **settings):
     config.add_route(Route.GET_CHECKOUT, '/json/checkout')
     config.add_route(Route.GET_SIGNUP, '/json/signup')
     config.add_route(Route.GET_UPDATE_USER, '/json/update')
+    config.add_route(Route.GET_DELETE_USER, '/json/delete')
 
     # rest api routes
     config.add_route(Route.CHECKIN, '/engine/api/checkin_data')
@@ -33,6 +34,7 @@ def main(global_config, **settings):
     config.add_route(Route.SIGNUP, '/engine/api/signup_data')
     config.add_route(Route.VERIFY_TOKEN, '/engine/api/verify_token')
     config.add_route(Route.UPDATE_USER, '/engine/api/update_user')
+    config.add_route(Route.DELETE_USER, '/engine/api/delete_user')
 
     # Scan and load classes with configuration decoration (@view_config)
     config.scan()

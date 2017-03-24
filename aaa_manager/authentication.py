@@ -110,13 +110,13 @@ class AuthenticationManager:
             users.append(self._format_user_dict(user))
         return users
 
-    def delete_user(self, app_id, username):
+    def delete_user(self, app_id, user_info):
         """
         Delete a user entry on users collection in database.
 
         Args:
             app_id (int): the app id;
-            username (dict): the username.
+            username (dict): the user information.
 
         Returns:
             object: The inserted object or None on failure;
@@ -125,10 +125,10 @@ class AuthenticationManager:
             app_id already exists, 'username' for duplicated username on the 
             auth_info.
         """
-        users = self.basedb.get(USER_COLLECTION, APP_KEY, app_id)
         auth = copy.deepcopy(user_info)
-        return self.basedb.remove_item(USER_COLLECTION, APP_KEY, app_id,
-                                        USER_ITEM, auth), ''
+        auth['password'] = self._hash(auth['password'])
+        return self.basedb.remove_list_item(USER_COLLECTION, APP_KEY, app_id,
+                                        USER_ITEM, auth)
 
     def insert_user(self, app_id, user_info):
         """

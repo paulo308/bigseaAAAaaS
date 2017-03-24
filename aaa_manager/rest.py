@@ -203,5 +203,44 @@ class RestView:
             LOG.info(msg)
             return {'error': msg}
 
+    @view_config(route_name=Route.DELETE_USER,
+                 request_method='POST',
+                 accept='application/json',
+                 renderer='json')
+    def delete_user(self):
+        """
+        This method is called from **/engine/api/update_user
+        Method used to delete user information from application.
+
+        Args:
+            username (str): username;
+            pwd (str): user password;
+            fname (str): user first name;
+            lname (str): user last name;
+            email (str): user email address. 
+        """
+
+        usr = self.request.params['user']
+        pwd = self.request.params['pwd']
+        fname = self.request.params['fname']
+        lname = self.request.params['lname']
+        email = self.request.params['email']
+        user_info = {
+                'username': usr, 
+                'password': pwd, 
+                'fname': fname, 
+                'lname': lname,
+                'email': email 
+                }
+        result = self.authentication.delete_user(2, user_info)
+        LOG.info('#### result: %s' % result)
+        if result > 0:
+            msg = 'User deleted with success.'
+            LOG.info(msg)
+            return {'sucess': msg}
+        else:
+            msg = 'User does not exist.'
+            LOG.info(msg)
+            return {'error': msg}
 
 
