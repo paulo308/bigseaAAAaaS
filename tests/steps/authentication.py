@@ -76,3 +76,47 @@ def step_impl(context):
             assert len(result) == 2
             assert result[0] == None
             assert result[1] == 'admin'
+
+@given('I have username and password')
+def step_impl(context):
+    context.username = 'teste'
+    context.password = 'pwd'
+
+@when('I access application')
+def step_impl(context):
+    context.info = {'username': 'teste', 'password': 'pwd'}
+    ret = [{'auth': [context.info]}]
+    with patch.object(BaseDB, 'get', 
+        return_value=ret) as mck_get:
+            authentication = AuthenticationManager()
+            context.result = authentication.access_app(1,
+                context.username, context.password)
+            assert mck_get.called
+
+@then('I get user information')
+def step_impl(context):
+    assert context.result == context.info
+                
+@given('I have valid application ID and user information')
+def step_impl(context):
+    context.app_id = 1
+    context.user_info = {'username': 'teste', 'password': 'pwd'}
+
+@when('I consult token')
+def step_impl(context):
+    context.token = 'abababab'
+    ret = [{
+            'data': [{
+                'app_id': context.app_id, 
+                'user': context.user_info
+            }],
+            'token': context.token
+        }]
+    with patch.object(BaseDB, 'get_all', return_value=ret) as mck_get:
+        authentication = AuthenticationManager()
+        context.result = authentication.get_token(context.app_id, context.user_info)
+        
+
+@then('I get valid token')
+def step_impl(context):
+        assert context.result == context.token

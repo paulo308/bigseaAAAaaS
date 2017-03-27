@@ -17,3 +17,14 @@ Feature: Test authentication functionalities
                 Given I have user information and application identification
                 When I user is admin
                 Then User is not created and admin string is returned
+
+        Scenario: Access application
+                Given I have username and password
+                When I access application
+                Then I get user information 
+
+        Scenario: Get token
+                Given I have valid application ID and user information
+                When I consult token
+                Then I get valid token
+
