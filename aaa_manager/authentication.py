@@ -145,7 +145,6 @@ class AuthenticationManager:
             str: 'admin' for repeated admin authentication, or 'users' for 
             repeated username.
         """
-        users = self.basedb.get(USER_COLLECTION, APP_KEY, app_id)
         if user_info['username'] == 'admin':
             return None, 'admin'
         auth = copy.deepcopy(user_info)
