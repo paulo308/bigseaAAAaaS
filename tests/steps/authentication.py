@@ -229,3 +229,47 @@ def step_impl(context):
         context.result = authentication.remove_app(context.app_id)
         assert mck_remove.called
         assert mck_remove.called_with(USER_COLLECTION, APP_KEY, context.app_id)
+                
+@given('I have application ID and user information')
+def step_impl(context):
+    context.app_id = 1
+    context.username = 'teste'
+    context.password = 'pwd'
+    context.user_info = {'username': context.username, 'password':
+            context.password}
+
+@when('I delete user')
+def step_impl(context):
+    pass
+
+@then('I delete user successfully')
+def step_impl(context):
+    with patch.object(BaseDB, 'remove_list_item') as mck_remove:
+        authentication = AuthenticationManager()
+        context.result = authentication.delete_user(context.app_id,
+                context.user_info)
+        context.password = authentication._hash(context.password)
+        assert mck_remove.called_with(USER_COLLECTION, APP_KEY, context.app_id,
+                                        USER_ITEM, context.user_info)
+
+@when('I update user')
+def step_impl(context):
+    pass
+
+@then('I update user successfully')
+def step_impl(context):
+    context.usernew = {'username': context.username+'new', 'password':
+            context.password+'new', 'email': 'a@a.com', 'fname': 'teste',
+            'lname': 'teste'}
+    context.userold = {'username': context.username, 'password':
+            context.password, 'email': 'a@a.com', 'fname': 'teste',
+            'lname': 'teste'}
+    with patch.object(BaseDB, 'update') as mck_update:
+        with patch.object(BaseDB, 'get_all', return_value=context.userold) as mck_get:
+            authentication = AuthenticationManager()
+            context.result = authentication.update_user(context.app_id,
+                    context.usernew)
+            context.password = authentication._hash(context.password)
+            assert mck_update.called_with(USER_COLLECTION, APP_KEY, 
+                    context.app_id, USER_ITEM, context.userold, 
+                    context.usernew)

@@ -52,3 +52,13 @@ Feature: Test authentication functionalities
                 Given I have application ID
                 When I remove application
                 Then I remove application successfully 
+
+        Scenario: Delete user
+                Given I have application ID and user information
+                When I delete user
+                Then I delete user successfully 
+
+        Scenario: Update user
+                Given I have application ID and user information
+                When I update user
+                Then I update user successfully 

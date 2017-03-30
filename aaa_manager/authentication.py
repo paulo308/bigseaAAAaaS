@@ -112,7 +112,7 @@ class AuthenticationManager:
 
     def delete_user(self, app_id, user_info):
         """
-        Delete a user entry on users collection in database.
+        Delete an user entry on users collection in database.
 
         Args:
             app_id (int): the app id;
