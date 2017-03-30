@@ -139,6 +139,7 @@ def step_impl(context):
         authentication = AuthenticationManager()
         context.result = authentication.verify_token(context.app_id,
                 context.token)
+        assert mck_get.called
         
 @when('I verify token')
 def step_impl(context):
@@ -146,6 +147,34 @@ def step_impl(context):
 
 @then('I get corresponding username')
 def step_impl(context):
-    print(context.result)
-    print(context.username)
     assert context.result == context.username
+                
+@given('I have valid application ID, user information and token')
+def step_impl(context):
+    context.app_id = 1
+    context.username = 'teste'
+    context.user_info = {'username': context.username, 'password': 'pwd'}
+    context.token = 'ababab'
+    context.data = {
+            'app_id': context.app_id, 
+            'status': 'valid',
+            'user': context.user_info
+            }
+    with patch.object(BaseDB, 'update') as mck_update:
+        with patch.object(BaseDB, 'insert') as mck_insert:
+            authentication = AuthenticationManager()
+            context.result = authentication.insert_token(context.app_id,
+                    context.user_info,
+                    context.token)
+            assert mck_update.called
+            assert mck_update.called_with('Token', 'token', context.token,
+            'data', context.data)
+            assert mck_insert.called
+
+@when('I insert token')
+def step_impl(context):
+    pass
+
+@then('I get database response')
+def step_impl(context):
+    assert context.result is not None

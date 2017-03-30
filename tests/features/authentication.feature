@@ -32,3 +32,8 @@ Feature: Test authentication functionalities
                 Given I have valid application ID and token
                 When I verify token
                 Then I get corresponding username
+
+        Scenario: Insert token
+                Given I have valid application ID, user information and token
+                When I insert token
+                Then I get database response
