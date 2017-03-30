@@ -28,3 +28,7 @@ Feature: Test authentication functionalities
                 When I consult token
                 Then I get valid token
 
+        Scenario: Verify token
+                Given I have valid application ID and token
+                When I verify token
+                Then I get corresponding username

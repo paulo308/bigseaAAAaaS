@@ -119,4 +119,33 @@ def step_impl(context):
 
 @then('I get valid token')
 def step_impl(context):
-        assert context.result == context.token
+    assert context.result == context.token
+                
+@given('I have valid application ID and token')
+def step_impl(context):
+    context.app_id = 1
+    context.username = 'teste'
+    context.user_info = {'username': context.username, 'password': 'pwd'}
+    context.token = 'ababab'
+    ret = [{
+            'data': [{
+                'app_id': context.app_id, 
+                'status': 'valid',
+                'user': context.user_info
+            }],
+            'token': context.token
+        }]
+    with patch.object(BaseDB, 'get', return_value=ret) as mck_get:
+        authentication = AuthenticationManager()
+        context.result = authentication.verify_token(context.app_id,
+                context.token)
+        
+@when('I verify token')
+def step_impl(context):
+    pass
+
+@then('I get corresponding username')
+def step_impl(context):
+    print(context.result)
+    print(context.username)
+    assert context.result == context.username
