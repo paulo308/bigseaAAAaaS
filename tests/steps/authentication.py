@@ -178,3 +178,22 @@ def step_impl(context):
 @then('I get database response')
 def step_impl(context):
     assert context.result is not None
+                
+@given('I have valid token')
+def step_impl(context):
+    context.token = 'ababab'
+    with patch.object(BaseDB, 'remove') as mck_remove:
+        authentication = AuthenticationManager()
+        context.result = authentication.remove_token(context.token)
+        assert mck_remove.called
+        assert mck_remove.called_with('Token', 'token', context.token)
+
+
+@when('I remove token')
+def step_impl(context):
+    pass
+
+@then('I remove token from database')
+def step_impl(context):
+    assert context.result is not None
+

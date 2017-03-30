@@ -37,3 +37,8 @@ Feature: Test authentication functionalities
                 Given I have valid application ID, user information and token
                 When I insert token
                 Then I get database response
+
+        Scenario: Remove token
+                Given I have valid token
+                When I remove token
+                Then I remove token from database
