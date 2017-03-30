@@ -197,3 +197,19 @@ def step_impl(context):
 def step_impl(context):
     assert context.result is not None
 
+@given('I have user information')
+def step_impl(context):
+    context.username = 'teste'
+    context.user_info = {'username': context.username, 'password': 'pwd'}
+
+@when('I generate token')
+def step_impl(context):
+    pass
+
+@then('I generate token successfully')
+def step_impl(context):
+    with patch.object(AuthenticationManager, '_hash') as mck_hash:
+        authentication = AuthenticationManager()
+        context.result = authentication.generate_token(context.user_info)
+        print(context.result)
+        assert mck_hash.called

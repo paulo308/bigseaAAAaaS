@@ -42,3 +42,8 @@ Feature: Test authentication functionalities
                 Given I have valid token
                 When I remove token
                 Then I remove token from database
+
+        Scenario: Generate token
+                Given I have user information
+                When I generate token
+                Then I generate token successfully 
