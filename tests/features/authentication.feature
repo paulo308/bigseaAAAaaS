@@ -47,3 +47,8 @@ Feature: Test authentication functionalities
                 Given I have user information
                 When I generate token
                 Then I generate token successfully 
+
+        Scenario: Remove application
+                Given I have application ID
+                When I remove application
+                Then I remove application successfully 

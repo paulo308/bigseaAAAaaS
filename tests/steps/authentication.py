@@ -6,6 +6,7 @@ from unittest.mock import MagicMock
 from unittest.mock import patch
 from behave import given, when, then
 from aaa_manager.authentication import AuthenticationManager
+from aaa_manager.authentication import USER_COLLECTION, APP_KEY, USER_ITEM
 from aaa_manager.basedb import BaseDB
                 
 @given('I have user information and application identification')
@@ -211,5 +212,20 @@ def step_impl(context):
     with patch.object(AuthenticationManager, '_hash') as mck_hash:
         authentication = AuthenticationManager()
         context.result = authentication.generate_token(context.user_info)
-        print(context.result)
         assert mck_hash.called
+                
+@given('I have application ID')
+def step_impl(context):
+    context.app_id = 1
+
+@when('I remove application')
+def step_impl(context):
+    pass
+
+@then('I remove application successfully')
+def step_impl(context):
+    with patch.object(BaseDB, 'remove') as mck_remove:
+        authentication = AuthenticationManager()
+        context.result = authentication.remove_app(context.app_id)
+        assert mck_remove.called
+        assert mck_remove.called_with(USER_COLLECTION, APP_KEY, context.app_id)
