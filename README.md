@@ -1,4 +1,5 @@
-# bigseaAAA
-Development of Authentication, Authorisation and Accounting
+# AAA as a Service
 
-Run script demo.sh in order to lift all docker machines. 
+Development of Authentication, Authorisation and Accounting as a Service for The BIGSEA Project.
+
+Run script start.sh in order to star all docker machines and initiate the AAA Server. 
