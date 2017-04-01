@@ -1,6 +1,8 @@
 
 $(function() {
   // Handler for .ready() called.
+  console.log('ok1');
+//  insert_user();
 });
 
 function get_apps(){

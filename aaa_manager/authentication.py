@@ -112,7 +112,7 @@ class AuthenticationManager:
 
     def delete_user(self, app_id, user_info):
         """
-        Delete an user entry on users collection in database.
+        Delete a user entry on users collection in database.
 
         Args:
             app_id (int): the app id;
@@ -145,6 +145,7 @@ class AuthenticationManager:
             str: 'admin' for repeated admin authentication, or 'users' for 
             repeated username.
         """
+        users = self.basedb.get(USER_COLLECTION, APP_KEY, app_id)
         if user_info['username'] == 'admin':
             return None, 'admin'
         auth = copy.deepcopy(user_info)

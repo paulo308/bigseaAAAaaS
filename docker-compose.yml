@@ -27,8 +27,9 @@ services:
             - "443:443"
             - "8080:8080"
         volumes:
-            - /home/admin/master/testsite:/usr/share/nginx/html
-            - /etc/letsencrypt:/etc/letsencrypt
+            - ./testsite/:/usr/share/nginx/html
+            - ./letsencrypt/:/etc/letsencrypt
+            - ./serverconf/:/etc/nginx/conf.d
         networks:
             backend:
                 ipv4_address: 172.250.0.86
