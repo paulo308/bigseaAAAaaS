@@ -28,3 +28,9 @@ Run the script:
 ```
 
 Wait while it gathers the necessary images and configures the containers. After a successfull initiation, the service should be up and running! 
+
+## Usage Examples - Rest API Calls
+
+Following there are examples of call to the AAA Server API. Additionally, you can consult the document with further instructions at /docs/AAAaaServiceDetails.pdf
+
+To be added soon...
