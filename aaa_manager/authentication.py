@@ -22,6 +22,8 @@ USER_COLLECTION = 'users'
 APP_KEY = 'app_id'
 USER_ITEM = 'auth'
 SECRET = '4I3+jNeddexZAgvvh6TS47dZVPp5ezPX+sJ1AW/QvwY='
+# expiration is measured in minutes
+TOKEN_EXPIRATION = 30 
 
 
 class Auth(Enum):
@@ -182,17 +184,20 @@ class AuthenticationManager:
 
     def generate_token(self, user):
         """
-        Generate a token that can be used to authenticate user to access app. 
+        Generate a token that can be used to authenticate user to 
+        access app. 
 
         Args:
             user (dict): user information.
 
         Returns: 
-            str: hexadecimal representation of token.
+            str: base64 representation of token.
         """
         #return self._hash(json.dumps(user)+datetime.datetime.now().
         #        strftime("%Y-%m-%d %H:%M:%S"))
-        result = bcrypt.hashpw((SECRET+json.dumps(user)).encode('utf-8'), bcrypt.gensalt())
+        result = bcrypt.hashpw(
+                (SECRET+json.dumps(user)).encode('utf-8'), 
+                bcrypt.gensalt())
         return base64.b64encode(result).decode('utf-8')
     
     def remove_token(self, token):
@@ -200,7 +205,7 @@ class AuthenticationManager:
         Remove token from DB.
 
         Args:
-            token (str): hexidecimal token
+            token (str): base64 token
 
         Returns: 
             obj: mongodb result
@@ -218,18 +223,19 @@ class AuthenticationManager:
         Returns: 
             obj: mongodb result
         """
-        self.basedb.update('Token', 'token', token, 'data', 
-                {'app_id': app_id, 'user': user, 'status': 'valid'}, 
-                {'app_id': app_id, 'user': user, 'status': 'invalid'})
         return self.basedb.insert('Token', 'token', token, 'data', 
-                {'app_id': app_id, 'user': user, 'status': 'valid'})
+                {
+                    'app_id': app_id, 
+                    'user': user, 
+                    'created': datetime.datetime.now()
+                    })
 
     def verify_token(self, app_id, token):
         """Verify token validity.
 
         Args:
             app_id (int): application id
-            token (str): hexidecimal token
+            token (str): base64 token
 
         Returns:
             str: username corresponding to token if valid, 
@@ -239,8 +245,12 @@ class AuthenticationManager:
         for item in result:
             if 'data' in item:
                 for data in item['data']:
-                    if 'app_id' in data and data['app_id'] == app_id\
-                            and 'status' in data and data['status'] == 'valid':
+                    if 'app_id' in data\
+                            and data['app_id'] == app_id\
+                            and 'created' in data\
+                            and (datetime.datetime.now() - datetime.timedelta(minutes=TOKEN_EXPIRATION) < data['created']):
+                        LOG.info('#### %s' % (datetime.datetime.now() - datetime.timedelta(minutes=TOKEN_EXPIRATION) < data['created']))
+                        LOG.info('#### created: %s' % data['created'])
                         return data['user']['username'];
         return 'invalid token'
 
@@ -273,7 +283,8 @@ class AuthenticationManager:
             password (str): the inserted password.
 
         Returns:
-            dict: the user corresponding to the authentication match, or None
+            dict: the user corresponding to the authentication match, 
+            or None
             otherwise.
         """
         users = self.basedb.get(USER_COLLECTION, APP_KEY, app_id)
@@ -299,7 +310,8 @@ class AuthenticationManager:
         users = self.basedb.get(USER_COLLECTION, APP_KEY, app_id)
         for user in users:
             for user_info in user[USER_ITEM]:
-                if 'username' in user_info and user_info['username'] == username:
+                if 'username' in user_info\
+                        and user_info['username'] == username:
                     return user_info
         return None
 

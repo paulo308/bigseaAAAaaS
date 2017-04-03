@@ -86,7 +86,7 @@ class RestView:
             token (str): hexadecimal representation of user token.
         """
         token = self.request.params['token']
-        self.authentication.remove_token(token)
+        self.authentication.remove_token(2, token)
         return {}
 
     @view_config(route_name=Route.VERIFY_TOKEN,
