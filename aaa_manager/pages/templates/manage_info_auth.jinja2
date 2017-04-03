@@ -16,27 +16,11 @@
 {% endblock %}
 
 {% block main_content %}
-<!--
-<title>EUBra-BIGSEA Project</title>
-    <div id="main_content">
-        <h3> EUBra-BIGSEA Authentication </h3>
-
-	<div class="form-group">
-	  <label for="usr">Username:</label>
-	  <input type="text" class="form-control" id="usr">
-	</div>
-	<div class="form-group">
-	  <label for="pwd">Password:</label>
-	  <input type="password" class="form-control" id="pwd">
-	</div>
-	<div id="btn_login" class="button">Login</div>
-    </div>
--->
 
 <html>
 <head>
 <meta charset="utf-8">
-<title>EUBra-BIGSEA Authentication</title>
+<title>EUBra-BIGSEA Account Management</title>
 <style type="text/css">
 body {
 background-color: #f4f4f4;
@@ -139,17 +123,8 @@ width: 250px;
 </head>
 <body>
 <div id="login">
-<h1><strong>Welcome to EUBra-BIGSEA Login Page.</strong><br><br>
-Please introduce your username and password:</h1>
-
-<!--
-<p><input type="text" id="usr" required value="Email" onBlur="if(this.value=='')this.value='Email'" onFocus="if(this.value=='Email')this.value='' "></p>
-<p><input type="password" id="pwd" required value="Password" onBlur="if(this.value=='')this.value='Password'" onFocus="if(this.value=='Password')this.value='' "></p>
--->
-<!--
-<form action="javascript:void(0);" method="get">
-<fieldset>
--->
+<h1><strong>Account Management</strong><br><br>
+Please sign in to confirm your identity before continuing:</h1>
 
 <form data-parsley-validate name="signinform" id="signinform" action="javascript:void(0);" method="get">
 <fieldset>
@@ -165,11 +140,8 @@ Please introduce your username and password:</h1>
 
 <p><input id="btn_login" type="submit" value="Sign In"></p>
 
-<font size="2"><p>Do not have an account yet? &nbsp </font><a id="btn_tosignup" href="/web/signup">Sign Up</a>
+<font size="2"><p>To cancel close the page.</p>
 
-<!-- 
-<button id="signupbutton" class="float-left submit-button" >Home</button>
--->
 
 </fieldset>
 </form>
