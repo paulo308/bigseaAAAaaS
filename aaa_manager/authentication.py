@@ -11,6 +11,8 @@ import datetime
 from jsonschema import validate
 from enum import Enum
 from aaa_manager.basedb import BaseDB
+import bcrypt
+import base64
 
 LOG = logging.getLogger(__name__)
 _DEFAULT_DB_HOST = 'mongo'
@@ -19,6 +21,7 @@ _DEFAULT_DB_PORT = 27017
 USER_COLLECTION = 'users'
 APP_KEY = 'app_id'
 USER_ITEM = 'auth'
+SECRET = '4I3+jNeddexZAgvvh6TS47dZVPp5ezPX+sJ1AW/QvwY='
 
 
 class Auth(Enum):
@@ -98,6 +101,14 @@ class AuthenticationManager:
         """
         return hashlib.sha512(data.encode()).hexdigest()
 
+    def _hashpwd(self, data):
+        salt = bcrypt.gensalt()
+        result = bcrypt.hashpw(data.encode('utf-8'), salt)
+        return result.decode('utf-8') 
+
+    def _validatepwd(self, data, pwd):
+        return data == bcrypt.hashpw(pwd.encode('utf-8'), data)
+
     def get_all_users(self):
         """
         Get all users.
@@ -126,7 +137,7 @@ class AuthenticationManager:
             auth_info.
         """
         auth = copy.deepcopy(user_info)
-        auth['password'] = self._hash(auth['password'])
+        auth['password'] = self._hashpwd(auth['password'])
         return self.basedb.remove_list_item(USER_COLLECTION, APP_KEY, app_id,
                                         USER_ITEM, auth)
 
@@ -149,7 +160,7 @@ class AuthenticationManager:
         if user_info['username'] == 'admin':
             return None, 'admin'
         auth = copy.deepcopy(user_info)
-        auth['password'] = self._hash(auth['password'])
+        auth['password'] = self._hashpwd(auth['password'])
         if not self._is_user_unique(app_id, auth['username']):
             return None, 'users'
 
@@ -179,8 +190,10 @@ class AuthenticationManager:
         Returns: 
             str: hexadecimal representation of token.
         """
-        return self._hash(json.dumps(user)+datetime.datetime.now().
-                strftime("%Y-%m-%d %H:%M:%S"))
+        #return self._hash(json.dumps(user)+datetime.datetime.now().
+        #        strftime("%Y-%m-%d %H:%M:%S"))
+        result = bcrypt.hashpw((SECRET+json.dumps(user)).encode('utf-8'), bcrypt.gensalt())
+        return base64.b64encode(result).decode('utf-8')
     
     def remove_token(self, token):
         """
@@ -267,10 +280,11 @@ class AuthenticationManager:
         for user in users:  
             if auth_type == Auth.USERS:
                 for user_info in user[USER_ITEM]:
-                    if user_info['username'] == username and\
-                            user_info['password'] == password:
-                        del user_info['password']
-                        return user_info
+                    if user_info['username'] == username:
+                        hashpwd = user_info['password'] 
+                        if self._validatepwd(hashpwd, password):
+                            del user_info['password']
+                            return user_info
         return None
 
     def get_user(self, app_id, username):
@@ -301,7 +315,7 @@ class AuthenticationManager:
         Return: 
             (dict): user information if exists or None otherwise. 
         """
-        if not self.validate(user_new):
+        if not self.validate_user(user_new):
             return None
         else:
             username = user_new['username']
@@ -311,7 +325,7 @@ class AuthenticationManager:
                     USER_ITEM, user_old, user_new)
             return result
 
-    def validate(self, user):
+    def validate_user(self, user):
         """Validates user information schema.
         
         Args: 
@@ -325,7 +339,10 @@ class AuthenticationManager:
                  "username" : {"type" : "string" },
                  "fname" : {"type" : "string"},
                  "lname" : {"type" : "string"},
-                 "email" : {"type" : "string"}
+                 "email" : {
+                     "type" : "string",
+                     "pattern": "[^@]+@[^@]+\.[^@]+",
+                     }
             },
              "required" : ["username", "fname", "lname", "email"]
         }

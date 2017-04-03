@@ -50,7 +50,7 @@ class RestView:
         user = self.authentication.access_app(
                 2, 
                 usr, 
-                self.authentication._hash(pwd), 
+                pwd, 
                 Auth.USERS)
         token = self.authentication.generate_token(user)
         response = self.authentication.insert_token(2, user, token)
@@ -106,6 +106,7 @@ class RestView:
             otherwise. 
         """
         token = self.request.params['token']
+        LOG.info('#### token: %s' % token)
         response = self.authentication.verify_token(2, token)
         return {'response': response}
 

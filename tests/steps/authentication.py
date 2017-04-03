@@ -6,8 +6,10 @@ from unittest.mock import MagicMock
 from unittest.mock import patch
 from behave import given, when, then
 from aaa_manager.authentication import AuthenticationManager
-from aaa_manager.authentication import USER_COLLECTION, APP_KEY, USER_ITEM
+from aaa_manager.authentication import USER_COLLECTION, APP_KEY, USER_ITEM, SECRET
 from aaa_manager.basedb import BaseDB
+import bcrypt
+import json
                 
 @given('I have user information and application identification')
 def step_impl(context):
@@ -85,11 +87,12 @@ def step_impl(context):
 
 @when('I access application')
 def step_impl(context):
-    context.info = {'username': 'teste', 'password': 'pwd'}
+    authentication = AuthenticationManager()
+    hashed = authentication._hashpwd('pwd')
+    context.info = {'username': 'teste', 'password': hashed}
     ret = [{'auth': [context.info]}]
     with patch.object(BaseDB, 'get', 
         return_value=ret) as mck_get:
-            authentication = AuthenticationManager()
             context.result = authentication.access_app(1,
                 context.username, context.password)
             assert mck_get.called
@@ -209,10 +212,9 @@ def step_impl(context):
 
 @then('I generate token successfully')
 def step_impl(context):
-    with patch.object(AuthenticationManager, '_hash') as mck_hash:
-        authentication = AuthenticationManager()
-        context.result = authentication.generate_token(context.user_info)
-        assert mck_hash.called
+    authentication = AuthenticationManager()
+    context.result = authentication.generate_token(context.user_info)
+    assert bcrypt.hashpw((SECRET+json.dumps(context.user_info)).encode('utf-8'), context.result) == context.result
                 
 @given('I have application ID')
 def step_impl(context):
@@ -259,7 +261,7 @@ def step_impl(context):
 @then('I update user successfully')
 def step_impl(context):
     context.usernew = {'username': context.username+'new', 'password':
-            context.password+'new', 'email': 'a@a.com', 'fname': 'teste',
+            context.password+'new', 'email': 'm@n.com', 'fname': 'teste',
             'lname': 'teste'}
     context.userold = {'username': context.username, 'password':
             context.password, 'email': 'a@a.com', 'fname': 'teste',
