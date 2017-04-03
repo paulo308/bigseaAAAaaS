@@ -8,7 +8,7 @@ import hashlib
 import copy
 import json
 import datetime
-from jsonschema import validate
+from jsonschema import validate, ValidationError
 from enum import Enum
 from aaa_manager.basedb import BaseDB
 import bcrypt
@@ -158,6 +158,8 @@ class AuthenticationManager:
             str: 'admin' for repeated admin authentication, or 'users' for 
             repeated username.
         """
+        if not self.validate_user(user_info):
+            return None, 'invalid'
         users = self.basedb.get(USER_COLLECTION, APP_KEY, app_id)
         if user_info['username'] == 'admin':
             return None, 'admin'
@@ -327,8 +329,12 @@ class AuthenticationManager:
         Return: 
             (dict): user information if exists or None otherwise. 
         """
-        if not self.validate_user(user_new):
-            return None
+        try:
+            if not self.validate_user(user_new):
+                return None
+        except Exception as err:
+            LOG.error('Invalid user information to update')
+            raise Exception('Ivalid user information to update') from err 
         else:
             username = user_new['username']
             user_old = self.get_user(app_id, username)
@@ -348,9 +354,21 @@ class AuthenticationManager:
         """
         SCHEMA = {"type" : "object",
              "properties" : {
-                 "username" : {"type" : "string" },
-                 "fname" : {"type" : "string"},
-                 "lname" : {"type" : "string"},
+                 "username" : {
+                     "type" : "string",
+                     "minLength": 1,
+                     "maxLength": 50
+                     },
+                 "fname" : {
+                     "type" : "string",
+                     "minLength": 1,
+                     "maxLength": 50
+                     },
+                 "lname" : {
+                     "type" : "string",
+                     "minLength": 1,
+                     "maxLength": 50
+                     },
                  "email" : {
                      "type" : "string",
                      "pattern": "[^@]+@[^@]+\.[^@]+",
@@ -362,5 +380,5 @@ class AuthenticationManager:
             validate(user, SCHEMA)
         except ValidationError as err:
             LOG.error('Invalid user information')
-            raise Exception('Ivalid user information') from err 
+            raise Exception('Invalid user information') from err 
         return True
