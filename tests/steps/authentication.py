@@ -10,6 +10,8 @@ from aaa_manager.authentication import USER_COLLECTION, APP_KEY, USER_ITEM, SECR
 from aaa_manager.basedb import BaseDB
 import bcrypt
 import json
+import datetime
+import base64
                 
 @given('I have user information and application identification')
 def step_impl(context):
@@ -89,7 +91,7 @@ def step_impl(context):
 def step_impl(context):
     authentication = AuthenticationManager()
     hashed = authentication._hashpwd('pwd')
-    context.info = {'username': 'teste', 'password': hashed}
+    context.info = {'username': 'teste', 'password': hashed.encode('utf-8')}
     ret = [{'auth': [context.info]}]
     with patch.object(BaseDB, 'get', 
         return_value=ret) as mck_get:
@@ -134,7 +136,7 @@ def step_impl(context):
     ret = [{
             'data': [{
                 'app_id': context.app_id, 
-                'status': 'valid',
+                'created': datetime.datetime.now(),
                 'user': context.user_info
             }],
             'token': context.token
@@ -161,19 +163,15 @@ def step_impl(context):
     context.token = 'ababab'
     context.data = {
             'app_id': context.app_id, 
-            'status': 'valid',
+            'created': datetime.datetime.now(),
             'user': context.user_info
             }
-    with patch.object(BaseDB, 'update') as mck_update:
-        with patch.object(BaseDB, 'insert') as mck_insert:
-            authentication = AuthenticationManager()
-            context.result = authentication.insert_token(context.app_id,
-                    context.user_info,
-                    context.token)
-            assert mck_update.called
-            assert mck_update.called_with('Token', 'token', context.token,
-            'data', context.data)
-            assert mck_insert.called
+    with patch.object(BaseDB, 'insert') as mck_insert:
+        authentication = AuthenticationManager()
+        context.result = authentication.insert_token(context.app_id,
+                context.user_info,
+                context.token)
+        assert mck_insert.called
 
 @when('I insert token')
 def step_impl(context):
@@ -213,8 +211,9 @@ def step_impl(context):
 @then('I generate token successfully')
 def step_impl(context):
     authentication = AuthenticationManager()
-    context.result = authentication.generate_token(context.user_info)
-    assert bcrypt.hashpw((SECRET+json.dumps(context.user_info)).encode('utf-8'), context.result) == context.result
+    context.result = authentication.generate_token(context.user_info).encode('utf-8')
+    hashed = bcrypt.hashpw((SECRET+json.dumps(context.user_info)).encode('utf-8'), base64.b64decode(context.result))
+    assert base64.b64encode(hashed) == context.result
                 
 @given('I have application ID')
 def step_impl(context):
