@@ -159,7 +159,9 @@ class AuthenticationManager:
             repeated username.
         """
         if not self.validate_user(user_info):
-            return None, 'invalid'
+            return None, 'invalid user information'
+        if not self.validate_pwd(user_info):
+            return None, 'invalid password'
         users = self.basedb.get(USER_COLLECTION, APP_KEY, app_id)
         if user_info['username'] == 'admin':
             return None, 'admin'
@@ -170,6 +172,52 @@ class AuthenticationManager:
 
         return self.basedb.insert(USER_COLLECTION, APP_KEY, app_id,
                                         USER_ITEM, auth), ''
+
+    def validate_pwd(self, user_info):
+        """
+        Validate password against the set of policies:
+
+            - At least 8 characters long;
+            - Should be different than username, first and last name, and 
+            email;
+            - It should include at least 3 of the 4 available types: uppercase 
+            letters, lowercase letters, numbers, and symbols.
+
+        Args:
+           user_info (dict): user information. 
+
+        Returns:
+            bool: True if valid and False otherwise.
+        """
+        pwd = user_info['password']
+        if len(pwd) < 8:
+            return False
+        if user_info['username'] == pwd\
+                or user_info['fname'] == pwd\
+                or user_info['lname'] == pwd\
+                or user_info['email'] == pwd:
+                    return False
+        count = 0
+        for c in pwd:
+            if 'a' <= c <= 'z':
+                count = count + 1
+                break
+        for c in pwd:
+            if 'A' <= c <= 'Z':
+                count = count + 1
+                break
+        for c in pwd:
+            if '0' <= c <= '9':
+                count = count + 1
+                break
+        symbol = "~`!@#$%^&*()_-+={}[]:>;',</?*-+"
+        for c in pwd:
+            if c in symbol:
+                count = count + 1
+                break
+        if count < 3:
+            return False
+        return True
 
     def remove_app(self, app_id):
         """

@@ -18,6 +18,11 @@ Feature: Test authentication functionalities
                 When I user is admin
                 Then User is not created and admin string is returned
 
+	Scenario: Invalid password
+		Given I have chosen and invalid password
+		When I create user
+		Then User is not created and invalid password is returned
+
         Scenario: Access application
                 Given I have username and password
                 When I access application

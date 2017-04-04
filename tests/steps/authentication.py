@@ -17,7 +17,7 @@ import base64
 def step_impl(context):
     context.user_info = {
             'username': 'unitteste', 
-            'password': 'unitpwd', 
+            'password': 'Un1ttpwd', 
             'fname': 'unitfname', 
             'lname': 'unitlname',
             'email': 'unit@test.com'
@@ -274,3 +274,35 @@ def step_impl(context):
             assert mck_update.called_with(USER_COLLECTION, APP_KEY, 
                     context.app_id, USER_ITEM, context.userold, 
                     context.usernew)
+
+@given('I have chosen and invalid password')
+def step_impl(context):
+    context.invalid_passwords = [
+            'abcd', 
+            'abcdefgh'
+            'Abcdefgh'
+            '@bcdefgh'
+            '@bC1'
+            '1abCD'
+            ]
+
+
+@when('I create user')
+def step_impl(context):
+    authentication = AuthenticationManager()
+    for item in context.invalid_passwords:
+        if not authentication.validate_pwd({
+            'username': 'teste',
+            'password': item,
+            'fname': 'teste',
+            'lname': 'teste',
+            'email': 'teste@aaa.com'
+            }):
+            context.result = False
+            context.value =  item + ' is invalid'
+    context.result = True
+    context.value =  'valid'
+
+@then('User is not created and invalid password is returned')
+def step_impl(context):
+    assert context.result, context.value
