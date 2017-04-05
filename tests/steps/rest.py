@@ -2,29 +2,99 @@
 REST API unit tests.
 """
 
+from unittest.mock import MagicMock
+from unittest.mock import patch
 from behave import given, when, then
+import requests
+from collections import namedtuple
+from aaa_manager.rest import RestView 
+from aaa_manager.authentication import AuthenticationManager 
+
 
 #Scenario: Signup
 @given('I have correct user information')
 def step_impl(context):
-    assert False
+    context.user_info = {
+            'username': 'teste',
+            'password': '@bCd3fgh',
+            'fname' : 'teste',
+            'lname': 'teste',
+            'email': 'teste@mail.com'
+            }
 
 @when('I signup')
 def step_impl(context):
-    assert False
+    pass
 
 @then('I signup successfully')
 def step_impl(context):
-    assert False
+    payload = {
+            'user': context.user_info['username'],
+            'pwd': context.user_info['password'],
+            'fname': context.user_info['fname'],
+            'lname': context.user_info['lname'],
+            'email': context.user_info['email']
+            }
+    settings = namedtuple('settings', 'settings')
+    settings = settings({'data': {}})
+    params = payload
+    request = namedtuple('request', 'registry params')
+    request = request(settings, params)
+    ret = [{}], ''
+    with patch.object(AuthenticationManager, 'insert_user',
+            return_value=ret) as mck_insert:
+        rv = RestView(request)
+        result = rv.signup()
+        assert result['success'] == 'User signed up with success.'
+        assert mck_insert.called
+    ret = None, ''
+    with patch.object(AuthenticationManager, 'insert_user',
+            return_value=ret) as mck_insert:
+        rv = RestView(request)
+        result = rv.signup()
+        assert result['error'] == 'Username already exists. Please choose a different one.'
+        assert mck_insert.called
+
 
 #Scenario: Signup
 @given('I have wrong user information')
 def step_impl(context):
-    assert False
+    context.user_info = {
+            'username': 'teste',
+            'password': '@bCd3fgh',
+            'fname' : 'teste',
+            'lname': 'teste',
+            'email': 'teste' 
+            }
 
 @then('I receive expected signup error message')
 def step_impl(context):
-    assert False
+    payload = {
+            'user': context.user_info['username'],
+            'pwd': context.user_info['password'],
+            'fname': context.user_info['fname'],
+            'lname': context.user_info['lname'],
+            'email': context.user_info['email']
+            }
+    settings = namedtuple('settings', 'settings')
+    settings = settings({'data': {}})
+    params = payload
+    request = namedtuple('request', 'registry params')
+    request = request(settings, params)
+    ret = None, 'invalid user information'
+    with patch.object(AuthenticationManager, 'insert_user',
+            return_value=ret) as mck_insert:
+        rv = RestView(request)
+        result = rv.signup()
+        assert result['error'] == 'invalid user information'
+        assert mck_insert.called
+    ret = None, 'invalid user information'
+    with patch.object(AuthenticationManager, 'insert_user',
+            return_value=ret) as mck_insert:
+        rv = RestView(request)
+        result = rv.signup()
+        assert result['error'] == 'invalid user information'
+        assert mck_insert.called
 
 #Scenario: Checkin
 @given('I have user credential')

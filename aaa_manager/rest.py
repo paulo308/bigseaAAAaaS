@@ -146,9 +146,12 @@ class RestView:
         # TODO: remove hardcoded data
         result = self.authentication.insert_user(2, user_info)
 
-        if result[0] is not None:
+        if result[0] is not None and result[1] == '':
             LOG.info('User successfully registered.')
             return {'success': 'User signed up with success.'}
+        if result[0] is None and result[1] != '':
+            LOG.info(result[1])
+            return {'error': result[1]}
         else:
             LOG.info('Username already exists.')
             return {'error':\
