@@ -7,7 +7,7 @@
 {% block scripts %}
     {{ super() }}
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
-    <script src="/static/js/home.js"></script>
+    <script src="/static/js/manage_info_user.js"></script>
     <script src="/static/js/parsley.min.js"></script>
 {% endblock %}
 
@@ -73,6 +73,7 @@ text-transform: uppercase;
 width: 300px;
 -webkit-appearance:none;
 }
+
 form fieldset a {
 color: #5a5656;
 font-size: 10px;
@@ -129,20 +130,41 @@ Update your information and click "Save".</h1>
 
 <form data-parsley-validate name="signinform" id="signinform" action="javascript:void(0);" method="get">
 <fieldset>
-<p>
-	<label for="user">Username (not possible to change):</label>
-        <input name="user" id="user" maxlength="32" type="text" required/>
-</p>
-<p>
-        <label for="pwd">Password:</label>
-        <input name="pwd" id="pwd" type="password" required/>
-</p>
+			<p>
+				<label for="user">Username (not possible to change):</label>
+				<input name="user" id="user" type="text" disabled/>
+			</p>
+			<p>
+				<label for="email">E-Mail:</label>
+				<input name="email" id="email" maxlength="1024" type="text" required/>
+                        </p>
+                        <p>
+				<label for="fname">First Name:</label>
+				<input name="fname" id="fname" maxlength="32" type="text" required/>
+                        </p>
+                        <p>
+				<label for="lname">Last Name:</label>
+				<input name="lname" id="lname" maxlength="32" type="text" required />
+                        </p>
+			<p>
+			        <label for="pwd">Old Password:</label>
+				<input name="pwd" id="pwd" type="password" required/>
+			</p>
+			<p>
+				<label for="password1">New Password:</label>
+				<input name="password1" id="password1" data-parsley-pattern="^[A-Za-z0-9_-]{5,25}$" data-parsley-length="[5, 25]" type="password" data-parsley-equalto="#password2" data-parsley-error-message="Passwords must match. Needs to be between 5 and 25 characters. Case sensitive. No special characters allowed." required/>
+                        </p>
+                        <p>
+				<label for="password2">Confirm Your New Password:</label>
+				<input name="password2" id="password2" data-parsley-length="[5, 25]" data-parsley-error-message="Passwords must match. Needs to be between 5 and 25 characters. Case sensitive. No special characters allowed." data-parsley-pattern="^[A-Za-z0-9_-]{5,25}$" type="password" data-parsley-equalto="#password1" required/>
+                        </p>
 
 
 <p><input id="btn_save" type="submit" value="Save"></p>
 
 <font size="2"><p>Changes only take effect after clicking "Save" button and present confirmation.</p>
 
+<p><input id="btn_delete" type="submit" value="Delete Account" style=background-color:red></p>
 
 </fieldset>
 </form>
