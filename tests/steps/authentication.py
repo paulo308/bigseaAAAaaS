@@ -279,11 +279,12 @@ def step_impl(context):
 def step_impl(context):
     context.invalid_passwords = [
             'abcd', 
-            'abcdefgh'
-            'Abcdefgh'
-            '@bcdefgh'
-            '@bC1'
-            '1abCD'
+            'abcdefgh',
+            'Abcdefgh',
+            '@bcdefgh',
+            '@bC1',
+            '1abCD',
+            '@bcD1234'
             ]
 
 

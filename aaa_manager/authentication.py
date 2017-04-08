@@ -217,7 +217,15 @@ class AuthenticationManager:
                 break
         if count < 3:
             return False
-        return True
+        return self.verify_pwd_blacklist(pwd)
+
+    def verify_pwd_blacklist(self, pwd):
+        with open('aaa_manager/password_blacklist.json', 'r') as f:
+            blacklist = f.readlines()
+            for p in blacklist:
+                if pwd == p:
+                    return False
+            return True
 
     def remove_app(self, app_id):
         """
