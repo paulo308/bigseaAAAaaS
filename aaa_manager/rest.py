@@ -52,10 +52,10 @@ class RestView:
                 usr, 
                 pwd, 
                 Auth.USERS)
-        token = self.authentication.generate_token(user)
-        response = self.authentication.insert_token(2, user, token)
 
         if user is not None:
+            token = self.authentication.generate_token(user)
+            response = self.authentication.insert_token(2, user, token)
             LOG.info('Successfully authenticated.')
             return {
                     'success': True, 
@@ -241,7 +241,7 @@ class RestView:
         if result > 0:
             msg = 'User deleted with success.'
             LOG.info(msg)
-            return {'sucess': msg}
+            return {'success': msg}
         else:
             msg = 'User does not exist.'
             LOG.info(msg)

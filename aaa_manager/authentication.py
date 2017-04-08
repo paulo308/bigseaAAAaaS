@@ -220,7 +220,7 @@ class AuthenticationManager:
         return self.verify_pwd_blacklist(pwd)
 
     def verify_pwd_blacklist(self, pwd):
-        with open('aaa_manager/password_blacklist.json', 'r') as f:
+        with open('aaa_manager/password_blacklist.txt', 'r') as f:
             blacklist = f.readlines()
             for p in blacklist:
                 if pwd == p:

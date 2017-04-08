@@ -35,22 +35,18 @@ def step_impl(context):
             'lname': context.user_info['lname'],
             'email': context.user_info['email']
             }
-    settings = namedtuple('settings', 'settings')
-    settings = settings({'data': {}})
-    params = payload
-    request = namedtuple('request', 'registry params')
-    request = request(settings, params)
+    context.request = context.request(context.settings, params=payload)
     ret = [{}], ''
     with patch.object(AuthenticationManager, 'insert_user',
             return_value=ret) as mck_insert:
-        rv = RestView(request)
+        rv = RestView(context.request)
         result = rv.signup()
         assert result['success'] == 'User signed up with success.'
         assert mck_insert.called
     ret = None, ''
     with patch.object(AuthenticationManager, 'insert_user',
             return_value=ret) as mck_insert:
-        rv = RestView(request)
+        rv = RestView(context.request)
         result = rv.signup()
         assert result['error'] == 'Username already exists. Please choose a different one.'
         assert mck_insert.called
@@ -76,22 +72,18 @@ def step_impl(context):
             'lname': context.user_info['lname'],
             'email': context.user_info['email']
             }
-    settings = namedtuple('settings', 'settings')
-    settings = settings({'data': {}})
-    params = payload
-    request = namedtuple('request', 'registry params')
-    request = request(settings, params)
+    context.request = context.request(context.settings, params=payload)
     ret = None, 'invalid user information'
     with patch.object(AuthenticationManager, 'insert_user',
             return_value=ret) as mck_insert:
-        rv = RestView(request)
+        rv = RestView(context.request)
         result = rv.signup()
         assert result['error'] == 'invalid user information'
         assert mck_insert.called
     ret = None, 'invalid user information'
     with patch.object(AuthenticationManager, 'insert_user',
             return_value=ret) as mck_insert:
-        rv = RestView(request)
+        rv = RestView(context.request)
         result = rv.signup()
         assert result['error'] == 'invalid user information'
         assert mck_insert.called
@@ -99,87 +91,219 @@ def step_impl(context):
 #Scenario: Checkin
 @given('I have user credential')
 def step_impl(context):
-    assert False
+    context.user_info = {
+            'username': 'teste',
+            'password': '@bCd3fgh'
+            }
 
 @when('I checkin')
 def step_impl(context):
-    assert False
+    pass
 
 @then('I checkin successully')
 def step_impl(context):
-    assert False
+    payload = {
+            'user': context.user_info['username'],
+            'pwd': context.user_info['password']
+            }
+    context.request = context.request(context.settings, params=payload)
+    ret = {}
+    with patch.object(AuthenticationManager, 'access_app',
+            return_value=ret) as mck_access:
+        with patch.object(AuthenticationManager, 'generate_token',
+                return_value=ret) as mck_gen:
+            with patch.object(AuthenticationManager, 'insert_token',
+                    return_value=ret) as mck_insert:
+                rv = RestView(context.request)
+                result = rv.checkin()
+                assert result['success']
+                assert mck_access.called
+                assert mck_gen.called
+                assert mck_insert.called
 
 #Scenario: Checkin
 @given('I have wrong user credential')
 def step_impl(context):
-    assert False
+    context.user_info = {
+            'username': 'teste',
+            'password': '@bCd3fgh'
+            }
 
 @then('I receive expected checkin error message')
 def step_impl(context):
-    assert False
+    payload = {
+            'user': context.user_info['username'],
+            'pwd': context.user_info['password']
+            }
+    context.request = context.request(context.settings, params=payload)
+    ret = None
+    with patch.object(AuthenticationManager, 'access_app',
+            return_value=ret) as mck_access:
+        with patch.object(AuthenticationManager, 'generate_token',
+                return_value=ret) as mck_gen:
+            with patch.object(AuthenticationManager, 'insert_token',
+                    return_value=ret) as mck_insert:
+                rv = RestView(context.request)
+                result = rv.checkin()
+                assert not result['success']
+                assert mck_access.called
+                assert not mck_gen.called
+                assert not mck_insert.called
 
 #Scenario: Checkout
 @given('I have correct user token')
 def step_impl(context):
-    assert False
+    context.token = 'abababa'
 
 @when('I checkout')
 def step_impl(context):
-    assert False
+    pass
 
 @then('I checkout successfully')
 def step_impl(context):
-    assert False
+    payload = {
+            'token': context.token
+            }
+    context.request = context.request(context.settings, params=payload)
+    ret = None
+    with patch.object(AuthenticationManager, 'remove_token',
+            return_value=ret) as mck_remove:
+        rv = RestView(context.request)
+        result = rv.checkout()
+        assert mck_remove.called_with('2', context.token)
 
 #Scenario: Checkout
 @given('I have wrong user token')
 def step_impl(context):
-    assert False
+    assert True
+
 
 @then('I receive expected checkout error message')
 def step_impl(context):
-    assert False
+    assert True
 
 #Scenario: Update user
 @given('I have new user information and a valid token')
 def step_impl(context):
-    assert False
+    context.user_info = {
+            'username': 'teste',
+            'password': '@bCd3fgh',
+            'fname' : 'teste',
+            'lname': 'teste',
+            'email': 'teste@mail.com'
+            }
+
 
 @when('I update user using REST API')
 def step_impl(context):
-    assert False
+    pass
 
 @then('I update user successfully using REST API')
 def step_impl(context):
-    assert False
+    payload = {
+            'user': context.user_info['username'],
+            'pwd': context.user_info['password'],
+            'fname': context.user_info['fname'],
+            'lname': context.user_info['lname'],
+            'email': context.user_info['email']
+            }
+    context.request = context.request(context.settings, params=payload)
+    ret = 1    # corresponds to 1 updated item 
+    with patch.object(AuthenticationManager, 'update_user',
+            return_value=ret) as mck_update:
+        rv = RestView(context.request)
+        result = rv.update_user()
+        assert mck_update.called
+        assert result['success'] == 'User information updated successfully.'
 
 #Scenario: Update user
 @given('I have wrong new user information or an invalid token')
 def step_impl(context):
-    assert False
+    context.user_info = {
+            'username': 'teste',
+            'password': '@bCd3fgh',
+            'fname' : 'teste',
+            'lname': 'teste',
+            'email': 'teste@mail.com'
+            }
+
 
 @then('I receive corresponding update user error message')
 def step_impl(context):
-    assert False
+    payload = {
+            'user': context.user_info['username'],
+            'pwd': context.user_info['password'],
+            'fname': context.user_info['fname'],
+            'lname': context.user_info['lname'],
+            'email': context.user_info['email']
+            }
+    context.request = context.request(context.settings, params=payload)
+    ret = 0    # corresponds to 1 updated item 
+    with patch.object(AuthenticationManager, 'update_user',
+            return_value=ret) as mck_update:
+        rv = RestView(context.request)
+        result = rv.update_user()
+        assert mck_update.called
+        assert result['error'] == 'Username does not exist.'
 
 #Scenario: Delete user
 @given('I have wrong user information and a valid token')
 def step_impl(context):
-    assert False
+    context.user_info = {
+            'username': 'teste',
+            'password': '@bCd3fgh',
+            'fname' : 'teste',
+            'lname': 'teste',
+            'email': 'teste@mail.com'
+            }
 
 @when('I delete user using REST API')
 def step_impl(context):
-    assert False
+    pass
 
 @then('I receive corresponding delete user error message')
 def step_impl(context):
-    assert False
+    payload = {
+            'user': context.user_info['username'],
+            'pwd': context.user_info['password'],
+            'fname': context.user_info['fname'],
+            'lname': context.user_info['lname'],
+            'email': context.user_info['email']
+            }
+    context.request = context.request(context.settings, params=payload)
+    ret = 1    # corresponds to 1 updated item 
+    with patch.object(AuthenticationManager, 'delete_user',
+            return_value=ret) as mck_delete:
+        rv = RestView(context.request)
+        result = rv.delete_user()
+        assert mck_delete.called
+        assert result['success'] == 'User deleted with success.'
 
 #Scenario: Delete user
 @given('I have correct user information and a valid token')
 def step_impl(context):
-    assert False
+    context.user_info = {
+            'username': 'teste',
+            'password': '@bCd3fgh',
+            'fname' : 'teste',
+            'lname': 'teste',
+            'email': 'teste@mail.com'
+            }
 
 @then('I delete user successfully using REST API')
 def step_impl(context):
-    assert False
+    payload = {
+            'user': context.user_info['username'],
+            'pwd': context.user_info['password'],
+            'fname': context.user_info['fname'],
+            'lname': context.user_info['lname'],
+            'email': context.user_info['email']
+            }
+    context.request = context.request(context.settings, params=payload)
+    ret = 0    # corresponds to 1 updated item 
+    with patch.object(AuthenticationManager, 'delete_user',
+            return_value=ret) as mck_delete:
+        rv = RestView(context.request)
+        result = rv.delete_user()
+        assert mck_delete.called
+        assert result['error'] == 'User does not exist.'

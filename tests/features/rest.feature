@@ -1,3 +1,4 @@
+@rest
 Feature: Test REST API
 
 	As AAA MAnager, I have a REST API that is used to access services.
