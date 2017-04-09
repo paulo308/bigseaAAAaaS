@@ -10,13 +10,19 @@ verify if the number of times the resource was used reached the maximum number
 of times this resource is allowed to be used. 
 """
 
+from aaa_manager.authentication import _DEFAULT_DB_HOST, _DEFAULT_DB_PORT
+from aaa_manager.basedb import BaseDB
+from jsonschema import validate, ValidationError
+import logging
+
+LOG = logging.getLogger(__name__)
 AUTHORISATION_COLLECTION = 'Authorisation'
 AUTHORISATION_KEY = 'username'
 AUTHORISATION_ITEM = 'resource_rule'
 
 class Authorisation:
     
-    def __init__(self, host, port):
+    def __init__(self, host=_DEFAULT_DB_HOST, port=_DEFAULT_DB_PORT):
         self.host = host
         self.port = port
         self.basedb = BaseDB(host, port)
@@ -26,6 +32,10 @@ class Authorisation:
 
         """
         return True
+    
+    def update_resource_item(self, username, resource_name):
+        return None
+
 
     def use_resource(self, username, resource_name):
         """
@@ -33,15 +43,55 @@ class Authorisation:
         """
         if user_exists(username):
             # user resource code
-            self.update_resource_item(username,resource_name)
+            self.update_resource_item(username, resource_name)
 
     def validate_rule(self, rule):
-        return True
-
-    def user_exists(self, username):
-        return True
-
-    def resource_unique(self, resource_name):
+        SCHEMA = {'type': 'object',
+                'properties': {
+                    'resource_name': 
+                    {
+                        'type': 'string',
+                        'minLength': 1,
+                        'maxLength': 50
+                    },
+                    'resource_type':
+                    {
+                        'type': 'string',
+                        'minLength': 1,
+                        'maxLength': 50
+                    },
+                    'max_used':
+                    {
+                        'type': 'number'
+                    },
+                    'used':
+                    {
+                        'type': 'number'
+                    },
+                    'app_id':
+                    {
+                        'type': 'number'
+                    },
+                    'url':
+                    {
+                        'type': 'string',
+                        'minLength': 1,
+                        'maxLength': 50
+                    },
+                    'blob':
+                    {
+                        'type': 'string',
+                        'minLength': 1,
+                        'maxLength': 50
+                    },
+                    },
+                    'required' : ['app_id', 'resource_type','resource_name']
+                }
+        try:
+            validate(rule, SCHEMA)
+        except ValidationError as err:
+            LOG.error('Invalid rule')
+            raise Exception('Invalid rule') from err 
         return True
 
     def create(self, username, resource_name, rule):
@@ -56,9 +106,7 @@ class Authorisation:
         Returns:
             database response
         """
-        if validate_rule(rule)\
-        and self.user_exists(username)\
-        and self.resource_unique(resource_name):
+        if self.validate_rule(rule):
             item = {
                     'resource_name': resource_name,
                     'rule': rule

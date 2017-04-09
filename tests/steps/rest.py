@@ -7,7 +7,7 @@ from unittest.mock import patch
 from behave import given, when, then
 import requests
 from collections import namedtuple
-from aaa_manager.rest import RestView 
+from aaa_manager.authentication_rest import AuthenticationRestView 
 from aaa_manager.authentication import AuthenticationManager 
 
 
@@ -39,14 +39,14 @@ def step_impl(context):
     ret = [{}], ''
     with patch.object(AuthenticationManager, 'insert_user',
             return_value=ret) as mck_insert:
-        rv = RestView(context.request)
+        rv = AuthenticationRestView(context.request)
         result = rv.signup()
         assert result['success'] == 'User signed up with success.'
         assert mck_insert.called
     ret = None, ''
     with patch.object(AuthenticationManager, 'insert_user',
             return_value=ret) as mck_insert:
-        rv = RestView(context.request)
+        rv = AuthenticationRestView(context.request)
         result = rv.signup()
         assert result['error'] == 'Username already exists. Please choose a different one.'
         assert mck_insert.called
@@ -76,14 +76,14 @@ def step_impl(context):
     ret = None, 'invalid user information'
     with patch.object(AuthenticationManager, 'insert_user',
             return_value=ret) as mck_insert:
-        rv = RestView(context.request)
+        rv = AuthenticationRestView(context.request)
         result = rv.signup()
         assert result['error'] == 'invalid user information'
         assert mck_insert.called
     ret = None, 'invalid user information'
     with patch.object(AuthenticationManager, 'insert_user',
             return_value=ret) as mck_insert:
-        rv = RestView(context.request)
+        rv = AuthenticationRestView(context.request)
         result = rv.signup()
         assert result['error'] == 'invalid user information'
         assert mck_insert.called
@@ -114,7 +114,7 @@ def step_impl(context):
                 return_value=ret) as mck_gen:
             with patch.object(AuthenticationManager, 'insert_token',
                     return_value=ret) as mck_insert:
-                rv = RestView(context.request)
+                rv = AuthenticationRestView(context.request)
                 result = rv.checkin()
                 assert result['success']
                 assert mck_access.called
@@ -143,7 +143,7 @@ def step_impl(context):
                 return_value=ret) as mck_gen:
             with patch.object(AuthenticationManager, 'insert_token',
                     return_value=ret) as mck_insert:
-                rv = RestView(context.request)
+                rv = AuthenticationRestView(context.request)
                 result = rv.checkin()
                 assert not result['success']
                 assert mck_access.called
@@ -168,7 +168,7 @@ def step_impl(context):
     ret = None
     with patch.object(AuthenticationManager, 'remove_token',
             return_value=ret) as mck_remove:
-        rv = RestView(context.request)
+        rv = AuthenticationRestView(context.request)
         result = rv.checkout()
         assert mck_remove.called_with('2', context.token)
 
@@ -211,7 +211,7 @@ def step_impl(context):
     ret = 1    # corresponds to 1 updated item 
     with patch.object(AuthenticationManager, 'update_user',
             return_value=ret) as mck_update:
-        rv = RestView(context.request)
+        rv = AuthenticationRestView(context.request)
         result = rv.update_user()
         assert mck_update.called
         assert result['success'] == 'User information updated successfully.'
@@ -241,7 +241,7 @@ def step_impl(context):
     ret = 0    # corresponds to 1 updated item 
     with patch.object(AuthenticationManager, 'update_user',
             return_value=ret) as mck_update:
-        rv = RestView(context.request)
+        rv = AuthenticationRestView(context.request)
         result = rv.update_user()
         assert mck_update.called
         assert result['error'] == 'Username does not exist.'
@@ -274,7 +274,7 @@ def step_impl(context):
     ret = 1    # corresponds to 1 updated item 
     with patch.object(AuthenticationManager, 'delete_user',
             return_value=ret) as mck_delete:
-        rv = RestView(context.request)
+        rv = AuthenticationRestView(context.request)
         result = rv.delete_user()
         assert mck_delete.called
         assert result['success'] == 'User deleted with success.'
@@ -303,7 +303,7 @@ def step_impl(context):
     ret = 0    # corresponds to 1 updated item 
     with patch.object(AuthenticationManager, 'delete_user',
             return_value=ret) as mck_delete:
-        rv = RestView(context.request)
+        rv = AuthenticationRestView(context.request)
         result = rv.delete_user()
         assert mck_delete.called
         assert result['error'] == 'User does not exist.'

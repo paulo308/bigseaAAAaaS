@@ -11,7 +11,7 @@ from pyramid.view import view_config
 LOG = logging.getLogger(__name__)
 
 
-class RestView:
+class AuthenticationRestView:
     """
     Implements the main REST API.
     """
