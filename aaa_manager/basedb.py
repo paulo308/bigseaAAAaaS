@@ -165,16 +165,13 @@ class BaseDB:
         """
         self._connect()
         condition = {
-                search_key: search_val, 
-                remove_key: {"$in": [remove_val]}
+                search_key: search_val 
                 }
         result = self.db_client.db[collection].update_many(
                 condition, 
                 {
                     "$pull": {
-                        remove_key: {
-                            "$in": [remove_val]
-                            }
+                        remove_key: remove_val 
                         }
                     }
                 )

@@ -225,16 +225,10 @@ class AuthenticationRestView:
         """
 
         usr = self.request.params['user']
-        pwd = self.request.params['pwd']
-        fname = self.request.params['fname']
-        lname = self.request.params['lname']
-        email = self.request.params['email']
+        token = self.request.params['token']
         user_info = {
                 'username': usr, 
-                'password': pwd, 
-                'fname': fname, 
-                'lname': lname,
-                'email': email 
+                'token': token, 
                 }
         result = self.authentication.delete_user(2, user_info)
         LOG.info('#### result: %s' % result)

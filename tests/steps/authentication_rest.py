@@ -251,10 +251,7 @@ def step_impl(context):
 def step_impl(context):
     context.user_info = {
             'username': 'teste',
-            'password': '@bCd3fgh',
-            'fname' : 'teste',
-            'lname': 'teste',
-            'email': 'teste@mail.com'
+            'token': 'abababa'
             }
 
 @when('I delete user using REST API')
@@ -265,10 +262,7 @@ def step_impl(context):
 def step_impl(context):
     payload = {
             'user': context.user_info['username'],
-            'pwd': context.user_info['password'],
-            'fname': context.user_info['fname'],
-            'lname': context.user_info['lname'],
-            'email': context.user_info['email']
+            'token': context.user_info['token']
             }
     context.request = context.request(context.settings, params=payload)
     ret = 1    # corresponds to 1 updated item 
@@ -284,20 +278,14 @@ def step_impl(context):
 def step_impl(context):
     context.user_info = {
             'username': 'teste',
-            'password': '@bCd3fgh',
-            'fname' : 'teste',
-            'lname': 'teste',
-            'email': 'teste@mail.com'
+            'token': 'abababa'
             }
 
 @then('I delete user successfully using REST API')
 def step_impl(context):
     payload = {
             'user': context.user_info['username'],
-            'pwd': context.user_info['password'],
-            'fname': context.user_info['fname'],
-            'lname': context.user_info['lname'],
-            'email': context.user_info['email']
+            'token': context.user_info['token']
             }
     context.request = context.request(context.settings, params=payload)
     ret = 0    # corresponds to 1 updated item 

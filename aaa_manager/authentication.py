@@ -145,10 +145,15 @@ class AuthenticationManager:
             app_id already exists, 'username' for duplicated username on the 
             auth_info.
         """
-        auth = copy.deepcopy(user_info)
-        auth['password'] = self._hashpwd(auth['password'])
-        return self.basedb.remove_list_item(USER_COLLECTION, APP_KEY, app_id,
-                                        USER_ITEM, auth)
+        if self.verify_token(app_id, user_info['token']):
+            return self.basedb.remove_list_item(
+                    USER_COLLECTION, 
+                    APP_KEY, 
+                    app_id,
+                    USER_ITEM, 
+                    {'username': user_info['username']})
+        else:
+            return 0
 
     def insert_user(self, app_id, user_info):
         """
