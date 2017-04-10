@@ -14,6 +14,13 @@ from aaa_manager.basedb import BaseDB
 import bcrypt
 import base64
 
+# Import smtplib for the actual sending function
+import smtplib
+
+# Import the email modules we'll need
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+
 LOG = logging.getLogger(__name__)
 _DEFAULT_DB_HOST = 'mongo'
 _DEFAULT_DB_PORT = 27017
@@ -169,6 +176,13 @@ class AuthenticationManager:
         auth['password'] = self._hashpwd(auth['password'])
         if not self._is_user_unique(app_id, auth['username']):
             return None, 'users'
+        
+        email_token = self.generate_token(user_info)
+        result_insert = self.insert_email_token(auth['username'], auth['email'], email_token)
+        result_email = self.send_email(
+                auth['username'], 
+                user_info['email'], 
+                email_token)
 
         return self.basedb.insert(USER_COLLECTION, APP_KEY, app_id,
                                         USER_ITEM, auth), ''
@@ -274,9 +288,9 @@ class AuthenticationManager:
         """Insert token into DB.
 
         Args:
-            app_id (int): application id
-            user (dict): user information
-            token (str): hexidecimal token
+            app_id (int): application id;
+            user (dict): user information;
+            token (str): hexidecimal token.
 
         Returns: 
             obj: mongodb result
@@ -286,6 +300,25 @@ class AuthenticationManager:
                     'app_id': app_id, 
                     'user': user, 
                     'created': datetime.datetime.now()
+                    })
+    
+    def insert_email_token(self, username, email, token):
+        """Insert email token into DB.
+
+        Args:
+            username (str): username;
+            email (str): user email address;
+            token (str): user email token.
+
+        Returns: 
+            obj: mongodb result
+        """
+        return self.basedb.insert('EmailToken', 'email', email, 'data', 
+                {
+                    'token': token, 
+                    'username': username, 
+                    'created': datetime.datetime.now(),
+                    'valid': False
                     })
 
     def verify_token(self, app_id, token):
@@ -438,3 +471,83 @@ class AuthenticationManager:
             LOG.error('Invalid user information')
             raise Exception('Invalid user information') from err 
         return True
+
+    def email_confirmation(self, username, email, token):
+        """
+        Verifies if given token is valid.
+
+        Args: 
+            username (str): username;
+            email (str): user email;
+            token (str): email token encoded in base64.
+
+        Returns:
+            bool: True if valid and False otherwise.
+        """
+        
+        self.basedb.insert('EmailToken', 'email', email, 'data', 
+                {
+                    'token': token, 
+                    'username': username, 
+                    'validated': datetime.datetime.now(),
+                    'valid': True
+                    })
+        return True
+
+    def verify_email(self, username, email):
+        """
+        Verifies if given token is valid.
+
+        Args: 
+            username (str): username;
+            email (str): user email;
+            token (str): email token encoded in base64.
+
+        Returns:
+            bool: True if valid and False otherwise.
+        """
+        result = list(self.basedb.get('EmailToken', 'email', email))
+        for item in result:
+            if 'data' in item:
+                data = item['data']
+                if data['valid']: 
+                    return True
+        return False
+
+    def send_email(self, username, email, token):
+        # me == the sender's email address
+        # you == the recipient's email address
+        msg = MIMEMultipart('alternative')
+        msg['Subject'] = 'email confirmation'
+        msg['From'] = 'bigsea@bigsea.com'
+        msg['To'] = email
+
+        # Create the body of the message (a plain-text and an HTML version).
+        text = "Hi!\nHow are you?\nHere is the link you wanted:\nhttps://www.python.org"
+        html = """\
+        <html>
+          <head></head>
+          <body>
+            <p>Hi!<br>
+               How are you?<br>
+               Here is the <a href="https://www.python.org">link</a> you wanted.
+            </p>
+          </body>
+        </html>
+        """
+
+        # Record the MIME types of both parts - text/plain and text/html.
+        part1 = MIMEText(text, 'plain')
+        part2 = MIMEText(html, 'html')
+
+        # Attach parts into message container.
+        # According to RFC 2046, the last part of a multipart message, in this case
+        # the HTML message, is best and preferred.
+        msg.attach(part1)
+        msg.attach(part2)
+
+        # Send the message via our own SMTP server.
+        #s = smtplib.SMTP('localhost')
+        #s.send_message(msg)
+        #s.quit()
+

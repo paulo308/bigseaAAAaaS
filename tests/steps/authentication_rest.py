@@ -307,3 +307,27 @@ def step_impl(context):
         result = rv.delete_user()
         assert mck_delete.called
         assert result['error'] == 'User does not exist.'
+
+@given('I have valid username and email token')
+def step_impl(context):
+    context.user_info = {
+            'username': 'teste',
+            'email': 'eduardo.morais@gmail.com',
+            'token' : 'ababab'
+            }
+
+@when('I call the email confirmation REST API')
+def step_impl(context):
+    pass
+
+@then('I receive expected email confirmation message')
+def step_impl(context):
+    payload = {
+            'username': context.user_info['username'],
+            'email': context.user_info['email'],
+            'token': context.user_info['token']
+            }
+    context.request = context.request(context.settings, params=payload)
+    rv = AuthenticationRestView(context.request)
+    result = rv.email_confirmation()
+    

@@ -52,4 +52,8 @@ Feature: Test REST API
 		Given I have wrong user information and a valid token
 		When I delete user using REST API
 		Then I receive corresponding delete user error message
-	
+
+	Scenario: Email confirmation
+		Given I have valid username and email token
+		When I call the email confirmation REST API
+		Then I receive expected email confirmation message

@@ -248,3 +248,31 @@ class AuthenticationRestView:
             return {'error': msg}
 
 
+    @view_config(route_name=Route.EMAIL_CONFIRMATION,
+                 request_method='POST',
+                 accept='application/json',
+                 renderer='json')
+    def email_confirmation(self):
+        """
+        This method is called from **/engine/api/email_confirmation
+        Method used to confirm that the user possess given email address.
+
+        Args:
+            username (str): username;
+            email_token (str): unique email token.
+            email (str): user email.
+        """
+
+        username = self.request.params['username']
+        email_token = self.request.params['token']
+        email = self.request.params['email']
+        result = self.authentication.email_confirmation(username, email, email_token)
+        LOG.info('#### result: %s' % result)
+        if result:
+            msg = 'User email confirmed with success.'
+            LOG.info(msg)
+            return {'success': msg}
+        else:
+            msg = 'User email was not confirmed.'
+            LOG.info(msg)
+
