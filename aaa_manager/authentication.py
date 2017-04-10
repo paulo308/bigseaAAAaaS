@@ -384,7 +384,7 @@ class AuthenticationManager:
                 for user_info in user[USER_ITEM]:
                     if user_info['username'] == username:
                         hashpwd = user_info['password'] 
-                        if self._validatepwd(hashpwd, password):
+                        if self._validatepwd(hashpwd.encode('utf-8'), password):
                             del user_info['password']
                             return user_info
         return None
@@ -427,7 +427,7 @@ class AuthenticationManager:
         else:
             username = user_new['username']
             user_old = self.get_user(app_id, username)
-            user_new['password'] = self._hash(user_new['password'])
+            user_new['password'] = self._hashpwd(user_new['password'])
             result = self.basedb.update(USER_COLLECTION, APP_KEY, app_id,
                     USER_ITEM, user_old, user_new)
             return result

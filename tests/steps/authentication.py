@@ -91,7 +91,7 @@ def step_impl(context):
 def step_impl(context):
     authentication = AuthenticationManager()
     hashed = authentication._hashpwd('pwd')
-    context.info = {'username': 'teste', 'password': hashed.encode('utf-8')}
+    context.info = {'username': 'teste', 'password': hashed}
     ret = [{'auth': [context.info]}]
     with patch.object(BaseDB, 'get', 
         return_value=ret) as mck_get:
