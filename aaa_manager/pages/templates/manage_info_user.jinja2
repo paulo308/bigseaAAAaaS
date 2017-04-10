@@ -128,7 +128,7 @@ width: 250px;
 Update your information and click "Save".</h1>
 <font size="2"><p>Not possible to change username. Sign up for a new account and delete this one if you need to change username.</p>
 
-<form data-parsley-validate name="signinform" id="signinform" action="javascript:void(0);" method="get">
+<form data-parsley-validate name="updateform" id="updateform" action="javascript:void(0);" method="get">
 <fieldset>
 			<p>
 				<label for="user">Username (not possible to change):</label>
@@ -147,9 +147,11 @@ Update your information and click "Save".</h1>
 				<input name="lname" id="lname" maxlength="32" type="text" required />
                         </p>
 			<p>
-			        <label for="pwd">Old Password:</label>
+				<font size="2"><p>Introduce your password to confirm changes.</p>
+			        <label for="pwd">Password:</label>
 				<input name="pwd" id="pwd" type="password" required/>
 			</p>
+<!--
 			<p>
 				<label for="password1">New Password:</label>
 				<input name="password1" id="password1" data-parsley-pattern="^[A-Za-z0-9_-]{5,25}$" data-parsley-length="[5, 25]" type="password" data-parsley-equalto="#password2" data-parsley-error-message="Passwords must match. Needs to be between 5 and 25 characters. Case sensitive. No special characters allowed." required/>
@@ -158,7 +160,7 @@ Update your information and click "Save".</h1>
 				<label for="password2">Confirm Your New Password:</label>
 				<input name="password2" id="password2" data-parsley-length="[5, 25]" data-parsley-error-message="Passwords must match. Needs to be between 5 and 25 characters. Case sensitive. No special characters allowed." data-parsley-pattern="^[A-Za-z0-9_-]{5,25}$" type="password" data-parsley-equalto="#password1" required/>
                         </p>
-
+-->
 
 <p><input id="btn_save" type="submit" value="Save"></p>
 

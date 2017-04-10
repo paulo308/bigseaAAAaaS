@@ -7,21 +7,35 @@ $(function() {
     //window.addEventListener('message', function(event) {
     //  alert(`Received ${event.data} from ${event.origin}`);
     //});
-    $( "#btn_signup" ).click(function() {
-        console.log('ok2');
-        var f = $('#registerform');
+
+
+
+
+    $( "#btn_save" ).click(function() {
+        console.log('clickSave');
+	var f = $('#updateform');
 	f.parsley().validate();
 	if (f.parsley().isValid()) {
-		console.log('data input is valid. proceed to submit form');
-		signup();
+		console.log('data input is valid. proceed to submit form and update records');
+		updateInfo();
+		alert('Clicked Save and data is correct')
 	} else {
 		console.log('data validation failed');
+	}
+    });
+
+    $( "#btn_delete" ).click(function() {
+        console.log('clickDelete');
+	$('#updateform').off('form:validate');
+	var userToDelete = $('#user').val();
+	if (confirm('Are you sure you want to delete your account?')){
+		deleteAccount();
+		$("#updateform").parsley({ excluded: "input[type=button], input[type=submit], input[type=reset], input[type=hidden], [disabled], :hidden" });
 	}
     });
 });
 
 
-var source = 'https://eubrabigsea.dei.uc.pt/web/manage_info_auth'
 
 function postMessageHandler( event ) {
 	console.log("Received info from user to update data.");
@@ -29,17 +43,10 @@ function postMessageHandler( event ) {
   	console.log("* Origin:", event.origin);
   	console.log("* Source:", event.source);
 
-//	for (element in event.data.user_info.user){
-		//document.write('<input type="text" name="'+ element + '" value="' + event.data.user_info.user[element] + '">')
 	$('#user').val(event.data.user_info.user.username)
 	$('#email').val(event.data.user_info.user.email)
 	$('#fname').val(event.data.user_info.user.fname)
 	$('#lname').val(event.data.user_info.user.lname)
-//	}
-//	user
-//	email
-//	fname
-//	lname
 
 	// check request is from legitimate source and message is expected or not
   	if ( event.origin !== source ) { return; }
@@ -52,16 +59,15 @@ function postMessageHandler( event ) {
 
 
 
-function signup(){
+function updateInfo(){
     $.ajax({
-        url: '/engine/api/signup_data',
+        url: '/engine/api/update_user',
         type: 'post',
-        data: {'user': $('#user').val(), 'pwd': $('#password1').val(), 'fname': $('#fname').val(), 'lname': $('#lname').val(), 'email': $('#email').val()},
+        data: {'user': $('#user').val(), 'pwd': $('#pwd').val(), 'fname': $('#fname').val(), 'lname': $('#lname').val(), 'email': $('#email').val()},
         success: function (result) {
 	    view_data = result;
 	    console.log(result);
             console.log(result['error']);
-	    CloseMySelf(view_data);
 	    error = result['error'];
             if (error) {
 		//alert(error);
@@ -70,7 +76,7 @@ function signup(){
 		$('#error').text(error);
 		$('#error').show();
             } else {
-		msg = "Signed up with success!";
+		msg = "Updated with success!";
 		$('#error').text('');
 		$('#error').hide();
 		$('#success').text(msg);
@@ -80,3 +86,11 @@ function signup(){
     });
 }
 
+function checkDelete(){
+    return confirm('Are you sure you want to delete your account?');
+}
+
+function deleteAccount(){
+    alert('Account deleted');
+    console.log('Supose the account is deleted');
+}

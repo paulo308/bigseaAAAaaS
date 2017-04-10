@@ -26,11 +26,12 @@ function SendInfoManUserPage(data) {
 	//console.log(data);
         console.log('Ready to send answer and close!!!!!!!!!');
 	try {
+		//window.location = destination;
 		newpage = window.open(destination);
 		setTimeout(function()
 		{
 			newpage.postMessage(data,destination);
-		}, 2000);
+		}, 500);
 		//newpage.postMessage(data, destination);
 
 		//window.opener.HandlePopupResult(data);
