@@ -20,6 +20,9 @@ def main(global_config, **settings):
     config.add_route(Route.WEB_CHECKIN, '/web/checkin')
     config.add_route(Route.WEB_CHECKOUT, '/web/checkout')
     config.add_route(Route.WEB_SIGNUP, '/web/signup')
+    config.add_route(Route.WEB_MANAGE_AUTH, 'web/manage_info_auth')
+    config.add_route(Route.WEB_MANAGE_USER, 'web/manage_info_user')
+    config.add_route(Route.WEB_MANAGE_ADMIN, 'web/manage_info_admin')
 
     # json routes
     config.add_route(Route.GET_CHECKIN, '/json/checkin')
