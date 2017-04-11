@@ -8,9 +8,6 @@ $(function() {
     //  alert(`Received ${event.data} from ${event.origin}`);
     //});
 
-
-
-
     $( "#btn_save" ).click(function() {
         console.log('clickSave');
 	var f = $('#updateform');
@@ -18,7 +15,6 @@ $(function() {
 	if (f.parsley().isValid()) {
 		console.log('data input is valid. proceed to submit form and update records');
 		updateInfo();
-		alert('Clicked Save and data is correct')
 	} else {
 		console.log('data validation failed');
 	}
@@ -26,12 +22,14 @@ $(function() {
 
     $( "#btn_delete" ).click(function() {
         console.log('clickDelete');
-	$('#updateform').off('form:validate');
-	var userToDelete = $('#user').val();
-	if (confirm('Are you sure you want to delete your account?')){
-		deleteAccount();
-		$("#updateform").parsley({ excluded: "input[type=button], input[type=submit], input[type=reset], input[type=hidden], [disabled], :hidden" });
-	}
+	var f = $('#updateform');
+        f.parsley().validate();
+        if (f.parsley().isValid()) {
+                console.log('data input is valid. proceed to submit form and delete account');
+                deleteAccount();
+        } else {
+                console.log('data validation failed');
+        }
     });
 });
 
@@ -47,6 +45,7 @@ function postMessageHandler( event ) {
 	$('#email').val(event.data.user_info.user.email)
 	$('#fname').val(event.data.user_info.user.fname)
 	$('#lname').val(event.data.user_info.user.lname)
+	$('#token').val(event.data.user_info.user_token)
 
 	// check request is from legitimate source and message is expected or not
   	if ( event.origin !== source ) { return; }
@@ -91,6 +90,29 @@ function checkDelete(){
 }
 
 function deleteAccount(){
-    alert('Account deleted');
-    console.log('Supose the account is deleted');
+    $.ajax({
+        url: '/engine/api/delete_user',
+        type: 'post',
+        //data: {'user': $('#user').val(), 'pwd': $('#pwd').val(), 'fname': $('#fname').val(), 'lname': $('#lname').val(), 'email': $('#email').val()},
+        data: {'user': $('#user').val(), 'token': $('#token').val()},
+	success: function (result) {
+            view_data = result;
+            console.log(result);
+            console.log(result['error']);
+            error = result['error'];
+            if (error) {
+                //alert(error);
+                $('#success').text('');
+                $('#success').hide();
+                $('#error').text(error);
+                $('#error').show();
+            } else {
+                msg = "Account permanently deleted!";
+                $('#error').text('');
+                $('#error').hide();
+                $('#success').text(msg);
+                $('#success').show();
+            }
+        }
+    });
 }
