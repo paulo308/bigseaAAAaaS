@@ -6,14 +6,18 @@ from unittest.mock import MagicMock
 from unittest.mock import patch
 from behave import given, when, then
 from aaa_manager.authentication import AuthenticationManager
-from aaa_manager.authentication import USER_COLLECTION, APP_KEY, USER_ITEM
+from aaa_manager.authentication import USER_COLLECTION, APP_KEY, USER_ITEM, SECRET
 from aaa_manager.basedb import BaseDB
+import bcrypt
+import json
+import datetime
+import base64
                 
 @given('I have user information and application identification')
 def step_impl(context):
     context.user_info = {
             'username': 'unitteste', 
-            'password': 'unitpwd', 
+            'password': 'Un1ttpwd', 
             'fname': 'unitfname', 
             'lname': 'unitlname',
             'email': 'unit@test.com'
@@ -85,11 +89,12 @@ def step_impl(context):
 
 @when('I access application')
 def step_impl(context):
-    context.info = {'username': 'teste', 'password': 'pwd'}
+    authentication = AuthenticationManager()
+    hashed = authentication._hashpwd('pwd')
+    context.info = {'username': 'teste', 'password': hashed}
     ret = [{'auth': [context.info]}]
     with patch.object(BaseDB, 'get', 
         return_value=ret) as mck_get:
-            authentication = AuthenticationManager()
             context.result = authentication.access_app(1,
                 context.username, context.password)
             assert mck_get.called
@@ -131,7 +136,7 @@ def step_impl(context):
     ret = [{
             'data': [{
                 'app_id': context.app_id, 
-                'status': 'valid',
+                'created': datetime.datetime.now(),
                 'user': context.user_info
             }],
             'token': context.token
@@ -158,19 +163,15 @@ def step_impl(context):
     context.token = 'ababab'
     context.data = {
             'app_id': context.app_id, 
-            'status': 'valid',
+            'created': datetime.datetime.now(),
             'user': context.user_info
             }
-    with patch.object(BaseDB, 'update') as mck_update:
-        with patch.object(BaseDB, 'insert') as mck_insert:
-            authentication = AuthenticationManager()
-            context.result = authentication.insert_token(context.app_id,
-                    context.user_info,
-                    context.token)
-            assert mck_update.called
-            assert mck_update.called_with('Token', 'token', context.token,
-            'data', context.data)
-            assert mck_insert.called
+    with patch.object(BaseDB, 'insert') as mck_insert:
+        authentication = AuthenticationManager()
+        context.result = authentication.insert_token(context.app_id,
+                context.user_info,
+                context.token)
+        assert mck_insert.called
 
 @when('I insert token')
 def step_impl(context):
@@ -209,10 +210,10 @@ def step_impl(context):
 
 @then('I generate token successfully')
 def step_impl(context):
-    with patch.object(AuthenticationManager, '_hash') as mck_hash:
-        authentication = AuthenticationManager()
-        context.result = authentication.generate_token(context.user_info)
-        assert mck_hash.called
+    authentication = AuthenticationManager()
+    context.result = authentication.generate_token(context.user_info).encode('utf-8')
+    hashed = bcrypt.hashpw((SECRET+json.dumps(context.user_info)).encode('utf-8'), base64.b64decode(context.result))
+    assert base64.b64encode(hashed) == context.result
                 
 @given('I have application ID')
 def step_impl(context):
@@ -259,7 +260,7 @@ def step_impl(context):
 @then('I update user successfully')
 def step_impl(context):
     context.usernew = {'username': context.username+'new', 'password':
-            context.password+'new', 'email': 'a@a.com', 'fname': 'teste',
+            context.password+'new', 'email': 'm@n.com', 'fname': 'teste',
             'lname': 'teste'}
     context.userold = {'username': context.username, 'password':
             context.password, 'email': 'a@a.com', 'fname': 'teste',
@@ -273,3 +274,36 @@ def step_impl(context):
             assert mck_update.called_with(USER_COLLECTION, APP_KEY, 
                     context.app_id, USER_ITEM, context.userold, 
                     context.usernew)
+
+@given('I have chosen and invalid password')
+def step_impl(context):
+    context.invalid_passwords = [
+            'abcd', 
+            'abcdefgh',
+            'Abcdefgh',
+            '@bcdefgh',
+            '@bC1',
+            '1abCD',
+            '@bcD1234'
+            ]
+
+
+@when('I create user')
+def step_impl(context):
+    authentication = AuthenticationManager()
+    for item in context.invalid_passwords:
+        if not authentication.validate_pwd({
+            'username': 'teste',
+            'password': item,
+            'fname': 'teste',
+            'lname': 'teste',
+            'email': 'teste@aaa.com'
+            }):
+            context.result = False
+            context.value =  item + ' is invalid'
+    context.result = True
+    context.value =  'valid'
+
+@then('User is not created and invalid password is returned')
+def step_impl(context):
+    assert context.result, context.value

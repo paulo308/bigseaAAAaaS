@@ -7,6 +7,9 @@ WORKDIR /usr/src/app
 RUN apk add --update --no-cache python3 \
  && apk add --update --no-cache --virtual .build-deps gcc libc-dev python3 python3-dev
 
+RUN apk update && apk add build-base libffi-dev
+
+
 # Install requirements
 ADD aaa_manager/requirements.txt /usr/src/app/aaa_manager/
 RUN pip3 install --no-cache-dir -q --upgrade pip \
