@@ -178,23 +178,23 @@ class AuthenticationRestView:
         """
 
         usr = self.request.params['user']
-        pwd = self.request.params['pwd']
         fname = self.request.params['fname']
         lname = self.request.params['lname']
         email = self.request.params['email']
+        token = self.request.params['token']
             
         LOG.info('#### usr: %s' % usr)
-        LOG.info('#### pwd: %s' % pwd)
         LOG.info('#### fname: %s' % fname)
         LOG.info('#### lname: %s' % lname)
         LOG.info('#### email: %s' % email)
+        LOG.info('#### token: %s' % token)
 
         user_info = {
                 'username': usr, 
-                'password': pwd, 
                 'fname': fname, 
                 'lname': lname,
-                'email': email 
+                'email': email, 
+                'token': token
                 }
         result = self.authentication.update_user(2, user_info)
         LOG.info('#### result: %s' % result)

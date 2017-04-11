@@ -235,9 +235,9 @@ def step_impl(context):
 def step_impl(context):
     context.app_id = 1
     context.username = 'teste'
-    context.password = 'pwd'
-    context.user_info = {'username': context.username, 'password':
-            context.password}
+    context.token = 'abababa'
+    context.user_info = {'username': context.username, 'token':
+            context.token}
 
 @when('I delete user')
 def step_impl(context):
@@ -249,31 +249,40 @@ def step_impl(context):
         authentication = AuthenticationManager()
         context.result = authentication.delete_user(context.app_id,
                 context.user_info)
-        context.password = authentication._hash(context.password)
-        assert mck_remove.called_with(USER_COLLECTION, APP_KEY, context.app_id,
-                                        USER_ITEM, context.user_info)
+        assert mck_remove.called_with(
+                USER_COLLECTION, 
+                APP_KEY, 
+                context.app_id,
+                USER_ITEM, 
+                context.user_info)
 
 @when('I update user')
 def step_impl(context):
-    pass
+    context.user_info['fname'] = 'teste'
+    context.user_info['lname'] = 'teste'
+    context.user_info['email'] = 'new@email.com'
 
 @then('I update user successfully')
 def step_impl(context):
-    context.usernew = {'username': context.username+'new', 'password':
-            context.password+'new', 'email': 'm@n.com', 'fname': 'teste',
+    context.usernew = {
+            'token': 'abababab', 
+            'username': context.username, 
+            'email': 'm@n.com', 
+            'fname': 'teste',
             'lname': 'teste'}
-    context.userold = {'username': context.username, 'password':
-            context.password, 'email': 'a@a.com', 'fname': 'teste',
-            'lname': 'teste'}
-    with patch.object(BaseDB, 'update') as mck_update:
-        with patch.object(BaseDB, 'get_all', return_value=context.userold) as mck_get:
-            authentication = AuthenticationManager()
-            context.result = authentication.update_user(context.app_id,
-                    context.usernew)
-            context.password = authentication._hash(context.password)
-            assert mck_update.called_with(USER_COLLECTION, APP_KEY, 
-                    context.app_id, USER_ITEM, context.userold, 
-                    context.usernew)
+    context.userold = {'username': context.username}
+    with patch.object(BaseDB, 'get') as mck_get:
+        with patch.object(AuthenticationManager, 'verify_token', return_value=True) as mck_verify:
+            with patch.object(AuthenticationManager, 'delete_user', return_value=1) as mck_delete:
+                with patch.object(AuthenticationManager, 'insert_user', return_value=1) as mck_insert:
+                    authentication = AuthenticationManager()
+                    result = authentication.update_user(context.app_id,
+                        context.usernew)
+                    assert mck_get.called
+                    assert mck_verify.called
+                    assert mck_delete.called
+                    assert mck_insert.called
+                    assert result > 0
 
 @given('I have chosen and invalid password')
 def step_impl(context):
