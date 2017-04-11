@@ -229,6 +229,7 @@ class AuthenticationRestView:
         user_info = {
                 'username': usr, 
                 'token': token, 
+
                 }
         result = self.authentication.delete_user(2, user_info)
         LOG.info('#### result: %s' % result)

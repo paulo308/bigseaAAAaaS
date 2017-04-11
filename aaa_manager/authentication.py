@@ -145,6 +145,7 @@ class AuthenticationManager:
             app_id already exists, 'username' for duplicated username on the 
             auth_info.
         """
+
         if self.verify_token(app_id, user_info['token']):
             return self.basedb.remove_list_item(
                     USER_COLLECTION, 
@@ -498,7 +499,7 @@ class AuthenticationManager:
                     'valid': True
                     })
         return True
-
+      
     def verify_email(self, username, email):
         """
         Verifies if given token is valid.
