@@ -162,7 +162,7 @@ class AuthenticationManager:
 
         Args:
             app_id (int): the app id;
-            auth_info (dict): the user dict, should contain users and admin's 
+            user_info (dict): the user dict, should contain users and admin's 
             information and credentials.
 
         
@@ -444,6 +444,42 @@ class AuthenticationManager:
         except Exception as err:
             LOG.error('Error while updating user information')
             raise Exception('Error while updating user information') from err 
+        return 0
+    
+    def change_password(self, app_id, user_new):
+        """Updates user information with `user_new` json content. 
+        
+        Args: 
+            app_id (int): application id
+            username (str): the inserted username;
+            user_new (dict): user information.
+
+        Return: 
+            (dict): user information if exists or None otherwise. 
+        """
+        try:
+            if self.verify_token(app_id, user_new['token']):
+                userelem = {}
+                res = self.basedb.get(USER_COLLECTION, APP_KEY, app_id)
+                oldpassword = ""
+                for item in list(res):
+                    for elem in item['auth']:
+                        if elem['username'] == user_new['username']:
+                            userelem = elem
+                            oldpassword = elem['password']
+                oldpwd = user_new['oldpwd'] 
+                if self._validatepwd(oldpassword.encode('utf-8'), oldpwd):
+                    resdel = self.delete_user(app_id, user_new)
+                    del user_new['token']
+                    if resdel > 0:
+                        newpassword = self._hashpwd(user_new['newpwd'])
+                        userelem['password'] = newpassword
+                        resinsert = self.insert_user(app_id, userelem)
+                        if resinsert is not None:
+                            return 1
+        except Exception as err:
+            LOG.error('Error while changing password.')
+            raise Exception('Error while changing password.') from err 
         return 0
 
     def validate_user(self, user):
