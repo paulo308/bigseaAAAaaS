@@ -133,10 +133,10 @@ class BaseDB:
             result (obt): mongodb result object.
         """
         self._connect()
-        condition = {search_key: search_val, update_key: {"$in": [old_item]}}
+        condition = {search_key: search_val, update_key: {'$in': [{'username': old_item['username']}]}}
         result = self.db_client.db[collection]\
                      .update_many(condition, 
-                                  {"$set": {update_key + ".$": new_item}})
+                                  {"$set": new_item})
         self._close()
         return result.modified_count
 

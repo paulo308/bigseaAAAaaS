@@ -178,28 +178,71 @@ class AuthenticationRestView:
         """
 
         usr = self.request.params['user']
-        pwd = self.request.params['pwd']
         fname = self.request.params['fname']
         lname = self.request.params['lname']
         email = self.request.params['email']
+        token = self.request.params['token']
             
         LOG.info('#### usr: %s' % usr)
-        LOG.info('#### pwd: %s' % pwd)
         LOG.info('#### fname: %s' % fname)
         LOG.info('#### lname: %s' % lname)
         LOG.info('#### email: %s' % email)
+        LOG.info('#### token: %s' % token)
 
         user_info = {
                 'username': usr, 
-                'password': pwd, 
                 'fname': fname, 
                 'lname': lname,
-                'email': email 
+                'email': email, 
+                'token': token
                 }
         result = self.authentication.update_user(2, user_info)
         LOG.info('#### result: %s' % result)
         if result > 0:
             msg = 'User information updated successfully.'
+            LOG.info(msg)
+            return {'success': msg}
+        else:
+            msg = 'Username does not exist.'
+            LOG.info(msg)
+            return {'error': msg}
+    
+    @view_config(route_name=Route.CHANGE_PASSWORD,
+                 request_method='POST',
+                 accept='application/json',
+                 renderer='json')
+    def change_password(self):
+        """ 
+        This method is called from **/engine/api/update_user**.
+        Method used to update user information on the system.
+
+        Args:
+            user (str): username;
+            oldpwd (str): old password;
+            newpwd (str): new password;
+            token (str): token.
+        """
+
+        usr = self.request.params['user']
+        oldpwd = self.request.params['oldpwd']
+        newpwd = self.request.params['newpwd']
+        token = self.request.params['token']
+
+        LOG.info('#### usr: %s' % usr)
+        LOG.info('#### oldpwd: %s' % oldpwd)
+        LOG.info('#### newpwd: %s' % newpwd)
+        LOG.info('#### token: %s' % token)
+
+        user_info = {
+                'username': usr, 
+                'oldpwd': oldpwd, 
+                'newpwd':newpwd, 
+                'token': token
+                }
+        result = self.authentication.change_password(2, user_info)
+        LOG.info('#### result: %s' % result)
+        if result > 0:
+            msg = 'Password updated successfully.'
             LOG.info(msg)
             return {'success': msg}
         else:
@@ -231,6 +274,7 @@ class AuthenticationRestView:
                 'token': token, 
 
                 }
+
         result = self.authentication.delete_user(2, user_info)
         LOG.info('#### result: %s' % result)
         if result > 0:
