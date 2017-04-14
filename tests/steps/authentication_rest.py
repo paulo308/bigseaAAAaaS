@@ -186,8 +186,8 @@ def step_impl(context):
 @given('I have new user information and a valid token')
 def step_impl(context):
     context.user_info = {
+            'token': 'abababab',
             'username': 'teste',
-            'password': '@bCd3fgh',
             'fname' : 'teste',
             'lname': 'teste',
             'email': 'teste@mail.com'
@@ -201,8 +201,8 @@ def step_impl(context):
 @then('I update user successfully using REST API')
 def step_impl(context):
     payload = {
+            'token': context.user_info['token'],
             'user': context.user_info['username'],
-            'pwd': context.user_info['password'],
             'fname': context.user_info['fname'],
             'lname': context.user_info['lname'],
             'email': context.user_info['email']
@@ -220,8 +220,8 @@ def step_impl(context):
 @given('I have wrong new user information or an invalid token')
 def step_impl(context):
     context.user_info = {
+            'token': 'abababab',
             'username': 'teste',
-            'password': '@bCd3fgh',
             'fname' : 'teste',
             'lname': 'teste',
             'email': 'teste@mail.com'
@@ -231,8 +231,8 @@ def step_impl(context):
 @then('I receive corresponding update user error message')
 def step_impl(context):
     payload = {
+            'token': context.user_info['token'],
             'user': context.user_info['username'],
-            'pwd': context.user_info['password'],
             'fname': context.user_info['fname'],
             'lname': context.user_info['lname'],
             'email': context.user_info['email']
