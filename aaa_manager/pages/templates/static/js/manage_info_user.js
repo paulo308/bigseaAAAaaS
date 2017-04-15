@@ -1,4 +1,6 @@
 var source = 'https://eubrabigsea.dei.uc.pt/web/manage_info_auth'
+var token;
+var object;
 
 $(function() {
     $('#error').hide();
@@ -41,6 +43,10 @@ function postMessageHandler( event ) {
   	console.log("* Origin:", event.origin);
   	console.log("* Source:", event.source);
 
+	var token = event.data.user_info.user_token;
+	console.log("* Token", event.data.user_info.user_token);
+	object = event.data;
+
 	$('#user').val(event.data.user_info.user.username)
 	$('#email').val(event.data.user_info.user.email)
 	$('#fname').val(event.data.user_info.user.fname)
@@ -53,17 +59,20 @@ function postMessageHandler( event ) {
     	//in case I want to send a reply to auth page, do it here
 	// but handle the response there
 	//event.source.postMessage( 'response', 'http://eubrabigsea.dei.uc.pt/web/manage_info_auth' );
+
     	}
 
 
 
 
 function updateInfo(){
+    var newtoken0;
+    newtoken0 = String(token);
     $.ajax({
         url: '/engine/api/update_user',
         type: 'post',
-        data: {'user': $('#user').val(), 'pwd': $('#pwd').val(), 'fname': $('#fname').val(), 'lname': $('#lname').val(), 'email': $('#email').val()},
-        success: function (result) {
+        data: {'user': $('#user').val(), 'fname': $('#fname').val(), 'lname': $('#lname').val(), 'email': $('#email').val(), 'token': newtoken0},
+	success: function (result) {
 	    view_data = result;
 	    console.log(result);
             console.log(result['error']);
@@ -90,11 +99,13 @@ function checkDelete(){
 }
 
 function deleteAccount(){
+    var newtoken;
+    newtoken = String(token);
+
     $.ajax({
         url: '/engine/api/delete_user',
         type: 'post',
-        //data: {'user': $('#user').val(), 'pwd': $('#pwd').val(), 'fname': $('#fname').val(), 'lname': $('#lname').val(), 'email': $('#email').val()},
-        data: {'user': $('#user').val(), 'token': $('#token').val()},
+        data: {'user': $('#user').val(), 'token': newtoken},
 	success: function (result) {
             view_data = result;
             console.log(result);

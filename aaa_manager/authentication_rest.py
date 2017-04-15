@@ -227,7 +227,7 @@ class AuthenticationRestView:
         oldpwd = self.request.params['oldpwd']
         newpwd = self.request.params['newpwd']
         token = self.request.params['token']
-            
+
         LOG.info('#### usr: %s' % usr)
         LOG.info('#### oldpwd: %s' % oldpwd)
         LOG.info('#### newpwd: %s' % newpwd)
@@ -274,6 +274,7 @@ class AuthenticationRestView:
                 'token': token, 
 
                 }
+
         result = self.authentication.delete_user(2, user_info)
         LOG.info('#### result: %s' % result)
         if result > 0:
