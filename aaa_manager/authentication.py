@@ -439,7 +439,6 @@ class AuthenticationManager:
                     userelem['lname'] = user_new['lname']
                     userelem['email'] = user_new['email']
                     LOG.info('#### userelem: %s' % userelem)
-                    #resinsert = self.insert_user(app_id, userelem)
                     resinsert = self.basedb.insert(
                             USER_COLLECTION, 
                             APP_KEY, 
