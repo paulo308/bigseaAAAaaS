@@ -18,7 +18,7 @@ $(function() {
 		console.log('data input is valid. proceed to submit form and update records');
 		updateInfo();
 	} else {
-		console.log('data validation failed');
+		console.log('user info validation failed');
 	}
     });
 
@@ -28,9 +28,26 @@ $(function() {
         f.parsley().validate();
         if (f.parsley().isValid()) {
                 console.log('data input is valid. proceed to submit form and delete account');
-                deleteAccount();
+                var r = confirm('Are you sure you want to delete your account? This action is irreversible.');
+		if (r == true) {
+			deleteAccount();
+		}
         } else {
-                console.log('data validation failed');
+                console.log('delete failed');
+        }
+    });
+
+    $( "#btn_changepassword" ).click(function() {
+        console.log('clickChangePW');
+	var f = $('#passwordform');
+	f.parsley().validate();
+        if (f.parsley().isValid()) {
+                console.log('passwords are valid. proceed to submit form and change password');
+                changePW();
+		//console.log('old pwd:',$('#password'));
+		//console.log('new pwd:',$('#password1'));
+        } else {
+                console.log('password validation failed');
         }
     });
 });
@@ -43,7 +60,7 @@ function postMessageHandler( event ) {
   	console.log("* Origin:", event.origin);
   	console.log("* Source:", event.source);
 
-	var token = event.data.user_info.user_token;
+	token = event.data.user_info.user_token;
 	console.log("* Token", event.data.user_info.user_token);
 	object = event.data;
 
@@ -94,10 +111,6 @@ function updateInfo(){
     });
 }
 
-function checkDelete(){
-    return confirm('Are you sure you want to delete your account?');
-}
-
 function deleteAccount(){
     var newtoken;
     newtoken = String(token);
@@ -119,6 +132,35 @@ function deleteAccount(){
                 $('#error').show();
             } else {
                 msg = "Account permanently deleted!";
+                $('#error').text('');
+                $('#error').hide();
+                $('#success').text(msg);
+                $('#success').show();
+            }
+        }
+    });
+}
+
+function changePW(){
+    var newtoken2;
+    newtoken2 = String(token);
+    $.ajax({
+        url: '/engine/api/change_password',
+        type: 'post',
+        data: {'user': $('#user').val(), 'oldpwd': $('#pwd').val(), 'newpwd': $('#password1').val(), 'token': newtoken2},
+        success: function (result) {
+            view_data = result;
+            console.log(result);
+            console.log(result['error']);
+            error = result['error'];
+            if (error) {
+                //alert(error);
+                $('#success').text('');
+                $('#success').hide();
+                $('#error').text(error);
+                $('#error').show();
+            } else {
+                msg = "Password changed with success!";
                 $('#error').text('');
                 $('#error').hide();
                 $('#success').text(msg);

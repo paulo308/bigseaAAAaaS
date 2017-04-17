@@ -28,15 +28,8 @@ function CloseMySelf(data) {
             catch (err) {}
             window.close();
             return false;
-	}
-
-function get_apps(){
-
 }
 
-function get_users(app_id){
-
-}
 
 var view_data;
 
@@ -50,7 +43,7 @@ function login(){
                 console.log(result);
 		console.log(view_data);
                 console.log(result['error']);
-		CloseMySelf(view_data);
+		//CloseMySelf(view_data);
 		error = result['error'];
 		if (error) {
 			//alert(error);
@@ -64,6 +57,10 @@ function login(){
 			$('#error').hide();
 			$('#success').text(msg);
 			$('#success').show();
+			setTimeout(function()
+                	{
+                		CloseMySelf(view_data); 
+                	}, 1000);
                 }
         }
     });
