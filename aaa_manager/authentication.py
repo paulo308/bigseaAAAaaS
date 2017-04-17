@@ -146,7 +146,7 @@ class AuthenticationManager:
             auth_info.
         """
 
-        if self.verify_token(app_id, user_info['token']):
+        if self.verify_token(app_id, user_info['token']) != 'invalid token':
             return self.basedb.remove_list_item(
                     USER_COLLECTION, 
                     APP_KEY, 
@@ -348,7 +348,7 @@ class AuthenticationManager:
                             and (datetime.datetime.now() - datetime.timedelta(minutes=TOKEN_EXPIRATION) < data['created']):
                         LOG.info('#### %s' % (datetime.datetime.now() - datetime.timedelta(minutes=TOKEN_EXPIRATION) < data['created']))
                         LOG.info('#### created: %s' % data['created'])
-                        return data['user']['username'];
+                        return data['user']['username']
         return 'invalid token'
 
     def get_token(self, app_id, user):
@@ -425,7 +425,7 @@ class AuthenticationManager:
             (dict): user information if exists or None otherwise. 
         """
         try:
-            if self.verify_token(app_id, user_new['token']):
+            if self.verify_token(app_id, user_new['token']) != 'invalid token':
                 userelem = {}
                 res = self.basedb.get(USER_COLLECTION, APP_KEY, app_id)
                 for item in list(res):
@@ -464,7 +464,7 @@ class AuthenticationManager:
             (dict): user information if exists or None otherwise. 
         """
         try:
-            if self.verify_token(app_id, user_new['token']):
+            if self.verify_token(app_id, user_new['token']) != 'invalid token':
                 userelem = {}
                 res = self.basedb.get(USER_COLLECTION, APP_KEY, app_id)
                 oldpassword = ""
@@ -480,7 +480,12 @@ class AuthenticationManager:
                     if resdel > 0:
                         newpassword = self._hashpwd(user_new['newpwd'])
                         userelem['password'] = newpassword
-                        resinsert = self.insert_user(app_id, userelem)
+                        resinsert = self.basedb.insert(
+                                USER_COLLECTION,
+                                APP_KEY,
+                                app_id, 
+                                USER_ITEM,
+                                userelem)
                         if resinsert is not None:
                             return 1
         except Exception as err:
