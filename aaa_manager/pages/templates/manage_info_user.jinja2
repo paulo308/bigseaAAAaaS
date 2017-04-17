@@ -44,7 +44,7 @@ font-weight: bold;
 margin: 50px auto;
 width: 300px;
 }
-form fieldset input[type="text"], input[type="password"] {
+form fieldset input[type="text"], input[type="password"],input[type="email"] {
 background-color: #e5e5e5;
 border: none;
 border-radius: 3px;
@@ -99,7 +99,7 @@ background-color: #0064ab;
 border-radius: 3px 0px 0px 3px;
 -moz-border-radius: 3px 0px 0px 3px;
 -webkit-border-radius: 3px 0px 0px 3px;
-color: #f4f4f4;
+<fieldset>color: #f4f4f4;
 display: block;
 float: left;
 height: 50px;
@@ -136,7 +136,7 @@ Update your information and click "Save".</h1>
 			</p>
 			<p>
 				<label for="email">E-Mail:</label>
-				<input name="email" id="email" maxlength="1024" type="text" required/>
+				<input name="email" id="email" maxlength="1024" type="email" data-parsley-trigger="change" required/>
                         </p>
                         <p>
 				<label for="fname">First Name:</label>
@@ -146,31 +146,45 @@ Update your information and click "Save".</h1>
 				<label for="lname">Last Name:</label>
 				<input name="lname" id="lname" maxlength="32" type="text" required />
                         </p>
+<p><input id="btn_save" type="submit" value="Save"></p>
 <!--
+<font size="2"><p>Changes only take effect after clicking "Save" button and present confirmation.</p>
+-->
+</fieldset>
+</form>
 
-			<p>
-				<font size="2"><p>Introduce your password to confirm changes.</p>
-			        <label for="pwd">Password:</label>
-				<input name="pwd" id="pwd" type="password" required/>
-			</p>
-			<p>
+<hr>
+
+<h1>To change password introduce your old and new password and click "Change Password".</h1>
+
+<form data-parsley-validate name="passwordform" id="passwordform" action="javascript:void(0);" method="get">
+<fieldset>
+                        <p>
+                                <label for="pwd">Old Password:</label>
+                                <input name="pwd" id="pwd" type="password" required/>
+                        </p>
 				<label for="password1">New Password:</label>
-				<input name="password1" id="password1" data-parsley-pattern="^[A-Za-z0-9_-]{5,25}$" data-parsley-length="[5, 25]" type="password" data-parsley-equalto="#password2" data-parsley-error-message="Passwords must match. Needs to be between 5 and 25 characters. Case sensitive. No special characters allowed." required/>
+				<input name="password1" id="password1" data-parsley-pattern="^[A-Za-z0-9_-]{8,25}$" data-parsley-length="[8, 25]" type="password" data-parsley-equalto="#password2" data-parsley-error-message="Passwords must match. Needs to be between 8 and 25 characters. Case sensitive. No special characters allowed." required/>
                         </p>
                         <p>
 				<label for="password2">Confirm Your New Password:</label>
-				<input name="password2" id="password2" data-parsley-length="[5, 25]" data-parsley-error-message="Passwords must match. Needs to be between 5 and 25 characters. Case sensitive. No special characters allowed." data-parsley-pattern="^[A-Za-z0-9_-]{5,25}$" type="password" data-parsley-equalto="#password1" required/>
+				<input name="password2" id="password2" data-parsley-length="[8, 25]" data-parsley-error-message="Passwords must match. Needs to be between 8 and 25 characters. Case sensitive. No special characters allowed." data-parsley-pattern="^[A-Za-z0-9_-]{8,25}$" type="password" data-parsley-equalto="#password1" required/>
                         </p>
--->
-
-<p><input id="btn_save" type="submit" value="Save"></p>
-
-<font size="2"><p>Changes only take effect after clicking "Save" button and present confirmation.</p>
-
-<p><input id="btn_delete" type="submit" value="Delete Account" style=background-color:red></p>
-
+<p><input id="btn_changepassword" type="submit" value="Change Password"></p>
 </fieldset>
 </form>
+
+<hr>
+
+<form>
+<fieldset>
+
+<h1>To permanently delete your account click "Delete Account".</h1>
+
+<p><input id="btn_delete" type="submit" value="Delete Account" style=background-color:red></p>
+</fieldset>
+</form>
+
 <div id="error" class="alert alert-danger alert-dismissable">
 </div>
 <div id="success" class="alert alert-success alert-dismissable">
