@@ -55,7 +55,7 @@ function login(){
                 console.log(result);
 		console.log(view_data);
                 console.log(result['error']);
-		SendInfoManUserPage(view_data);
+		//SendInfoManUserPage(view_data);
 		error = result['error'];
 		if (error) {
 			//alert(error);
@@ -69,6 +69,10 @@ function login(){
 			$('#error').hide();
 			$('#success').text(msg);
 			$('#success').show();
+			setTimeout(function()
+                        {
+                                SendInfoManUserPage(view_data); 
+                        }, 1000);
                 }
         }
     });

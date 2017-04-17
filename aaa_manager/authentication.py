@@ -438,7 +438,13 @@ class AuthenticationManager:
                     userelem['fname'] = user_new['fname']
                     userelem['lname'] = user_new['lname']
                     userelem['email'] = user_new['email']
-                    resinsert = self.insert_user(app_id, userelem)
+                    LOG.info('#### userelem: %s' % userelem)
+                    resinsert = self.basedb.insert(
+                            USER_COLLECTION, 
+                            APP_KEY, 
+                            app_id,
+                            USER_ITEM, 
+                            userelem)
                     if resinsert is not None:
                         return 1
         except Exception as err:

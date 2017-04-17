@@ -27,7 +27,7 @@ function CloseMySelf(data) {
             catch (err) {}
             window.close();
             return false;
-        }
+}
 
 var view_data;
 
@@ -40,7 +40,7 @@ function signup(){
 	    view_data = result;
 	    console.log(result);
             console.log(result['error']);
-	    CloseMySelf(view_data);
+	    //CloseMySelf(view_data);
 	    error = result['error'];
             if (error) {
 		//alert(error);
@@ -54,6 +54,10 @@ function signup(){
 		$('#error').hide();
 		$('#success').text(msg);
 		$('#success').show();
+		setTimeout(function()
+                {
+                	CloseMySelf(view_data); 
+                }, 1000);
 	    }
         }
     });
