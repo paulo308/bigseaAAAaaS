@@ -49,6 +49,7 @@ services:
         container_name: mongo_test
         volumes:
             - ./data/:/data/db
+            - ./dump/:/dump
             - ./certs/:/certs
         ports:
             - "27017:27017"
