@@ -522,7 +522,7 @@ class AuthenticationManager:
                  "email" : {
                      "type" : "string",
                      "pattern": "[^@]+@[^@]+\.[^@]+",
-                     }
+                     },
             },
              "required" : ["username", "fname", "lname", "email"]
         }

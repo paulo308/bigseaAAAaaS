@@ -46,44 +46,46 @@ class Authorisation:
             self.update_resource_item(username, resource_name)
 
     def validate_rule(self, rule):
-        SCHEMA = {'type': 'object',
-                'properties': {
-                    'resource_name': 
+        SCHEMA = {
+                    'type': 'object',
+                    'properties': 
                     {
-                        'type': 'string',
-                        'minLength': 1,
-                        'maxLength': 50
-                    },
-                    'resource_type':
-                    {
-                        'type': 'string',
-                        'minLength': 1,
-                        'maxLength': 50
-                    },
-                    'max_used':
-                    {
-                        'type': 'number'
-                    },
-                    'used':
-                    {
-                        'type': 'number'
-                    },
-                    'app_id':
-                    {
-                        'type': 'number'
-                    },
-                    'url':
-                    {
-                        'type': 'string',
-                        'minLength': 1,
-                        'maxLength': 50
-                    },
-                    'blob':
-                    {
-                        'type': 'string',
-                        'minLength': 1,
-                        'maxLength': 50
-                    },
+                        'resource_name': 
+                        {
+                            'type': 'string',
+                            'minLength': 1,
+                            'maxLength': 50
+                        },
+                        'resource_type':
+                        {
+                            'type': 'string',
+                            'minLength': 1,
+                            'maxLength': 50
+                        },
+                        'max_used':
+                        {
+                            'type': 'number'
+                        },
+                        'used':
+                        {
+                            'type': 'number'
+                        },
+                        'app_id':
+                        {
+                            'type': 'number'
+                        },
+                        'url':
+                        {
+                            'type': 'string',
+                            'minLength': 1,
+                            'maxLength': 50
+                        },
+                        'blob':
+                        {
+                            'type': 'string',
+                            'minLength': 1,
+                            'maxLength': 50
+                        },
                     },
                     'required' : ['app_id', 'resource_type','resource_name']
                 }

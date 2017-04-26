@@ -19,6 +19,7 @@ class Route:
     GET_DELETE_USER = "delete_user_data"
     GET_EMAIL_CONFIRMATION = "email_confirmation_data"
     GET_CREATE_AUTHORISATION = "create_authorisation_data"
+    GET_CREATE_EMAIL = "create_email_data"
     # REST API routes
     CHECKIN = "checkin_state"
     CHECKOUT = "checkout_state"
@@ -29,6 +30,7 @@ class Route:
     DELETE_USER = "delete_user"
     EMAIL_CONFIRMATION = "email_confirmation"
     CREATE_AUTHORISATION = "create_authorisation"
+    CREATE_EMAIL = "create_email"
     # json routes
     CHECKIN_STATE = "get_checkin_state"
     CHECKOUT_STATE = "get_checkout_state"

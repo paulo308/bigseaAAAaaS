@@ -274,7 +274,7 @@ def step_impl(context):
     with patch.object(BaseDB, 'get') as mck_get:
         with patch.object(AuthenticationManager, 'verify_token', return_value=True) as mck_verify:
             with patch.object(AuthenticationManager, 'delete_user', return_value=1) as mck_delete:
-                with patch.object(AuthenticationManager, 'insert_user', return_value=1) as mck_insert:
+                with patch.object(BaseDB, 'insert', return_value=1) as mck_insert:
                     authentication = AuthenticationManager()
                     result = authentication.update_user(context.app_id,
                         context.usernew)
