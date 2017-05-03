@@ -1,9 +1,9 @@
 @rest
-Feature: Email information REST API unit tests
+Feature: Favorite information REST API unit tests
 
-	Scenario: Create email
-		Given I have correct query string parameters username and email
-		When I call create email RESP API service
-		Then I receive expected success response from email association
+	Scenario: Create favorite
+		Given I have correct query string parameters username and favorite
+		When I call create favorite RESP API service
+		Then I receive expected success response from favorite association
 
 		

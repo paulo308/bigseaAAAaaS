@@ -1,37 +1,37 @@
 """
-This file contains the Authorisation REST interface. 
+This file contains the Favorites REST interface. 
 """
 import logging
 
 from aaa_manager import Route
-from aaa_manager.emails import Emails
+from aaa_manager.favorites import Favorites
 from pyramid.view import view_config
 
 LOG = logging.getLogger(__name__)
 
 
-class EmailsRestView:
+class FavoritesRestView:
     """
-    Implements emails REST API.
+    Implements favorites REST API.
     """
 
     def __init__(self, request):
         self.request = request
         self._settings = request.registry.settings
         self._data = self._settings['data']
-        self.emails = Emails()
+        self.favorites = Favorites()
 
     @view_config(route_name=Route.CREATE_EMAIL,
                  request_method='POST',
                  renderer='json')
     def create(self):
         """ 
-        This method is called from **/engine/api/create_email_data**.
-        This method is used to create email association.
+        This method is called from **/engine/api/create_favorite**.
+        This method is used to create favorite association.
 
         Arguments:
             username (str): the username;
-            email_info (dict): email information.
+            favorite_info (dict): favorite information.
 
         Returns:
             success (bool): True if sucessfully created and False
@@ -40,10 +40,10 @@ class EmailsRestView:
             string otherwise.
         """
         username = self.request.params['username']
-        email_info = self.request.params['email_info']
-        auth = self.emails.create(username, email_info)
+        favorite_info = self.request.params['favorite_info']
+        auth = self.favorites.create(username, favorite_info)
         if auth is not None:
-            return {'success': 'Email association successfully created.'}
+            return {'success': 'Favorite association successfully created.'}
         else:
-            return {'error':  'Invalid email.'}
+            return {'error':  'Invalid favorite.'}
             
