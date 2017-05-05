@@ -21,6 +21,8 @@ class Route:
     GET_CREATE_AUTHORISATION = "create_authorisation_data"
     GET_CREATE_EMAIL = "create_email_data"
     GET_CREATE_FAVORITE = "create_favorite_data"
+    GET_READ_FAVORITE = "read_favorite_data"
+    GET_DELETE_FAVORITE = "delete_favorite_data"
     # REST API routes
     CHECKIN = "checkin_state"
     CHECKOUT = "checkout_state"
@@ -33,6 +35,8 @@ class Route:
     CREATE_AUTHORISATION = "create_authorisation"
     CREATE_EMAIL = "create_email"
     CREATE_FAVORITE = "create_favorite"
+    READ_FAVORITE = "read_favorite"
+    DELETE_FAVORITE = "delete_favorite"
     # json routes
     CHECKIN_STATE = "get_checkin_state"
     CHECKOUT_STATE = "get_checkout_state"

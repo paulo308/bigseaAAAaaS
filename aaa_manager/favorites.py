@@ -12,7 +12,7 @@ import logging
 LOG = logging.getLogger(__name__)
 FAVORITE_COLLECTION = 'Authorisation'
 FAVORITE_KEY = 'username'
-FAVORITE_ITEM = 'resource_rule'
+FAVORITE_ITEM = 'favorites'
 
 class Favorites:
 
@@ -21,21 +21,31 @@ class Favorites:
         self.port = port
         self.basedb = BaseDB(host, port)
 
-    def create(self, username, favorite_info):
+    def create(self, username, item_id, item_type, city_id, country_id, favorite_id, data):
         """
         Create an favorite associated to username on database. 
 
         Args:
             username (str): username;
-            favorite_info (dict): favorite information.
+            item_id: item id (primary key),
+            item_type: item_type (distinguish among applications),
+            city_id: city_id (external),
+            country_id: country_id (external),
+            favorite_id: favorite_id (external),
+            data: data (external),
 
         Returns:
             database response
         """
-        if self.validate_favorite(favorite_info):
-            item = {
-                    'favorite_info': favorite_info,
-                    }
+        item = {
+                'item_id': item_id,
+                'item_type': item_type,
+                'city_id': city_id,
+                'country_id': country_id,
+                'favorite_id': favorite_id,
+                'data': data,
+                }
+        if self.validate_favorite(item):
             return self.basedb.insert(
                     FAVORITE_COLLECTION,
                     FAVORITE_KEY,
@@ -44,13 +54,14 @@ class Favorites:
                     item)
         return None
 
-    def read(self, username, favorite):
+    def read(self, username, city_id, country_id):
         """
         Read favorite information for username. 
 
         Args: 
             username (str): username;
-            favorite_info (dict): favorite;
+            city_id (dict): city_id (external);
+            ccountry_id (dict): country_id (external).
             
         """
         result = self.basedb.get(
@@ -58,28 +69,51 @@ class Favorites:
                 FAVORITE_KEY,
                 username)
         for item in result:
-            if item['favorite'] == favorite:
+            if item['city_id'] == city_id and\
+                    item['country_id'] == country_id:
                 return item
         return None
 
-    def update(self, username, favorite_info):
+    def update(self, username, item_id):
         pass
 
-    def delete(self, username, favorite_info):
-        pass
+    def delete(self, username, item_id):
+        """
+        Delete favorite from database.
+
+        Args:
+            username (str): username;
+
+        """
+        result = self.basedb.get(
+                FAVORITE_COLLECTION, 
+                FAVORITE_KEY,
+                username)
+        for item in result:
+            if item['item_id'] == item_id:
+                r = self.basedb.remove_list_item(
+                        FAVORITE_COLLECTION, 
+                        FAVORITE_KEY, 
+                        username, 
+                        FAVORITE_ITEM, 
+                        item)
+                return r
+        return None
+
     
     def validate_favorite(self, favorite_info):
         SCHEMA = {
                     'type': 'object',
                     'properties': 
                     {
-                        'favorite': 
-                        {
-                            'type': 'string',
-                            "pattern": "[^@]+@[^@]+\.[^@]+",
-                        },
+                        'item_id': {'type': 'string'},
+                        'item_type': {'type': 'string'},
+                        'city_id': {'type': 'number'},
+                        'country_id': {'type': 'number'},
+                        'favorite_id': {'type': 'string', 'maxLength': 4000},
+                        'data': {'type': 'string', 'maxLength': 10000},
                     },
-                    'required' : ['favorite']
+                    'required' : ['item_id', 'item_type', 'city_id', 'country_id', 'favorite_id', 'data']
                 }
         try:
             validate(favorite_info, SCHEMA)

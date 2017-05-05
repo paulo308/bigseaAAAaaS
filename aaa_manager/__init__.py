@@ -35,6 +35,8 @@ def main(global_config, **settings):
     config.add_route(Route.GET_CREATE_AUTHORISATION, '/json/create_authorisation')
     config.add_route(Route.GET_CREATE_EMAIL, '/json/create_email')
     config.add_route(Route.GET_CREATE_FAVORITE, '/json/create_favorite')
+    config.add_route(Route.GET_READ_FAVORITE, '/json/read_favorite')
+    config.add_route(Route.GET_DELETE_FAVORITE, '/json/delete_favorite')
 
     # rest api routes
     config.add_route(Route.CHECKIN, '/engine/api/checkin_data')
@@ -47,7 +49,8 @@ def main(global_config, **settings):
     config.add_route(Route.EMAIL_CONFIRMATION, '/engine/api/email_confirmation')
     config.add_route(Route.CREATE_AUTHORISATION, '/engine/api/create_authorisation')
     config.add_route(Route.CREATE_EMAIL, '/engine/api/create_email')
-    config.add_route(Route.CREATE_FAVORITE, '/engine/api/create_favorite')
+    config.add_route(Route.READ_FAVORITE, '/engine/api/read_favorite')
+    config.add_route(Route.DELETE_FAVORITE, '/engine/api/delete_favorite')
 
     # Scan and load classes with configuration decoration (@view_config)
     config.scan()
