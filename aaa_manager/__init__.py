@@ -49,6 +49,7 @@ def main(global_config, **settings):
     config.add_route(Route.EMAIL_CONFIRMATION, '/engine/api/email_confirmation')
     config.add_route(Route.CREATE_AUTHORISATION, '/engine/api/create_authorisation')
     config.add_route(Route.CREATE_EMAIL, '/engine/api/create_email')
+    config.add_route(Route.CREATE_FAVORITE, '/engine/api/create_favorite')
     config.add_route(Route.READ_FAVORITE, '/engine/api/read_favorite')
     config.add_route(Route.DELETE_FAVORITE, '/engine/api/delete_favorite')
 

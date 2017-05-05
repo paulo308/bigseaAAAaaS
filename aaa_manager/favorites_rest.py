@@ -40,8 +40,20 @@ class FavoritesRestView:
             string otherwise.
         """
         username = self.request.params['username']
-        favorite_info = self.request.params['favorite_info']
-        auth = self.favorites.create(username, favorite_info)
+        item_id = self.request.params['item_id']
+        item_type = self.request.params['item_type']
+        city_id = int(self.request.params['city_id'])
+        country_id = int(self.request.params['country_id'])
+        favorite_id = self.request.params['favorite_id']
+        data = self.request.params['data']
+        auth = self.favorites.create(
+                username, 
+                item_id,
+                item_type,
+                city_id,
+                country_id,
+                favorite_id,
+                data)
         if auth is not None:
             return {'success': 'Favorite association successfully created.'}
         else:
@@ -67,11 +79,11 @@ class FavoritesRestView:
             string otherwise.
         """
         username = self.request.params['username']
-        city_id = self.request.params['city_id']
-        country_id = self.request.params['country_id']
+        city_id = int(self.request.params['city_id'])
+        country_id = int(self.request.params['country_id'])
         fav = self.favorites.read(username, city_id, country_id)
         if fav is not None and 'data' in fav:
-            return {'success': 'Favorite association successfully created.',
+            return {'success': 'Favorite association successfully read.',
                     'data': fav['data']
                     }
         else:
@@ -99,6 +111,6 @@ class FavoritesRestView:
         item_id = self.request.params['item_id']
         fav = self.favorites.delete(username, item_id)
         if fav is not None:
-            return {'success': 'Favorite association successfully created.'}
+            return {'success': 'Favorite association successfully deleted.'}
         else:
             return {'error':  'Invalid favorite.'}

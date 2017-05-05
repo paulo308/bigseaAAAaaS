@@ -69,9 +69,10 @@ class Favorites:
                 FAVORITE_KEY,
                 username)
         for item in result:
-            if item['city_id'] == city_id and\
-                    item['country_id'] == country_id:
-                return item
+            for elem in item['favorites']:
+                if elem['city_id'] == city_id and\
+                        elem['country_id'] == country_id:
+                    return elem
         return None
 
     def update(self, username, item_id):
@@ -90,14 +91,15 @@ class Favorites:
                 FAVORITE_KEY,
                 username)
         for item in result:
-            if item['item_id'] == item_id:
-                r = self.basedb.remove_list_item(
-                        FAVORITE_COLLECTION, 
-                        FAVORITE_KEY, 
-                        username, 
-                        FAVORITE_ITEM, 
-                        item)
-                return r
+            for elem in item['favorites']:
+                if elem['item_id'] == item_id:
+                    r = self.basedb.remove_list_item(
+                            FAVORITE_COLLECTION, 
+                            FAVORITE_KEY, 
+                            username, 
+                            FAVORITE_ITEM, 
+                            elem)
+                    return r
         return None
 
     

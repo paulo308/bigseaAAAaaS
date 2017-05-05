@@ -23,8 +23,13 @@ def step_impl(context):
 @then('I receive expected success response from favorite association')
 def step_impl(context):
     payload = {
-            'username': context.username,
-            'favorite_info': context.favorite_info,
+            'username': 'teste',
+            'item_id': 'a',
+            'item_type': 'b',
+            'city_id': 1,
+            'country_id': 2,
+            'favorite_id': 'a',
+            'data': 'ab'
             }
     context.request = context.request(context.settings, params=payload)
     ret = {}
