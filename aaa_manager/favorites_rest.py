@@ -46,14 +46,17 @@ class FavoritesRestView:
         country_id = int(self.request.params['country_id'])
         favorite_id = self.request.params['favorite_id']
         data = self.request.params['data']
+        token = self.request.params['token']
         auth = self.favorites.create(
+                2,
                 username, 
                 item_id,
                 item_type,
                 city_id,
                 country_id,
                 favorite_id,
-                data)
+                data,
+                token)
         if auth is not None:
             return {'success': 'Favorite association successfully created.'}
         else:
@@ -81,7 +84,8 @@ class FavoritesRestView:
         username = self.request.params['username']
         city_id = int(self.request.params['city_id'])
         country_id = int(self.request.params['country_id'])
-        fav = self.favorites.read(username, city_id, country_id)
+        token = self.request.params['token']
+        fav = self.favorites.read(2, username, city_id, country_id, token)
         if fav is not None and 'data' in fav:
             return {'success': 'Favorite association successfully read.',
                     'data': fav['data']
@@ -109,7 +113,8 @@ class FavoritesRestView:
         """
         username = self.request.params['username']
         item_id = self.request.params['item_id']
-        fav = self.favorites.delete(username, item_id)
+        token = self.request.params['token']
+        fav = self.favorites.delete(2, username, item_id, token)
         if fav is not None:
             return {'success': 'Favorite association successfully deleted.'}
         else:

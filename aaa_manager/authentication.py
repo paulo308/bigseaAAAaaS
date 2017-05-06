@@ -331,8 +331,8 @@ class AuthenticationManager:
         """Verify token validity.
 
         Args:
-            app_id (int): application id
-            token (str): base64 token
+            app_id (int): application id;
+            token (str): base64 token.
 
         Returns:
             str: username corresponding to token if valid, 

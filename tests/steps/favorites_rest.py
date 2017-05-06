@@ -29,7 +29,8 @@ def step_impl(context):
             'city_id': 1,
             'country_id': 2,
             'favorite_id': 'a',
-            'data': 'ab'
+            'data': 'ab',
+            'token': 'bla',
             }
     context.request = context.request(context.settings, params=payload)
     ret = {}
