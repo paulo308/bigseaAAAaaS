@@ -2,14 +2,14 @@
 
 initca() {
     ## Generate root certificate 
-    cfssl genkey -initca ca_csr.json | cfssljson -bare hs_root_ca
+    cfssl genkey -initca root_ca.json | cfssljson -bare root_ca
 }
 
 mongo() {
-    ## Generate ee_mongo certificate using the root
+    ## Generate mongo certificate using the root
     cfssl gencert -ca root_ca.pem -ca-key root_ca-key.pem -hostname=mongo,localhost mongo_csr.json | cfssljson -bare mongo
     cat mongo-key.pem mongo.pem > mongo_crt.pem
-    ## Generate ee_mongo_client certificate using the CA
+    ## Generate mongo_client certificate using the CA
     cfssl gencert -ca root_ca.pem -ca-key root_ca-key.pem -hostname=mongo,localhost mongo_client_csr.json | cfssljson -bare mongo_client
     cat mongo_client-key.pem mongo_client.pem > mongo_client_crt.pem
 }
@@ -38,7 +38,6 @@ case $1 in
         echo ""
         echo "  all               Generate CA certificate, init CFSSL and generate mongo, client and web certificates"
         echo "  mongo             Generate Mongo server and client certificates"
-        echo "  client            Generate client certificate"
         echo "  web               Generate web interface certificate"
         echo ""
         exit 1

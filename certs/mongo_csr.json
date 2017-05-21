@@ -1,15 +1,18 @@
 {
- "CN": "BIGSEA-MONGO",
- "key": {
-    "algo": "ecdsa",
-    "size": 256
- },
- "names": [
- {
-    "C": "BR",
-    "L": "Campinas",
-    "O": "Bigsea",
-    "OU": "AAA"
- }
- ]
+    "hosts": [
+        "localhost"
+    ],
+    "key": {
+        "algo": "rsa",
+        "size": 2048
+    },
+    "names": [
+        {
+            "C": "BR",
+            "ST": "SP",
+            "L": "Campinas",
+            "O": "Bigsea",
+            "OU": "mongo"
+        }
+    ]
 }

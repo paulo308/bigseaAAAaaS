@@ -3,9 +3,9 @@
 restore_mongo() {
     # stop and remove all running containers using mongo:3.3 image
     # start mongo server and restore the data dump
-    docker-compose run -d --entrypoint mongod --name mongo_test mongo --dbpath /data/db
-    docker exec mongo_test mongorestore
-    docker stop mongo_test && docker rm mongo_test
+    docker-compose run -d --entrypoint mongod --name mongo mongo --dbpath /data/db
+    docker exec mongo mongorestore
+    docker stop mongo && docker rm mongo
 }
 
 # remove all containers and custom networks

@@ -1,14 +1,14 @@
 from pymongo import MongoClient
 
 _CODE_CREATE_USER = """
-db.getSiblingDB("$external").runCommand(
+db.getSiblingDB('$external').runCommand(
   {
-    createUser: "OU=mongo_client,O=Bigsea,L=Campinas,ST=SP,C=BR",
+    createUser: 'OU=mongo_client,O=Bigsea,L=Campinas,ST=SP,C=BR',
     roles: [
              { role: 'readWrite', db: 'AAADB' },
-             { role: "read", db: "AAADB" }
+             { role: 'read', db: 'AAADB' }
            ],
-    writeConcern: { w: "majority" , wtimeout: 5000 }
+    writeConcern: { w: 'majority' , wtimeout: 5000 }
   }
 )
 """

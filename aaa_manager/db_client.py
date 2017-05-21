@@ -39,15 +39,15 @@ class DBClient:
         Connects to MongoDB.
         """
         try:
-            """self.client = MongoClient(self.host,
+            self.client = MongoClient(self.host,
                                       self.port,
                                       ssl=True,
                                       ssl_certfile=_DEFAULT_CLIENT_CERT,
                                       ssl_cert_reqs=ssl.CERT_REQUIRED,
-                                      ssl_ca_certs=_DEFAULT_CA_CERT)"""
-            self.client = MongoClient(self.host,
+                                      ssl_ca_certs=_DEFAULT_CA_CERT)
+            """self.client = MongoClient(self.host,
                                       self.port,
-                                      ssl=False)
+                                      ssl=False)"""
         except ConnectionFailure as e:
             raise DBError("Can't connect to database.") from e
 
@@ -57,7 +57,7 @@ class DBClient:
         """
         self.name = name
         self.db = self.client[name]
-        #self.db.authenticate(_DEFAULT_USER, mechanism=_DEFAULT_MECHANISM)
+        self.db.authenticate(_DEFAULT_USER, mechanism=_DEFAULT_MECHANISM)
 
     def insert(self, collection, data):
         """

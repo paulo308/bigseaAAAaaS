@@ -4,8 +4,10 @@ services:
     aaa_manager:
         build: .
         image: aaa_manager:latest
+        entrypoint: gunicorn --reload --log-level DEBUG --paste development.ini
         volumes:
             - ./:/usr/src/app
+            - ./certs/:/certs
         ports:
             - "9000:9000"
         depends_on:
@@ -46,16 +48,17 @@ services:
                 ipv4_address: 172.250.0.87
     mongo:
         image: mongo:3.3
-        container_name: mongo_test
+        container_name: mongo
         volumes:
+            - ./db_scripts:/db_scripts
             - ./data/:/data/db
             - ./dump/:/dump
             - ./certs/:/certs
         ports:
             - "27017:27017"
         command: --smallfiles --rest
+        entrypoint: mongod --port 27017 --clusterAuthMode x509 --sslMode requireSSL --sslPEMKeyFile /certs/mongo_crt.pem --sslCAFile /certs/root_ca.pem --dbpath /data/db
         #entrypoint: mongod --port 27017 --clusterAuthMode x509 --sslMode requireSSL --sslPEMKeyFile /certs/mongo_crt.pem --sslCAFile /certs/root_ca.pem --dbpath /data/db
-        entrypoint: mongod --port 27017 --dbpath /data/db
         networks:
             backend:
                 ipv4_address: 172.250.0.88
