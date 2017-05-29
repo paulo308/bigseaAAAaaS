@@ -6,9 +6,12 @@
 
 {% block scripts %}
     {{ super() }}
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
-    <script src="/static/js/home.js"></script>
-    <script src="/static/js/parsley.min.js"></script>
+	<meta name="google-signin-client_id" content="368161711185-qp9cfjhiu9qd8pft10h3r04uotk88lf4.apps.googleusercontent.com">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+
+	<script src="https://apis.google.com/js/platform.js" async defer></script>
+	<script src="/static/js/home.js"></script>
+	<script src="/static/js/parsley.min.js"></script>
 {% endblock %}
 
 {% block styles %}
@@ -142,6 +145,11 @@ Please introduce your username and password:</h1>
 <p><input id="btn_login" type="submit" value="Sign In"></p>
 
 <font size="2"><p>Do not have an account yet? &nbsp </font><a id="btn_tosignup" href="/web/signup">Sign Up</a>
+
+<h1><strong>You can also Sign In with your Google account(in development).</strong><br><br>
+<div class="g-signin2" data-onsuccess="onSignIn"></div>
+
+<a href="#" onclick="signOut();">Sign out from Google.</a>
 
 
 </fieldset>
