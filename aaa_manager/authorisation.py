@@ -10,8 +10,8 @@ verify if the number of times the resource was used reached the maximum number
 of times this resource is allowed to be used. 
 """
 
-from aaa_manager.authentication import _DEFAULT_DB_HOST, _DEFAULT_DB_PORT
 from aaa_manager.basedb import BaseDB
+from aaa_manager.accounting import Accounting, INFO
 from jsonschema import validate, ValidationError
 import logging
 
@@ -22,10 +22,9 @@ AUTHORISATION_ITEM = 'resource_rule'
 
 class Authorisation:
     
-    def __init__(self, host=_DEFAULT_DB_HOST, port=_DEFAULT_DB_PORT):
-        self.host = host
-        self.port = port
-        self.basedb = BaseDB(host, port)
+    def __init__(self):
+        self.basedb = BaseDB()
+        self.accounting = Accounting()
 
     def verify(self, username, resource):
         """
@@ -34,7 +33,22 @@ class Authorisation:
         return True
     
     def update_resource_item(self, username, resource_name):
-        return None
+        """
+        Add 1 to used field
+        """
+        resources = self.basedb.get(AUTHORISATION_COLLECTION, 
+                AUTHORISATION_KEY,
+                username)
+        for item in resources:
+            if item['resource_name'] == resource_name:
+                old_item = copy(item)
+                item['used'] = item['used'] + 1
+                res = self.basedb.update(AUTHORISATION_COLLECTION, 
+                        AUTHORISATION_KEY,
+                        username, 
+                        old_item,
+                        item)
+        return res
 
 
     def use_resource(self, username, resource_name):
@@ -42,8 +56,14 @@ class Authorisation:
 
         """
         if user_exists(username):
-            # user resource code
+            # add 1 to used field
             self.update_resource_item(username, resource_name)
+            # account it  
+            msg = "Resource " + resource_name + " used by: " + username
+            category = INFO
+            self.accounting.insert(username, msg, category)
+
+
 
     def validate_rule(self, rule):
         SCHEMA = {
