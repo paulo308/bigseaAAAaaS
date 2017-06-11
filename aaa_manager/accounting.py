@@ -4,25 +4,36 @@ generating reports.
 """
 
 import logging
-import time
+from datetime import datetime
 import hashlib
+
+from aaa_manager.basedb import BaseDB
 
 ACCOUNTING_COLLECTION = 'Accounting'
 ACCOUNTING_KEY = 'user'
 ACCOUNTING_ITEM = 'log'
 INFO = "INFO"
 
+LOG = logging.getLogger(__name__)
+
 class Accounting():
+    """
+    This class is responsible for providing methods to manage resource usage by
+    user.
+    """
 
     def __init__(self):
         self.basedb = BaseDB()
 
-    def insert(self, user, msg, category):
+    def register(self, user, msg, category):
+        """
+        Insert accounting information on database.
+        """
         LOG.info(msg)
+        tnow = datetime.now()
         log = {
                 'msg': msg, 
-                'timestamp': time.now(),
-                'hash': hashlib.sha512(msg.encode()).hexdigest(),
+                'timestamp': tnow,
                 'category': category,
                 }
         res = self.basedb.insert(ACCOUNTING_COLLECTION, 
@@ -34,6 +45,9 @@ class Accounting():
         
 
     def get(self, user, category):
+        """
+        Get accounting information from database.
+        """
         response = []
         result = self.basedb.get(ACCOUNTING_COLLECTION, ACCOUNTING_KEY, user)
         for item in result:

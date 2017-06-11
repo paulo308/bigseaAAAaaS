@@ -13,6 +13,7 @@ of times this resource is allowed to be used.
 from aaa_manager.basedb import BaseDB
 from aaa_manager.accounting import Accounting, INFO
 from jsonschema import validate, ValidationError
+import json
 import logging
 
 LOG = logging.getLogger(__name__)
@@ -28,13 +29,19 @@ class Authorisation:
 
     def verify(self, username, resource):
         """
-
+        Returns True if username is allowed to access resource.
         """
-        return True
+        resources = self.basedb.get(AUTHORISATION_COLLECTION, 
+                AUTHORISATION_KEY,
+                username)
+        for item in resources:
+            if item['resource_name'] == resource_name:
+                return True
+        return False
     
     def update_resource_item(self, username, resource_name):
         """
-        Add 1 to used field
+        Add 1 to used field.
         """
         resources = self.basedb.get(AUTHORISATION_COLLECTION, 
                 AUTHORISATION_KEY,
@@ -53,19 +60,27 @@ class Authorisation:
 
     def use_resource(self, username, resource_name):
         """
-
+        This method is called in order to user a determined resource. Thus, it
+        is responsible for triggering the accounting mechanism and updating the
+        database to increment the number of times that resource was used. 
         """
-        if user_exists(username):
+        if user_exists(username) and verify(username, resource_name):
             # add 1 to used field
             self.update_resource_item(username, resource_name)
             # account it  
-            msg = "Resource " + resource_name + " used by: " + username
+            msg = "Resource " + resource_name + " used by: " + username + "."
             category = INFO
-            self.accounting.insert(username, msg, category)
+            self.accounting.register(username, msg, category)
+            return {'msg': msg}
+        return None
 
 
 
     def validate_rule(self, rule):
+        """
+        Validates authorisation object.
+        """
+
         SCHEMA = {
                     'type': 'object',
                     'properties': 
@@ -133,12 +148,17 @@ class Authorisation:
                     'resource_name': resource_name,
                     'rule': rule
                     }
-            return self.basedb.insert(
+            result = self.basedb.insert(
                     AUTHORISATION_COLLECTION,
                     AUTHORISATION_KEY,
                     username,
                     AUTHORISATION_ITEM,
                     item)
+            if result is not None:
+                LOG.info('Rule: ' + json.dumps(rule) + 
+                        'successfully created for user: ' + username + 
+                        '.')
+                return result
         return None
 
     def read(self, username, resource_name):

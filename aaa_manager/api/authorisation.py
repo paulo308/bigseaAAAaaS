@@ -49,3 +49,30 @@ class AuthorisationRestView:
         else:
             return {'error':  'Invalid rule'}
             
+    @view_config(route_name=Route.USE_RESOURCE,
+                 request_method='POST',
+                 renderer='json')
+    def use(self):
+        """ 
+        This method is called from **/engine/api/use_resource_data**.
+        This method is called in order to get authorisation to use a determined 
+        resource.
+
+        Arguments:
+            username (str): the username;
+            resource_name (str): the resource name.
+
+        Returns:
+            success (bool): True if sucessfully created and False
+            otherwise;
+            error (str): an error message if an error occured and an empty
+            string otherwise.
+        """
+        username = self.request.params['username']
+        resource_name = self.request.params['resource_name']
+        auth = self.authorisation.use_resource(username, resource_name)
+        if auth is not None:
+            return {'success': 'User is authorised.'}
+        else:
+            return {'error':  'User is not authorised.'}
+            

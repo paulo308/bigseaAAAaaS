@@ -5,7 +5,7 @@ from behave import given, when, then
 import requests
 from collections import namedtuple
 from aaa_manager.favorites import Favorites
-from aaa_manager.favorites_rest import FavoritesRestView
+from aaa_manager.api.favorites import FavoritesRestView
 
 
 @given('I have correct query string parameters username and favorite')

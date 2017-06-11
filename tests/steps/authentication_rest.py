@@ -7,7 +7,7 @@ from unittest.mock import patch
 from behave import given, when, then
 import requests
 from collections import namedtuple
-from aaa_manager.authentication_rest import AuthenticationRestView 
+from aaa_manager.api.authentication import AuthenticationRestView 
 from aaa_manager.authentication import AuthenticationManager 
 
 

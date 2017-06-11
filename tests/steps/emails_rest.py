@@ -5,7 +5,7 @@ from behave import given, when, then
 import requests
 from collections import namedtuple
 from aaa_manager.emails import Emails
-from aaa_manager.emails_rest import EmailsRestView
+from aaa_manager.api.emails import EmailsRestView
 
 
 @given('I have correct query string parameters username and email')

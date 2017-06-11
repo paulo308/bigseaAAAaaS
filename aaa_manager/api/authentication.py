@@ -106,7 +106,7 @@ class AuthenticationRestView:
             otherwise. 
         """
         token = self.request.params['token']
-        LOG.info('#### token: %s' % token)
+        LOG.info('#### Input token: %s' % token)
         response = self.authentication.verify_token(2, token)
         return {'response': response}
 
