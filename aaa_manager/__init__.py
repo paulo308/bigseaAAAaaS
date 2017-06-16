@@ -1,7 +1,7 @@
 from pyramid.config import Configurator
 from aaa_manager.route import Route
 
-import logging
+#import logging
 
 #LOG = logging.getLogger(__name__)
 
@@ -9,7 +9,7 @@ def main(global_config, **settings):
     """
     Function called by gunicorn to map routes.
     """
-    #LOG.info("Setting AAA module routes...")
+    LOG.info("Setting AAA module routes...")
     settings['data'] = []
     config = Configurator(settings=settings)
     config.add_static_view(Route.STATIC_ASSETS, 'pages/templates/static')
@@ -59,7 +59,7 @@ def main(global_config, **settings):
     config.add_route(Route.READ_FAVORITE, '/engine/api/read_favorite')
     config.add_route(Route.DELETE_FAVORITE, '/engine/api/delete_favorite')
 
-    #LOG.info("AAA module initiated.")
+    LOG.info("AAA module initiated.")
     # Scan and load classes with configuration decoration (@view_config)
     config.scan()
     return config.make_wsgi_app()

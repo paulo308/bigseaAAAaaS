@@ -12,7 +12,7 @@ LOG = logging.getLogger(__name__)
 
 class AuthorisationRestView:
     """
-    Implements the authorisation REST API.
+    Implements the main REST API.
     """
 
     def __init__(self, request):

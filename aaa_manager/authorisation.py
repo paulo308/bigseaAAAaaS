@@ -22,6 +22,9 @@ AUTHORISATION_KEY = 'username'
 AUTHORISATION_ITEM = 'resource_rule'
 
 class Authorisation:
+    """
+    Authorisation class is responsible for managing resource usage rules.
+    """
     
     def __init__(self):
         self.basedb = BaseDB()

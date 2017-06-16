@@ -1,0 +1,27 @@
+{
+    "signing": {
+        "default": {
+            "expiry": "26280h",
+            "usages": [
+                "signing",
+                "key encipherment",
+                "client auth"
+            ]
+        },
+        "profiles": {
+            "intermediate": {
+                "usages": ["cert sign", "crl sign"],
+                "expiry": "26280h",
+                "ca_constraint": {"is_ca": true}
+            },
+            "server": {
+                "usages": ["signing", "key encipherment", "server auth"],
+                "expiry": "26280h"
+            },
+            "client": {
+                "usages": ["signing", "key encipherment", "client auth"],
+                "expiry": "26280h"
+            }
+        }
+    }
+}
