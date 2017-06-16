@@ -1,9 +1,9 @@
 from pyramid.config import Configurator
 from aaa_manager.route import Route
 
-#import logging
+import logging
 
-#LOG = logging.getLogger(__name__)
+LOG = logging.getLogger(__name__)
 
 def main(global_config, **settings):
     """

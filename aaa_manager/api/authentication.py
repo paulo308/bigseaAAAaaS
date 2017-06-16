@@ -28,7 +28,7 @@ class AuthenticationRestView:
     def checkin(self):
         """ 
         This method is called from **/engine/api/checkin_data**.
-        This method is used to authentication user to access the application.
+        This method is used to authenticate user to access the application.
 
         Arguments:
             user (str): the username;
