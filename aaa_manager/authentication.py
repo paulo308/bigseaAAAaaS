@@ -32,6 +32,8 @@ SECRET = '4I3+jNeddexZAgvvh6TS47dZVPp5ezPX+sJ1AW/QvwY='
 # expiration is measured in minutes
 TOKEN_EXPIRATION = 30 
 
+EMAIL = 'auth.eubrabigsea@gmail.com'
+EMAIL_PWD = 'Serverbigsea2017'
 
 class Auth(Enum):
     """ 
@@ -533,6 +535,16 @@ class AuthenticationManager:
             raise Exception('Invalid user information') from err 
         return True
 
+    def insert_email_token(self, username, email, token, valid):
+        result = self.basedb.insert('EmailToken', 'email', email, 'data', 
+                {
+                    'token': token, 
+                    'username': username, 
+                    'validated': datetime.datetime.now(),
+                    'valid': valid
+                    })
+        return result
+
     def email_confirmation(self, username, email, token):
         """
         Verifies if given token is valid.
@@ -546,18 +558,24 @@ class AuthenticationManager:
             bool: True if valid and False otherwise.
         """
         
-        self.basedb.insert('EmailToken', 'email', email, 'data', 
-                {
-                    'token': token, 
-                    'username': username, 
-                    'validated': datetime.datetime.now(),
-                    'valid': True
-                    })
+        self.insert_email_token(username, email, token, True)
         return True
+
+    def send_email_token(self, username, email):
+        """
+        Send email with new generated token.
+        """
+        token = self.generate_token(username+email)
+        self.insert_email_token(username, email, token, False)
+        self.send_email(username, email, token)
+        return token
+
+
       
     def verify_email(self, username, email):
         """
         Verifies if given token is valid.
+        TODO: must grant that only the last one is valid.
 
         Args: 
             username (str): username;
@@ -575,40 +593,33 @@ class AuthenticationManager:
                     return True
         return False
 
+
+
     def send_email(self, username, email, token):
-        # me == the sender's email address
-        # you == the recipient's email address
-        msg = MIMEMultipart('alternative')
-        msg['Subject'] = 'email confirmation'
-        msg['From'] = 'bigsea@bigsea.com'
-        msg['To'] = email
-
-        # Create the body of the message (a plain-text and an HTML version).
-        text = "Hi!\nHow are you?\nHere is the link you wanted:\nhttps://www.python.org"
-        html = """\
-        <html>
-          <head></head>
-          <body>
-            <p>Hi!<br>
-               How are you?<br>
-               Here is the <a href="https://www.python.org">link</a> you wanted.
-            </p>
-          </body>
-        </html>
         """
+        Send email with token.
+        """
+        gmail_user = EMAIL
+        gmail_pwd = EMAIL_PWD
+        FROM = EMAIL
+        TO = email
+        CONFIRM_EMAIL_PATH = 'https://eubrabigsea.dei.uc.pt/engine/api/email_confirmation'
+        URL = CONFIRM_EMAIL_PATH + '?username='+username+'&email='+email+'&token='+token
+        SUBJECT = 'EUBRA-BigSea: email confirmation'
+        #TEXT = 'token: ' + token
+        TEXT = 'Click on the following link to confirm the email:\n' + URL 
 
-        # Record the MIME types of both parts - text/plain and text/html.
-        part1 = MIMEText(text, 'plain')
-        part2 = MIMEText(html, 'html')
-
-        # Attach parts into message container.
-        # According to RFC 2046, the last part of a multipart message, in this case
-        # the HTML message, is best and preferred.
-        msg.attach(part1)
-        msg.attach(part2)
-
-        # Send the message via our own SMTP server.
-        #s = smtplib.SMTP('localhost')
-        #s.send_message(msg)
-        #s.quit()
+        message = """From: %s\nTo: %s\nSubject: %s\n\n%s
+        """ % (FROM, TO, SUBJECT, TEXT)
+        try:
+            server = smtplib.SMTP("smtp.gmail.com", 587)
+            server.ehlo()
+            server.starttls()
+            server.login(gmail_user, gmail_pwd)
+            server.sendmail(FROM, TO, message)
+            server.close()
+            LOG.info('successfully sent the mail')
+        except:
+            LOG.info('failed to send mail')
+        
 

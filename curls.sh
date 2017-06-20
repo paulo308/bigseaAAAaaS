@@ -60,6 +60,24 @@ else
 	echo 'failed!'
 fi
 
+#test send_email token
+email_token=`curl -s --data "username=teste&email=eduardo.morais@gmail.com" http://localhost:9000/engine/api/send_email_token | jq -r '.success'`
+echo $email_token
+if [ "$email_token" == "Email successfully sent." ]
+then
+	echo 'passed!'
+else
+	echo 'failed!'
+fi
 
+#test email confirmation
+email_confirmation_res=`curl -s --data "username=teste&email=eduardo.morais@gmail.com&token=$email_token" http://localhost:9000/engine/api/email_confirmation | jq -r '.success'`
+echo $email_confirmation_res
+if [ "$email_confirmation_res" == "User email confirmed with success." ]
+then
+	echo 'passed!'
+else
+	echo 'failed!'
+fi
 
 

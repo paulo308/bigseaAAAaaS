@@ -315,3 +315,29 @@ class AuthenticationRestView:
             msg = 'User email was not confirmed.'
             LOG.info(msg)
 
+    @view_config(route_name=Route.SEND_EMAIL_TOKEN,
+                 request_method='POST',
+                 accept='application/json',
+                 renderer='json')
+    def send_email_token(self):
+        """
+        This method is called from **/engine/api/send_email_token
+        Method used to send email with token.
+
+        Args:
+            username (str): username;
+            email (str): user email.
+        """
+
+        username = self.request.params['username']
+        email = self.request.params['email']
+        result = self.authentication.send_email_token(username, email)
+        LOG.info('#### result: %s' % result)
+        if result:
+            msg = 'Email sent with success.'
+            LOG.info(msg)
+            return {'success': msg}
+        else:
+            msg = 'Email was not sent.'
+            LOG.info(msg)
+
