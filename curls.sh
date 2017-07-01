@@ -80,4 +80,24 @@ else
 	echo 'failed!'
 fi
 
+#test use resource
+use_resource_res=`curl -s --data "username=teste&resource_name=teste&token=$token" http://localhost:9000/engine/api/use_resource | jq -r '.success'`
+echo $use_resource_res
+if [ "$use_resource_res" == "User is authorised." ]
+then
+	echo 'passed!'
+else
+	echo 'failed!'
+fi
+
+#test read accounting
+read_accounting_res=`curl -s --data "username=teste&token=$token" http://localhost:9000/engine/api/read_accounting | jq -r '.success'`
+echo $read_accounting_res
+if [ "$read_accounting_res" == "User accounting information read successfully." ]
+then
+	echo 'passed!'
+else
+	echo 'failed!'
+fi
+
 

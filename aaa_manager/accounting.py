@@ -29,8 +29,8 @@ class Accounting():
         """
         Insert accounting information on database.
         """
-        LOG.info(msg)
-        tnow = datetime.now()
+        LOG.info('accounting.msg: %s' % msg)
+        tnow = datetime.now().strftime("%I:%M%p on %B %d, %Y")
         log = {
                 'msg': msg, 
                 'timestamp': tnow,
@@ -44,13 +44,14 @@ class Accounting():
         return res
         
 
-    def get(self, user, category):
+    def get(self, user):
         """
         Get accounting information from database.
         """
-        response = []
-        result = self.basedb.get(ACCOUNTING_COLLECTION, ACCOUNTING_KEY, user)
+        result = list(self.basedb.get(
+            ACCOUNTING_COLLECTION, 
+            ACCOUNTING_KEY,
+            user))
         for item in result:
-            if item['category'] == category:
-                response.append(response, item)
-        return response
+            del item['_id']
+        return result

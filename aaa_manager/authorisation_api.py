@@ -41,9 +41,11 @@ class AuthorisationRestView:
             string otherwise.
         """
         username = self.request.params['username']
+        resource_type = self.request.params['resource_type']
         resource_name = self.request.params['resource_name']
-        rule = self.request.params['rule']
-        auth = self.authorisation.create(username, resource_name, rule)
+        max_used = self.request.params['max']
+        token = self.request.params['token']
+        auth = self.authorisation.create(username, resource_type, resource_name, max_used)
         if auth is not None:
             return {'success': 'Rule successfully created.'}
         else:

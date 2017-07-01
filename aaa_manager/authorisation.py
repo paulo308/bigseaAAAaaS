@@ -15,6 +15,7 @@ from aaa_manager.accounting import Accounting, INFO
 from jsonschema import validate, ValidationError
 import json
 import logging
+import copy
 
 LOG = logging.getLogger(__name__)
 AUTHORISATION_COLLECTION = 'Authorisation'
@@ -30,16 +31,22 @@ class Authorisation:
         self.basedb = BaseDB()
         self.accounting = Accounting()
 
-    def verify(self, username, resource):
+    def verify(self, username, resource_name):
         """
         Returns True if username is allowed to access resource.
         """
-        resources = self.basedb.get(AUTHORISATION_COLLECTION, 
+        LOG.info('verify!!!!!!!!!!!!!!!!!')
+        resources = list(self.basedb.get(AUTHORISATION_COLLECTION, 
                 AUTHORISATION_KEY,
-                username)
+                username))
+        LOG.info('resources: %s' % resources)
         for item in resources:
-            if item['resource_name'] == resource_name:
-                return True
+            LOG.info('item: %s' % item)
+            if 'resource_rule' in item:
+                for elem in item['resource_rule']:
+                    if 'resource_name' in elem:
+                        if elem['resource_name'] == resource_name:
+                            return True
         return False
     
     def update_resource_item(self, username, resource_name):
@@ -50,14 +57,19 @@ class Authorisation:
                 AUTHORISATION_KEY,
                 username)
         for item in resources:
-            if item['resource_name'] == resource_name:
-                old_item = copy(item)
-                item['used'] = item['used'] + 1
-                res = self.basedb.update(AUTHORISATION_COLLECTION, 
-                        AUTHORISATION_KEY,
-                        username, 
-                        old_item,
-                        item)
+            LOG.info('item: %s' % item)
+            if 'resource_rule' in item:
+                for elem in item['resource_rule']:
+                    if 'resource_name' in elem:
+                        if elem['resource_name'] == resource_name:
+                            old_item = copy.deepcopy(item)
+                            elem['used']= elem['used'] + 1
+                            res = self.basedb.update(AUTHORISATION_COLLECTION, 
+                                    AUTHORISATION_KEY,
+                                    username, 
+                                    AUTHORISATION_ITEM,
+                                    old_item,
+                                    item)
         return res
 
 
@@ -67,11 +79,13 @@ class Authorisation:
         is responsible for triggering the accounting mechanism and updating the
         database to increment the number of times that resource was used. 
         """
-        if user_exists(username) and verify(username, resource_name):
+        if self.verify(username, resource_name):
             # add 1 to used field
+            LOG.info('verified!!!!!!!!!!!!')
             self.update_resource_item(username, resource_name)
             # account it  
             msg = "Resource " + resource_name + " used by: " + username + "."
+            LOG.info('msg: %s' % msg)
             category = INFO
             self.accounting.register(username, msg, category)
             return {'msg': msg}
@@ -108,24 +122,8 @@ class Authorisation:
                         {
                             'type': 'number'
                         },
-                        'app_id':
-                        {
-                            'type': 'number'
-                        },
-                        'url':
-                        {
-                            'type': 'string',
-                            'minLength': 1,
-                            'maxLength': 50
-                        },
-                        'blob':
-                        {
-                            'type': 'string',
-                            'minLength': 1,
-                            'maxLength': 50
-                        },
                     },
-                    'required' : ['app_id', 'resource_type','resource_name']
+                    'required' : ['resource_type','resource_name', 'max_used']
                 }
         try:
             validate(rule, SCHEMA)
@@ -134,7 +132,7 @@ class Authorisation:
             raise Exception('Invalid rule') from err 
         return True
 
-    def create(self, username, resource_name, rule):
+    def create(self, username, resource_type, resource_name, max_used):
         """
         Create an authorisation rule on database. 
 
@@ -146,17 +144,19 @@ class Authorisation:
         Returns:
             database response
         """
-        if self.validate_rule(rule):
-            item = {
+        rule = {
+                    'resource_type': resource_type,
                     'resource_name': resource_name,
-                    'rule': rule
-                    }
+                    'max_used': int(max_used),
+                    'used': 0
+                }
+        if self.validate_rule(rule):
             result = self.basedb.insert(
                     AUTHORISATION_COLLECTION,
                     AUTHORISATION_KEY,
                     username,
                     AUTHORISATION_ITEM,
-                    item)
+                    rule)
             if result is not None:
                 LOG.info('Rule: ' + json.dumps(rule) + 
                         'successfully created for user: ' + username + 
