@@ -186,7 +186,13 @@ class AuthenticationManager:
             return None, 'users'
         
         email_token = self.generate_token(user_info)
-        result_insert = self.insert_email_token(auth['username'], auth['email'], email_token)
+        LOG.info('email_token: %s' % email_token)
+        LOG.info('auth: %s' % auth)
+        result_insert = self.insert_email_token(
+                auth['username'], 
+                auth['email'], 
+                email_token,
+                False)
         result_email = self.send_email(
                 auth['username'], 
                 user_info['email'], 
@@ -310,24 +316,6 @@ class AuthenticationManager:
                     'created': datetime.datetime.now()
                     })
     
-    def insert_email_token(self, username, email, token):
-        """Insert email token into DB.
-
-        Args:
-            username (str): username;
-            email (str): user email address;
-            token (str): user email token.
-
-        Returns: 
-            obj: mongodb result
-        """
-        return self.basedb.insert('EmailToken', 'email', email, 'data', 
-                {
-                    'token': token, 
-                    'username': username, 
-                    'created': datetime.datetime.now(),
-                    'valid': False
-                    })
 
     def verify_token(self, app_id, token):
         """Verify token validity.

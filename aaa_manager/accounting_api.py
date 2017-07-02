@@ -6,6 +6,7 @@ import json
 
 from aaa_manager import Route
 from aaa_manager.accounting import Accounting
+from aaa_manager.authentication import AuthenticationManager
 from pyramid.view import view_config
 
 LOG = logging.getLogger(__name__)
@@ -21,6 +22,7 @@ class AccountingRestView:
         self._settings = request.registry.settings
         self._data = self._settings['data']
         self.accounting = Accounting()
+        self.authentication = AuthenticationManager()
 
     @view_config(route_name=Route.READ_ACCOUNTING,
                  request_method='POST',
@@ -40,10 +42,12 @@ class AccountingRestView:
             string otherwise.
         """
         username = self.request.params['username']
-        data = self.accounting.get(username)
-        if data is not None:
-            return {'success': 'User accounting information read successfully.',
-                    'data': json.dumps(data)}
-        else:
-            return {'error':  'User is not authorised.'}
+        token = self.request.params['token']
+        if self.authentication.verify_token(2, token) != 'invalid token':
+            data = self.accounting.get(username)
+            if data is not None:
+                return {'success': 'User accounting information read successfully.',
+                        'data': json.dumps(data)}
+            else:
+                return {'error':  'User is not authorised.'}
             
