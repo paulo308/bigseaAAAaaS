@@ -25,6 +25,18 @@ function get_token() {
 	fi
 }
 
+function send_email_token() {
+	#test send_email token
+	email_token=`curl -s --data "$1" http://localhost:9000/engine/api/send_email_token | jq -r '.success'`
+	echo $email_token
+	if [ "$email_token" == "Email sent with success." ]
+	then
+		echo 'passed!'
+	else
+		echo 'failed!'
+	fi
+}
+
 
 function test_signup() {
 	call "user=teste&pwd=@bC12345&fname=teste&lname=teste&email=teste@teste.com" "signup_data" "User signed up with success."
@@ -33,79 +45,30 @@ function test_signup() {
 
 function test_favorite() {
 	call "username=teste&item_id=b&item_type=a&city_id=1&country_id=2&favorite_id=b&data=aaa&token=$token" "create_favorite" "Favorite association successfully created."
+	call "username=teste&city_id=1&country_id=2&token=$token" "read_favorite" "Favorite association successfully read." 
+	call "username=teste&item_id=b&token=$token" "delete_favorite" "Favorite association successfully deleted."
+	#call "username=teste&item_id=b&token=$token" "delete_favorite" "Favorite association successfully deleted."
 }
 
+function test_email() {
+	send_email_token "username=teste&email=eduardo.morais@gmail.com"
+	call "username=teste&email=eduardo.morais@gmail.com&token=$email_token" "email_confirmation" "User email confirmed with success."
+}
+
+function test_use_resource() {
+	get_token "user=teste&pwd=@bC12345"
+	call "username=teste&resource_type=teste&resource_name=teste&max=10&token=$token" "create_authorisation" "Rule successfully created."
+	call "username=teste&resource_name=teste&token=$token" "use_resource" "User is authorised."
+	call "username=teste&token=$token" "read_accounting" "User accounting information read successfully."
+}
+
+
 test_signup
-
-# Call sign up API
-#signup_res=`curl -s --data "user=teste&pwd=@bC12345&fname=teste&lname=teste&email=teste@teste.com" http://localhost:9000/engine/api/signup_data | jq -r '.success'`
-#echo $signup_res
-
-#if [ "$signup_res" == "User signed up with success." ]
-#then
-#	echo 'passed!'
-#else
-#	echo 'failed!'
-#fi
+test_favorite
+test_email
+test_use_resource
 
 
-#test favorite creation
-#create_favorite_res=`curl -s --data "username=teste&item_id=b&item_type=a&city_id=1&country_id=2&favorite_id=b&data=aaa&token=$token" http://localhost:9000/engine/api/create_favorite | jq -r '.success'`
-#echo $create_favorite_res
-#if [ "$create_favorite_res" == "Favorite association successfully created." ]
-#then
-#	echo 'passed!'
-#else
-#	echo 'failed!'
-#fi
-
-#test read favorite
-#read_favorite_res=`curl -s --data "username=teste&city_id=1&country_id=2&token=$token" http://localhost:9000/engine/api/read_favorite | jq -r '.success'`
-#echo $read_favorite_res
-#if [ "$read_favorite_res" == "Favorite association successfully read." ]
-#then
-#	echo 'passed!'
-#else
-#	echo 'failed!'
-#fi
-
-#test favorite deletion
-#delete_favorite_res=`curl -s --data "username=teste&item_id=b&token=$token" http://localhost:9000/engine/api/delete_favorite | jq -r '.success'`
-#echo $delete_favorite_res
-#if [ "$delete_favorite_res" == "Favorite association successfully deleted." ]
-#then
-#	echo 'passed!'
-#else
-#	echo 'failed!'
-#fi
-#delete_favorite_res=`curl -s --data "username=teste&item_id=b&token=$token" http://localhost:9000/engine/api/delete_favorite | jq -r '.success'`
-#echo $delete_favorite_res
-#if [ "$delete_favorite_res" == "Favorite association successfully deleted." ]
-#then
-#	echo 'passed!'
-#else
-#	echo 'failed!'
-#fi
-
-#test send_email token
-#email_token=`curl -s --data "username=teste&email=eduardo.morais@gmail.com" http://localhost:9000/engine/api/send_email_token | jq -r '.success'`
-#echo $email_token
-#if [ "$email_token" == "Email successfully sent." ]
-#then
-#	echo 'passed!'
-#else
-#	echo 'failed!'
-#fi
-
-#test email confirmation
-#email_confirmation_res=`curl -s --data "username=teste&email=eduardo.morais@gmail.com&token=$email_token" http://localhost:9000/engine/api/email_confirmation | jq -r '.success'`
-#echo $email_confirmation_res
-#if [ "$email_confirmation_res" == "User email confirmed with success." ]
-#then
-#	echo 'passed!'
-#else
-#	echo 'failed!'
-#fi
 
 
 
