@@ -25,6 +25,20 @@ function get_token() {
 	fi
 }
 
+function checkout() {
+	# Get token from checkin API
+	token=`curl -s --data "token=$token" http://localhost:9000/engine/api/checkout_data | jq -r '.user_info.user_token'`
+	echo $token
+
+	if [ ${#token} -gt 0 ]
+	then 
+		echo "passed!"
+	else
+		echo "failed!"
+	fi
+}
+
+
 function send_email_token() {
 	#test send_email token
 	email_token=`curl -s --data "$1" http://localhost:9000/engine/api/send_email_token | jq -r '.success'`
@@ -41,9 +55,11 @@ function send_email_token() {
 function test_signup() {
 	call "user=teste&pwd=@bC12345&fname=teste&lname=teste&email=teste@teste.com" "signup_data" "User signed up with success."
 	get_token "user=teste&pwd=@bC12345"
+	checkout "token=$token"
 }
 
 function test_favorite() {
+	get_token "user=teste&pwd=@bC12345"
 	call "username=teste&item_id=b&item_type=a&city_id=1&country_id=2&favorite_id=b&data=aaa&token=$token" "create_favorite" "Favorite association successfully created."
 	call "username=teste&city_id=1&country_id=2&token=$token" "read_favorite" "Favorite association successfully read." 
 	call "username=teste&item_id=b&token=$token" "delete_favorite" "Favorite association successfully deleted."

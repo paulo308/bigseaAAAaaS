@@ -86,7 +86,23 @@ class AuthenticationRestView:
             token (str): hexadecimal representation of user token.
         """
         token = self.request.params['token']
-        self.authentication.remove_token(2, token)
+        result = self.authentication.remove_token(token)
+        if result is not None:
+            LOG.info('Successfully checkout.')
+            return {
+                    'success': True, 
+                    'cancelled': False, 
+                    'user_info': {'user_token': token}, 
+                    'error': ''
+                    }
+        else:
+            LOG.info('User not checkin.')
+            return {
+                    'success': False, 
+                    'cancelled': False, 
+                    'user_info': None, 
+                    'error': 'Invalid token.'
+                    }
         return {}
 
     @view_config(route_name=Route.VERIFY_TOKEN,
