@@ -1,7 +1,9 @@
 #!/bin/bash
 
+domain=$1
+
 function call() {
-	res=`curl -s --data "$1" http://localhost:9000/engine/api/$2 | jq -r '.success'`
+	res=`curl -s --data "$1" $domain/engine/api/$2 | jq -r '.success'`
 	echo $res
 
 	if [ "$res" == "$3" ]
@@ -14,7 +16,7 @@ function call() {
 
 function get_token() {
 	# Get token from checkin API
-	token=`curl -s --data "$1" http://localhost:9000/engine/api/checkin_data | jq -r '.user_info.user_token'`
+	token=`curl -s --data "$1" $domain/engine/api/checkin_data | jq -r '.user_info.user_token'`
 	echo $token
 
 	if [ ${#token} -gt 0 ]
@@ -27,7 +29,7 @@ function get_token() {
 
 function checkout() {
 	# Get token from checkin API
-	token=`curl -s --data "token=$token" http://localhost:9000/engine/api/checkout_data | jq -r '.user_info.user_token'`
+	token=`curl -s --data "token=$token" $domain/engine/api/checkout_data | jq -r '.user_info.user_token'`
 	echo $token
 
 	if [ ${#token} -gt 0 ]
@@ -41,7 +43,7 @@ function checkout() {
 
 function send_email_token() {
 	#test send_email token
-	email_token=`curl -s --data "$1" http://localhost:9000/engine/api/send_email_token | jq -r '.success'`
+	email_token=`curl -s --data "$1" $domain/engine/api/send_email_token | jq -r '.success'`
 	echo $email_token
 	if [ "$email_token" == "Email sent with success." ]
 	then
