@@ -12,9 +12,6 @@ from aaa_manager.api.emails import EmailsRestView
 def step_impl(context):
     context.username = 'teste'
     context.email = 'email@teste.com'
-    context.email_info = {
-            'email': context.email,
-            }
 
 @when('I call create email RESP API service')
 def step_impl(context):
@@ -24,7 +21,7 @@ def step_impl(context):
 def step_impl(context):
     payload = {
             'username': context.username,
-            'email_info': context.email_info,
+            'email': context.email,
             }
     context.request = context.request(context.settings, params=payload)
     ret = {}

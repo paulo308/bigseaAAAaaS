@@ -35,13 +35,10 @@ class Authorisation:
         """
         Returns True if username is allowed to access resource.
         """
-        LOG.info('verify!!!!!!!!!!!!!!!!!')
         resources = list(self.basedb.get(AUTHORISATION_COLLECTION, 
                 AUTHORISATION_KEY,
                 username))
-        LOG.info('resources: %s' % resources)
         for item in resources:
-            LOG.info('item: %s' % item)
             if 'resource_rule' in item:
                 for elem in item['resource_rule']:
                     if 'resource_name' in elem:
@@ -57,7 +54,6 @@ class Authorisation:
                 AUTHORISATION_KEY,
                 username)
         for item in resources:
-            LOG.info('item: %s' % item)
             if 'resource_rule' in item:
                 for elem in item['resource_rule']:
                     if 'resource_name' in elem:
@@ -81,7 +77,6 @@ class Authorisation:
         """
         if self.verify(username, resource_name):
             # add 1 to used field
-            LOG.info('verified!!!!!!!!!!!!')
             self.update_resource_item(username, resource_name)
             # account it  
             msg = "Resource " + resource_name + " used by: " + username + "."
@@ -164,25 +159,61 @@ class Authorisation:
                 return result
         return None
 
-    def read(self, username, resource_name):
+    def read(self, username, resource_name, resource_category):
         """
-
+        Read rule information from user.
         """
         resources = self.basedb.get(
                 AUTHORISATION_COLLECTION, 
                 AUTHORISATION_KEY,
                 username)
         for item in resources:
-            if item['resource_name'] == resource_name:
+            if item['resource_name'] == resource_name and\
+                    item['resource_category'] == resource_type:
                 return item
         return None
 
 
-    def update(self):
-        pass
+    def update(self, username, resource_name, resource_category, max_allowed):
+        """
+        Update rule information. 
+        """
+        resources = self.basedb.get(
+                AUTHORISATION_COLLECTION, 
+                AUTHORISATION_KEY,
+                username)
+        for item in resources:
+            if item['resource_name'] == resource_name and\
+                    item['resource_category'] == resource_category:
+                new_item = copy.deepcopy(item)
+                new_item['max_allowed'] = max_allowed
+                result = self.basedb.update(
+                        AUTHORISATION_COLLECTION,
+                        AUTHORISATION_KEY,
+                        username,
+                        AUTHORISATION_ITEM,
+                        item,
+                        new_item)
+                return result
+        return None
 
-    def delete(self):
-        pass
-
-
+    def delete(self, username, resource_name, resource_category):
+        """
+        Delete rule information. 
+        """
+        resources = self.basedb.get(
+                AUTHORISATION_COLLECTION, 
+                AUTHORISATION_KEY,
+                username)
+        for item in resources:
+            if item['resource_name'] == resource_name and\
+                item['resource_category'] == resource_category:
+                    result = self.basedb.remove_list_item(
+                            AUTHORISATION_COLLECTION,
+                            AUTHORISATION_KEY,
+                            username,
+                            AUTHORISATION_ITEM,
+                            item)
+                    return result
+        return None
 

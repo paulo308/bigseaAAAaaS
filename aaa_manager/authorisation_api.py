@@ -82,4 +82,131 @@ class AuthorisationRestView:
                 return {'success': 'User is authorised.'}
             else:
                 return {'error':  'User is not authorised.'}
+    
+    @view_config(route_name=Route.READ_AUTHORISATION,
+                 request_method='POST',
+                 renderer='json')
+    def read_authorisation(self):
+        """ 
+        This method is called from **/engine/api/read_authorisation**.
+        This method is called in order to read authorisation rule.
+
+        Arguments:
+            username (str): the username;
+            resource_name (str): the resource name.
+            resource_category (str): the resource type.
+
+        Returns:
+            success (bool): True if sucessfully created and False
+            otherwise;
+            error (str): an error message if an error occured and an empty
+            string otherwise.
+        """
+        username = self.request.params['username']
+        resource_name = self.request.params['resource_name']
+        resource_category = self.request.params['resource_category']
+        max_allowed = self.request.params['max_allowed']
+        token = self.request.params['token']
+        if self.authentication.verify_token(2, token) != 'invalid token':
+            auth = self.authorisation.update(
+                    username, 
+                    resource_name, 
+                    resource_category)
+            if auth is not None:
+                return {'success': 'Rule successfully read.'}
+            else:
+                return {'error':  'Rule not found.'}
+    
+    @view_config(route_name=Route.READ_AUTHORISATIONS,
+                 request_method='POST',
+                 renderer='json')
+    def read_authorisations(self):
+        """ 
+        This method is called from **/engine/api/read_authorisations**.
+        This method is called in order to read authorisation rules.
+
+        Arguments:
+            username (str): the username;
+
+        Returns:
+            success (bool): True if sucessfully created and False
+            otherwise;
+            error (str): an error message if an error occured and an empty
+            string otherwise.
+        """
+        username = self.request.params['username']
+        token = self.request.params['token']
+        if self.authentication.verify_token(2, token) != 'invalid token':
+            auths = self.authorisation.read_authorisations(username)
+            if auths is not None:
+                return {'success': 'Rule successfully read.',
+                        'data': auths}
+            else:
+                return {'error':  'Rule not found.'}
             
+    @view_config(route_name=Route.UPDATE_AUTHORISATION,
+                 request_method='POST',
+                 renderer='json')
+    def update(self):
+        """ 
+        This method is called from **/engine/api/update_authorisation**.
+        This method is called in order to update authorisation rule.
+
+        Arguments:
+            username (str): the username;
+            resource_name (str): the resource name.
+
+        Returns:
+            success (bool): True if sucessfully created and False
+            otherwise;
+            error (str): an error message if an error occured and an empty
+            string otherwise.
+        """
+        username = self.request.params['username']
+        resource_name = self.request.params['resource_name']
+        resource_category = self.request.params['resource_category']
+        max_allowed = self.request.params['max_allowed']
+        token = self.request.params['token']
+        if self.authentication.verify_token(2, token) != 'invalid token':
+            auth = self.authorisation.update(
+                    username, 
+                    resource_name, 
+                    resource_category,
+                    max_allowed)
+            if auth is not None:
+                return {'success': 'Rule successfully updated.'}
+            else:
+                return {'error':  'Rule not found.'}
+            
+    @view_config(route_name=Route.DELETE_AUTHORISATION,
+                 request_method='POST',
+                 renderer='json')
+    def delete(self):
+        """ 
+        This method is called from **/engine/api/delete_authorisation**.
+        This method is called in order to delete rule.
+
+        Arguments:
+            username (str): the username;
+            resource_name (str): the resource name.
+
+        Returns:
+            success (bool): True if sucessfully created and False
+            otherwise;
+            error (str): an error message if an error occured and an empty
+            string otherwise.
+        """
+        username = self.request.params['username']
+        resource_name = self.request.params['resource_name']
+        resource_category = self.request.params['resource_category']
+        max_allowed = self.request.params['max_allowed']
+        token = self.request.params['token']
+        if self.authentication.verify_token(2, token) != 'invalid token':
+            auth = self.authorisation.delete(
+                    username, 
+                    resource_name, 
+                    resource_category)
+            if auth is not None:
+                return {'success': 'Rule successfully deleted.'}
+            else:
+                return {'error':  'Rule not found.'}

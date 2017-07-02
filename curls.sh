@@ -71,6 +71,30 @@ function test_email() {
 	call "username=teste&email=eduardo.morais@gmail.com&token=$email_token" "email_confirmation" "User email confirmed with success."
 }
 
+function test_email_association() {
+	get_token "user=teste&pwd=@bC12345"
+	call "username=teste&email=teste@teste.com&token=$token" "create_email" "Email association successfully created."	
+	call "username=teste&token=$token" "read_emails" "Email association successfully read."
+	call "username=teste&email=teste@teste.com&token=$token" "delete_email" "Email association successfully deleted."
+}
+
+function test_email_checkin() {
+	get_token "user=teste&pwd=@bC12345"
+	call "username=teste&email=eduardo.morais@gmail.com&token=$token" "create_email" "Email association successfully created."	
+	# next call returns user info and corresponding token
+	call "email=eduardo.morais@gmail.com" "email_checkin" "Email checkin with success."
+	
+}
+
+function test_authorisation() {
+	get_token "user=teste&pwd=@bC12345"
+	call "username=teste&resource_type=teste&resource_name=teste&max=10&token=$token" "create_authorisation" "Rule successfully created."
+	call "username=teste&token=$token" "read_authorisations" "Rules read successfully."
+	call "username=teste&resource_type=teste&resource_name=teste&token=$token" "read_authorisation" "Rule information read successfully."
+	call "username=teste&resource_type=teste&resource_name=teste&max=20&token=$token" "update_authorisation" "Rule successfully updated."
+	call "username=teste&resource_type=teste&resource_name=teste&token=$token" "delete_authorisation" "Rule successfully deleted."
+}
+
 function test_use_resource() {
 	get_token "user=teste&pwd=@bC12345"
 	call "username=teste&resource_type=teste&resource_name=teste&max=10&token=$token" "create_authorisation" "Rule successfully created."
@@ -79,10 +103,11 @@ function test_use_resource() {
 }
 
 
-test_signup
-test_favorite
-test_email
-test_use_resource
+#test_signup
+#test_favorite
+test_email_association
+#test_email
+#test_use_resource
 
 
 
