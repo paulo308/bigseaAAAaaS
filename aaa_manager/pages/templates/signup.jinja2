@@ -148,11 +148,11 @@ width: 250px;
                         </p>
                         <p>
                             <label for="password1">Password:</label>
-                            <input name="password1" id="password1" data-parsley-pattern="^[A-Za-z0-9_-]{8,25}$" data-parsley-length="[8, 25]" type="password" data-parsley-equalto="#password2" data-parsley-error-message="Passwords must match. Needs to be between 8 and 25 characters. Case sensitive. No special characters allowed." required/>
+                            <input name="password1" id="password1" data-parsley-pattern="^[A-Za-z0-9_-]{8,30}$" data-parsley-length="[8, 30]" type="password" data-parsley-equalto="#password2" data-parsley-error-message="Passwords must match. Needs to have at least 8 characters. It should include uppercase letters, lowercase letters and numbers." required/>
                         </p>
                         <p>
                             <label for="password2">Confirm Your Password:</label>
-                            <input name="password2" id="password2" data-parsley-length="[8, 25]" data-parsley-error-message="Passwords must match. Needs to be between 8 and 25 characters. Case sensitive. No special characters allowed." data-parsley-pattern="^[A-Za-z0-9_-]{8,25}$" type="password" data-parsley-equalto="#password1" required/>
+                            <input name="password2" id="password2" data-parsley-length="[8, 30]" data-parsley-error-message="Passwords must match. Needs to have at least 8 characters. It should include uppercase letters, lowercase letters and numbers." data-parsley-pattern="^[A-Za-z0-9_-]{8,30}$" type="password" data-parsley-equalto="#password1" required/>
                         </p>
                         
                         <p>
