@@ -30,7 +30,7 @@ APP_KEY = 'app_id'
 USER_ITEM = 'auth'
 SECRET = '4I3+jNeddexZAgvvh6TS47dZVPp5ezPX+sJ1AW/QvwY='
 # expiration is measured in minutes
-TOKEN_EXPIRATION = 30 
+TOKEN_EXPIRATION = 720 
 
 EMAIL = 'auth.eubrabigsea@gmail.com'
 EMAIL_PWD = 'Serverbigsea2017'
