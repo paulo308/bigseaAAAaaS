@@ -125,6 +125,28 @@ class AuthenticationRestView:
         LOG.info('#### Input token: %s' % token)
         response = self.authentication.verify_token(2, token)
         return {'response': response}
+    
+    @view_config(route_name=Route.READ_USER_INFO,
+                 request_method='POST',
+                 accept='application/json',
+                 renderer='json')
+    def read_user_info(self):
+        """ 
+        This method is called from **/engine/api/read_user_info**.
+        Verify the validity of user token. 
+
+        Args:
+            token (str): hexadecimal representation of user token.
+
+        Returns:
+            response (str): username if token is valid and 'invalid token'
+            otherwise. 
+        """
+        token = self.request.params['token']
+        LOG.info('#### Input token: %s' % token)
+        response = self.authentication.read_user_info(2, token)
+        return {'response': response,
+                'success': 'User info read successfully.'}
 
     @view_config(route_name=Route.SIGNUP,
                  request_method='POST',

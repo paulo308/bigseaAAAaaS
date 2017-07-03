@@ -328,6 +328,24 @@ class AuthenticationManager:
             str: username corresponding to token if valid, 
             'invalid token' otherwise
         """
+        result = self.read_user_info(app_id, token)
+        if result != 'invalid token':
+            return result['username']
+        else:
+            return 'invalid token'
+
+
+    def read_user_info(self, app_id, token):
+        """Verify token validity.
+
+        Args:
+            app_id (int): application id;
+            token (str): base64 token.
+
+        Returns:
+            str: username corresponding to token if valid, 
+            'invalid token' otherwise
+        """
         result = list(self.basedb.get('Token', 'token', token))
         for item in result:
             if 'data' in item:
@@ -338,7 +356,7 @@ class AuthenticationManager:
                             and (datetime.datetime.now() - datetime.timedelta(minutes=TOKEN_EXPIRATION) < data['created']):
                         LOG.info('#### %s' % (datetime.datetime.now() - datetime.timedelta(minutes=TOKEN_EXPIRATION) < data['created']))
                         LOG.info('#### created: %s' % data['created'])
-                        return data['user']['username']
+                        return data['user']
         return 'invalid token'
 
     def get_token(self, app_id, user):

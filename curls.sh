@@ -57,6 +57,7 @@ function send_email_token() {
 function test_signup() {
 	call "user=teste&pwd=@bC12345&fname=teste&lname=teste&email=teste@teste.com" "signup_data" "User signed up with success."
 	get_token "user=teste&pwd=@bC12345"
+	call "token=$token" "read_user_info" "User info read successfully."
 	checkout "token=$token"
 }
 
@@ -105,7 +106,7 @@ function test_use_resource() {
 }
 
 
-#test_signup
+test_signup
 #test_favorite
 test_email_association
 #test_email
