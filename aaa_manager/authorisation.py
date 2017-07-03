@@ -31,7 +31,7 @@ class Authorisation:
         self.basedb = BaseDB()
         self.accounting = Accounting()
 
-    def verify(self, username, resource_name):
+    def verify(self, username, resource_name, resource_category):
         """
         Returns True if username is allowed to access resource.
         """
@@ -39,14 +39,13 @@ class Authorisation:
                 AUTHORISATION_KEY,
                 username))
         for item in resources:
-            if 'resource_rule' in item:
-                for elem in item['resource_rule']:
-                    if 'resource_name' in elem:
-                        if elem['resource_name'] == resource_name:
-                            return True
+            for elem in item['resource_rule']:
+                if elem['resource_name'] == resource_name and\
+                    elem['resource_category'] == resource_category:
+                        return True
         return False
     
-    def update_resource_item(self, username, resource_name):
+    def update_resource_item(self, username, resource_name, resource_category):
         """
         Add 1 to used field.
         """
@@ -54,30 +53,29 @@ class Authorisation:
                 AUTHORISATION_KEY,
                 username)
         for item in resources:
-            if 'resource_rule' in item:
-                for elem in item['resource_rule']:
-                    if 'resource_name' in elem:
-                        if elem['resource_name'] == resource_name:
-                            old_item = copy.deepcopy(item)
-                            elem['used']= elem['used'] + 1
-                            res = self.basedb.update(AUTHORISATION_COLLECTION, 
-                                    AUTHORISATION_KEY,
-                                    username, 
-                                    AUTHORISATION_ITEM,
-                                    old_item,
-                                    item)
+            for elem in item['resource_rule']:
+                if elem['resource_name'] == resource_name and\
+                        elem['resource_category'] == resource_category:
+                    old_item = copy.deepcopy(item)
+                    elem['used']= elem['used'] + 1
+                    res = self.basedb.update(AUTHORISATION_COLLECTION, 
+                            AUTHORISATION_KEY,
+                            username, 
+                            AUTHORISATION_ITEM,
+                            old_item,
+                            item)
         return res
 
 
-    def use_resource(self, username, resource_name):
+    def use_resource(self, username, resource_name, resource_category):
         """
         This method is called in order to user a determined resource. Thus, it
         is responsible for triggering the accounting mechanism and updating the
         database to increment the number of times that resource was used. 
         """
-        if self.verify(username, resource_name):
+        if self.verify(username, resource_name, resource_category):
             # add 1 to used field
-            self.update_resource_item(username, resource_name)
+            self.update_resource_item(username, resource_name, resource_category)
             # account it  
             msg = "Resource " + resource_name + " used by: " + username + "."
             LOG.info('msg: %s' % msg)
@@ -103,7 +101,7 @@ class Authorisation:
                             'minLength': 1,
                             'maxLength': 50
                         },
-                        'resource_type':
+                        'resource_category':
                         {
                             'type': 'string',
                             'minLength': 1,
@@ -118,7 +116,7 @@ class Authorisation:
                             'type': 'number'
                         },
                     },
-                    'required' : ['resource_type','resource_name', 'max_used']
+                    'required' : ['resource_category','resource_name', 'max_used']
                 }
         try:
             validate(rule, SCHEMA)
@@ -127,7 +125,7 @@ class Authorisation:
             raise Exception('Invalid rule') from err 
         return True
 
-    def create(self, username, resource_type, resource_name, max_used):
+    def create(self, username, resource_category, resource_name, max_used):
         """
         Create an authorisation rule on database. 
 
@@ -140,7 +138,7 @@ class Authorisation:
             database response
         """
         rule = {
-                    'resource_type': resource_type,
+                    'resource_category': resource_category,
                     'resource_name': resource_name,
                     'max_used': int(max_used),
                     'used': 0
@@ -168,9 +166,10 @@ class Authorisation:
                 AUTHORISATION_KEY,
                 username)
         for item in resources:
-            if item['resource_name'] == resource_name and\
-                    item['resource_category'] == resource_type:
-                return item
+            for elem in item[AUTHORISATION_ITEM]:
+                if elem['resource_name'] == resource_name and\
+                        elem['resource_category'] == resource_category:
+                    return elem
         return None
 
 
@@ -183,18 +182,19 @@ class Authorisation:
                 AUTHORISATION_KEY,
                 username)
         for item in resources:
-            if item['resource_name'] == resource_name and\
-                    item['resource_category'] == resource_category:
-                new_item = copy.deepcopy(item)
-                new_item['max_allowed'] = max_allowed
-                result = self.basedb.update(
-                        AUTHORISATION_COLLECTION,
-                        AUTHORISATION_KEY,
-                        username,
-                        AUTHORISATION_ITEM,
-                        item,
-                        new_item)
-                return result
+            for elem in item[AUTHORISATION_ITEM]:
+                if elem['resource_name'] == resource_name and\
+                        elem['resource_category'] == resource_category:
+                    new_elem = copy.deepcopy(elem)
+                    new_elem['max_allowed'] = max_allowed
+                    result = self.basedb.update(
+                            AUTHORISATION_COLLECTION,
+                            AUTHORISATION_KEY,
+                            username,
+                            AUTHORISATION_ITEM,
+                            elem,
+                            new_elem)
+                    return result
         return None
 
     def delete(self, username, resource_name, resource_category):
@@ -206,14 +206,15 @@ class Authorisation:
                 AUTHORISATION_KEY,
                 username)
         for item in resources:
-            if item['resource_name'] == resource_name and\
-                item['resource_category'] == resource_category:
-                    result = self.basedb.remove_list_item(
-                            AUTHORISATION_COLLECTION,
-                            AUTHORISATION_KEY,
-                            username,
-                            AUTHORISATION_ITEM,
-                            item)
-                    return result
+            for elem in item[AUTHORISATION_ITEM]:
+                if elem['resource_name'] == resource_name and\
+                        elem['resource_category'] == resource_category:
+                        result = self.basedb.remove_list_item(
+                                AUTHORISATION_COLLECTION,
+                                AUTHORISATION_KEY,
+                                username,
+                                AUTHORISATION_ITEM,
+                                elem)
+                        return result
         return None
 

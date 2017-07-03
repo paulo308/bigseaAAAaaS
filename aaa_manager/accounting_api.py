@@ -41,13 +41,21 @@ class AccountingRestView:
             error (str): an error message if an error occured and an empty
             string otherwise.
         """
-        username = self.request.params['username']
-        token = self.request.params['token']
-        if self.authentication.verify_token(2, token) != 'invalid token':
-            data = self.accounting.get(username)
-            if data is not None:
-                return {'success': 'User accounting information read successfully.',
-                        'data': json.dumps(data)}
-            else:
-                return {'error':  'User is not authorised.'}
+        msg = ''
+        try:
+            username = self.request.params['username']
+            token = self.request.params['token']
+            if self.authentication.verify_token(2, token) != 'invalid token':
+                data = self.accounting.get(username)
+                if data is not None:
+                    return {'success': 'User accounting information read successfully.',
+                            'data': json.dumps(data)}
+                else:
+                    return {'error':  'User is not authorised.'}
+        except KeyError as e:
+            msg = 'Missing mandatory parameter: ' + str(e)
+        except Exception as e:
+            msg = 'Unknown error occurred: ' + str(e)
+        LOG.info(msg)
+        return {'error': msg}
             

@@ -41,15 +41,23 @@ class EmailsRestView:
             error (str): an error message if an error occured and an empty
             string otherwise.
         """
-        username = self.request.params['username']
-        email_info = {'email': self.request.params['email']}
-        token = self.request.params['token']
-        if self.authentication.verify_token(2, token) != 'invalid token':
-            auth = self.emails.create(username, email_info)
-            if auth is not None:
-                return {'success': 'Email association successfully created.'}
-            else:
-                return {'error':  'Invalid email.'}
+        msg = ''
+        try:
+            username = self.request.params['username']
+            email_info = {'email': self.request.params['email']}
+            token = self.request.params['token']
+            if self.authentication.verify_token(2, token) != 'invalid token':
+                auth = self.emails.create(username, email_info)
+                if auth is not None:
+                    return {'success': 'Email association successfully created.'}
+                else:
+                    return {'error':  'Invalid email.'}
+        except KeyError as e:
+            msg = 'Missing mandatory parameter: ' + str(e)
+        except Exception as e:
+            msg = 'Unknown error occurred: ' + str(e)
+        LOG.info(msg)
+        return {'error': msg}
             
     @view_config(route_name=Route.READ_EMAILS,
                  request_method='POST',
@@ -69,14 +77,22 @@ class EmailsRestView:
             error (str): an error message if an error occured and an empty
             string otherwise.
         """
-        username = self.request.params['username']
-        token = self.request.params['token']
-        if self.authentication.verify_token(2, token) != 'invalid token':
-            result = self.emails.read_all(username)
-            if result is not None:
-                return {'success': 'Email association successfully read.'}
-            else:
-                return {'error':  'Invalid username.'}
+        msg = ''
+        try:
+            username = self.request.params['username']
+            token = self.request.params['token']
+            if self.authentication.verify_token(2, token) != 'invalid token':
+                result = self.emails.read_all(username)
+                if result is not None:
+                    return {'success': 'Email association successfully read.'}
+                else:
+                    return {'error':  'Invalid username.'}
+        except KeyError as e:
+            msg = 'Missing mandatory parameter: ' + str(e)
+        except Exception as e:
+            msg = 'Unknown error occurred: ' + str(e)
+        LOG.info(msg)
+        return {'error': msg}
     
     @view_config(route_name=Route.DELETE_EMAIL,
                  request_method='POST',
@@ -97,12 +113,20 @@ class EmailsRestView:
             error (str): an error message if an error occured and an empty
             string otherwise.
         """
-        username = self.request.params['username']
-        email = self.request.params['email']
-        token = self.request.params['token']
-        if self.authentication.verify_token(2, token) != 'invalid token':
-            result = self.emails.delete(username, email)
-            if result is not None:
-                return {'success': 'Email association successfully deleted.'}
-            else:
-                return {'error':  'Invalid username.'}
+        msg = ''
+        try:
+            username = self.request.params['username']
+            email = self.request.params['email']
+            token = self.request.params['token']
+            if self.authentication.verify_token(2, token) != 'invalid token':
+                result = self.emails.delete(username, email)
+                if result is not None:
+                    return {'success': 'Email association successfully deleted.'}
+                else:
+                    return {'error':  'Invalid username.'}
+        except KeyError as e:
+            msg = 'Missing mandatory parameter: ' + str(e)
+        except Exception as e:
+            msg = 'Unknown error occurred: ' + str(e)
+        LOG.info(msg)
+        return {'error': msg}

@@ -91,26 +91,26 @@ function test_email_checkin() {
 
 function test_authorisation() {
 	get_token "user=teste&pwd=@bC12345"
-	call "username=teste&resource_type=teste&resource_name=teste&max=10&token=$token" "create_authorisation" "Rule successfully created."
+	call "username=teste&resource_category=teste&resource_name=teste&max=10&token=$token" "create_authorisation" "Rule successfully created."
 	call "username=teste&token=$token" "read_authorisations" "Rules read successfully."
-	call "username=teste&resource_type=teste&resource_name=teste&token=$token" "read_authorisation" "Rule information read successfully."
-	call "username=teste&resource_type=teste&resource_name=teste&max=20&token=$token" "update_authorisation" "Rule successfully updated."
-	call "username=teste&resource_type=teste&resource_name=teste&token=$token" "delete_authorisation" "Rule successfully deleted."
+	call "username=teste&resource_category=teste&resource_name=teste&token=$token" "read_authorisation" "Rule information read successfully."
+	call "username=teste&resource_category=teste&resource_name=teste&max=20&token=$token" "update_authorisation" "Rule successfully updated."
+	call "username=teste&resource_category=teste&resource_name=teste&token=$token" "delete_authorisation" "Rule successfully deleted."
 }
 
 function test_use_resource() {
 	get_token "user=teste&pwd=@bC12345"
 	call "username=teste&resource_type=teste&resource_name=teste&max=10&token=$token" "create_authorisation" "Rule successfully created."
-	call "username=teste&resource_name=teste&token=$token" "use_resource" "User is authorised."
+	call "username=teste&resource_name=teste&resource_category=teste&token=$token" "use_resource" "User is authorised."
 	call "username=teste&token=$token" "read_accounting" "User accounting information read successfully."
 }
 
 
 test_signup
-#test_favorite
+test_favorite
 test_email_association
-#test_email
-#test_use_resource
+test_email
+test_use_resource
 
 
 

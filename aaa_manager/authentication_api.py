@@ -44,34 +44,42 @@ class AuthenticationRestView:
             error (str): an error message if an error occured and an empty
             string otherwise.
         """
-        usr = self.request.params['user']
-        pwd = self.request.params['pwd']
-        # TODO: aap_id = 2 is hardcoded
-        user = self.authentication.access_app(
-                2, 
-                usr, 
-                pwd, 
-                Auth.USERS)
+        msg = ''
+        try:
+            usr = self.request.params['user']
+            pwd = self.request.params['pwd']
+            # TODO: aap_id = 2 is hardcoded
+            user = self.authentication.access_app(
+                    2, 
+                    usr, 
+                    pwd, 
+                    Auth.USERS)
 
-        if user is not None:
-            token = self.authentication.generate_token(user)
-            response = self.authentication.insert_token(2, user, token)
-            LOG.info('Successfully authenticated.')
-            return {
-                    'success': True, 
-                    'cancelled': False, 
-                    'user_info': {'user_token': token, 'user': user}, 
-                    'error': ''
-                    }
-        else:
-            LOG.info('User not authenticated.')
-            return {
-                    'success': False, 
-                    'cancelled': False, 
-                    'user_info': None, 
-                    'error': 'Invalid username or password.'
-                    }
-        return {}
+            if user is not None:
+                token = self.authentication.generate_token(user)
+                response = self.authentication.insert_token(2, user, token)
+                LOG.info('Successfully authenticated.')
+                return {
+                        'success': True, 
+                        'cancelled': False, 
+                        'user_info': {'user_token': token, 'user': user}, 
+                        'error': ''
+                        }
+            else:
+                LOG.info('User not authenticated.')
+                return {
+                        'success': False, 
+                        'cancelled': False, 
+                        'user_info': None, 
+                        'error': 'Invalid username or password.'
+                        }
+            return {}
+        except KeyError as e:
+            msg = 'Missing mandatory parameter: ' + str(e)
+        except Exception as e:
+            msg = 'Unknown error occurred: ' + str(e)
+        LOG.info(msg)
+        return {'error': msg}
 
     @view_config(route_name=Route.CHECKOUT,
                  request_method='POST',
@@ -85,25 +93,33 @@ class AuthenticationRestView:
         Args:
             token (str): hexadecimal representation of user token.
         """
-        token = self.request.params['token']
-        result = self.authentication.remove_token(token)
-        if result is not None:
-            LOG.info('Successfully checkout.')
-            return {
-                    'success': True, 
-                    'cancelled': False, 
-                    'user_info': {'user_token': token}, 
-                    'error': ''
-                    }
-        else:
-            LOG.info('User not checkin.')
-            return {
-                    'success': False, 
-                    'cancelled': False, 
-                    'user_info': None, 
-                    'error': 'Invalid token.'
-                    }
-        return {}
+        msg = ''
+        try:
+            token = self.request.params['token']
+            result = self.authentication.remove_token(token)
+            if result is not None:
+                LOG.info('Successfully checkout.')
+                return {
+                        'success': True, 
+                        'cancelled': False, 
+                        'user_info': {'user_token': token}, 
+                        'error': ''
+                        }
+            else:
+                LOG.info('User not checkin.')
+                return {
+                        'success': False, 
+                        'cancelled': False, 
+                        'user_info': None, 
+                        'error': 'Invalid token.'
+                        }
+            return {}
+        except KeyError as e:
+            msg = 'Missing mandatory parameter: ' + str(e)
+        except Exception as e:
+            msg = 'Unknown error occurred: ' + str(e)
+        LOG.info(msg)
+        return {'error': msg}
 
     @view_config(route_name=Route.VERIFY_TOKEN,
                  request_method='POST',
@@ -121,10 +137,18 @@ class AuthenticationRestView:
             response (str): username if token is valid and 'invalid token'
             otherwise. 
         """
-        token = self.request.params['token']
-        LOG.info('#### Input token: %s' % token)
-        response = self.authentication.verify_token(2, token)
-        return {'response': response}
+        msg = ''
+        try:
+            token = self.request.params['token']
+            LOG.info('#### Input token: %s' % token)
+            response = self.authentication.verify_token(2, token)
+            return {'response': response}
+        except KeyError as e:
+            msg = 'Missing mandatory parameter: ' + str(e)
+        except Exception as e:
+            msg = 'Unknown error occurred: ' + str(e)
+        LOG.info(msg)
+        return {'error': msg}
     
     @view_config(route_name=Route.READ_USER_INFO,
                  request_method='POST',
@@ -142,11 +166,19 @@ class AuthenticationRestView:
             response (str): username if token is valid and 'invalid token'
             otherwise. 
         """
-        token = self.request.params['token']
-        LOG.info('#### Input token: %s' % token)
-        response = self.authentication.read_user_info(2, token)
-        return {'response': response,
-                'success': 'User info read successfully.'}
+        msg = ''
+        try:
+            token = self.request.params['token']
+            LOG.info('#### Input token: %s' % token)
+            response = self.authentication.read_user_info(2, token)
+            return {'response': response,
+                    'success': 'User info read successfully.'}
+        except KeyError as e:
+            msg = 'Missing mandatory parameter: ' + str(e)
+        except Exception as e:
+            msg = 'Unknown error occurred: ' + str(e)
+        LOG.info(msg)
+        return {'error': msg}
 
     @view_config(route_name=Route.SIGNUP,
                  request_method='POST',
@@ -164,38 +196,45 @@ class AuthenticationRestView:
             lname (str): user last name;
             email (str): user email address. 
         """
+        msg = ''
+        try:
+            LOG.info('Awaits filling forms...')
 
-        LOG.info('Awaits filling forms...')
+            usr = self.request.params['user']
+            pwd = self.request.params['pwd']
+            fname = self.request.params['fname']
+            lname = self.request.params['lname']
+            email = self.request.params['email']
 
-        usr = self.request.params['user']
-        pwd = self.request.params['pwd']
-        fname = self.request.params['fname']
-        lname = self.request.params['lname']
-        email = self.request.params['email']
+            user_info = {
+                    'username': usr, 
+                    'password': pwd, 
+                    'fname': fname, 
+                    'lname': lname,
+                    'email': email
+                    }
+            # app_id = 2 is hardcoded for now.
+            # TODO: remove hardcoded data
+            result = self.authentication.insert_user(2, user_info)
 
-        user_info = {
-                'username': usr, 
-                'password': pwd, 
-                'fname': fname, 
-                'lname': lname,
-                'email': email
+            if result[0] is not None and result[1] == '':
+                LOG.info('User successfully registered.')
+                return {'success': 'User signed up with success.'}
+            if result[0] is None and result[1] != '':
+                LOG.info(result[1])
+                return {'error': result[1]}
+            else:
+                LOG.info('Username already exists.')
+                return {'error':\
+                        'Username already exists. Please choose a different one.'
                 }
-        # app_id = 2 is hardcoded for now.
-        # TODO: remove hardcoded data
-        result = self.authentication.insert_user(2, user_info)
-
-        if result[0] is not None and result[1] == '':
-            LOG.info('User successfully registered.')
-            return {'success': 'User signed up with success.'}
-        if result[0] is None and result[1] != '':
-            LOG.info(result[1])
-            return {'error': result[1]}
-        else:
-            LOG.info('Username already exists.')
-            return {'error':\
-                    'Username already exists. Please choose a different one.'
-            }
-        return {}
+            return {}
+        except KeyError as e:
+            msg = 'Missing mandatory parameter: ' + str(e)
+        except Exception as e:
+            msg = 'Unknown error occurred: ' + str(e)
+        LOG.info(msg)
+        return {'error': msg}
 
     
     @view_config(route_name=Route.UPDATE_USER,
@@ -214,36 +253,43 @@ class AuthenticationRestView:
             lname (str): user last name;
             email (str): user email address. 
         """
+        msg = ''
+        try:
+            usr = self.request.params['user']
+            fname = self.request.params['fname']
+            lname = self.request.params['lname']
+            email = self.request.params['email']
+            token = self.request.params['token']
+                
+            LOG.info('#### usr: %s' % usr)
+            LOG.info('#### fname: %s' % fname)
+            LOG.info('#### lname: %s' % lname)
+            LOG.info('#### email: %s' % email)
+            LOG.info('#### token: %s' % token)
 
-        usr = self.request.params['user']
-        fname = self.request.params['fname']
-        lname = self.request.params['lname']
-        email = self.request.params['email']
-        token = self.request.params['token']
-            
-        LOG.info('#### usr: %s' % usr)
-        LOG.info('#### fname: %s' % fname)
-        LOG.info('#### lname: %s' % lname)
-        LOG.info('#### email: %s' % email)
-        LOG.info('#### token: %s' % token)
-
-        user_info = {
-                'username': usr, 
-                'fname': fname, 
-                'lname': lname,
-                'email': email, 
-                'token': token
-                }
-        result = self.authentication.update_user(2, user_info)
-        LOG.info('#### result: %s' % result)
-        if result > 0:
-            msg = 'User information updated successfully.'
-            LOG.info(msg)
-            return {'success': msg}
-        else:
-            msg = 'Username does not exist.'
-            LOG.info(msg)
-            return {'error': msg}
+            user_info = {
+                    'username': usr, 
+                    'fname': fname, 
+                    'lname': lname,
+                    'email': email, 
+                    'token': token
+                    }
+            result = self.authentication.update_user(2, user_info)
+            LOG.info('#### result: %s' % result)
+            if result > 0:
+                msg = 'User information updated successfully.'
+                LOG.info(msg)
+                return {'success': msg}
+            else:
+                msg = 'Username does not exist.'
+                LOG.info(msg)
+                return {'error': msg}
+        except KeyError as e:
+            msg = 'Missing mandatory parameter: ' + str(e)
+        except Exception as e:
+            msg = 'Unknown error occurred: ' + str(e)
+        LOG.info(msg)
+        return {'error': msg}
     
     @view_config(route_name=Route.CHANGE_PASSWORD,
                  request_method='POST',
@@ -261,32 +307,40 @@ class AuthenticationRestView:
             token (str): token.
         """
 
-        usr = self.request.params['user']
-        oldpwd = self.request.params['oldpwd']
-        newpwd = self.request.params['newpwd']
-        token = self.request.params['token']
+        msg = ''
+        try:
+            usr = self.request.params['user']
+            oldpwd = self.request.params['oldpwd']
+            newpwd = self.request.params['newpwd']
+            token = self.request.params['token']
 
-        LOG.info('#### usr: %s' % usr)
-        LOG.info('#### oldpwd: %s' % oldpwd)
-        LOG.info('#### newpwd: %s' % newpwd)
-        LOG.info('#### token: %s' % token)
+            LOG.info('#### usr: %s' % usr)
+            LOG.info('#### oldpwd: %s' % oldpwd)
+            LOG.info('#### newpwd: %s' % newpwd)
+            LOG.info('#### token: %s' % token)
 
-        user_info = {
-                'username': usr, 
-                'oldpwd': oldpwd, 
-                'newpwd':newpwd, 
-                'token': token
-                }
-        result = self.authentication.change_password(2, user_info)
-        LOG.info('#### result: %s' % result)
-        if result > 0:
-            msg = 'Password updated successfully.'
-            LOG.info(msg)
-            return {'success': msg}
-        else:
-            msg = 'Username does not exist.'
-            LOG.info(msg)
-            return {'error': msg}
+            user_info = {
+                    'username': usr, 
+                    'oldpwd': oldpwd, 
+                    'newpwd':newpwd, 
+                    'token': token
+                    }
+            result = self.authentication.change_password(2, user_info)
+            LOG.info('#### result: %s' % result)
+            if result > 0:
+                msg = 'Password updated successfully.'
+                LOG.info(msg)
+                return {'success': msg}
+            else:
+                msg = 'Username does not exist.'
+                LOG.info(msg)
+                return {'error': msg}
+        except KeyError as e:
+            msg = 'Missing mandatory parameter: ' + str(e)
+        except Exception as e:
+            msg = 'Unknown error occurred: ' + str(e)
+        LOG.info(msg)
+        return {'error': msg}
 
     @view_config(route_name=Route.DELETE_USER,
                  request_method='POST',
@@ -305,24 +359,32 @@ class AuthenticationRestView:
             email (str): user email address. 
         """
 
-        usr = self.request.params['user']
-        token = self.request.params['token']
-        user_info = {
-                'username': usr, 
-                'token': token, 
+        msg = ''
+        try:
+            usr = self.request.params['user']
+            token = self.request.params['token']
+            user_info = {
+                    'username': usr, 
+                    'token': token, 
 
-                }
+                    }
 
-        result = self.authentication.delete_user(2, user_info)
-        LOG.info('#### result: %s' % result)
-        if result > 0:
-            msg = 'User deleted with success.'
-            LOG.info(msg)
-            return {'success': msg}
-        else:
-            msg = 'User does not exist.'
-            LOG.info(msg)
-            return {'error': msg}
+            result = self.authentication.delete_user(2, user_info)
+            LOG.info('#### result: %s' % result)
+            if result > 0:
+                msg = 'User deleted with success.'
+                LOG.info(msg)
+                return {'success': msg}
+            else:
+                msg = 'User does not exist.'
+                LOG.info(msg)
+                return {'error': msg}
+        except KeyError as e:
+            msg = 'Missing mandatory parameter: ' + str(e)
+        except Exception as e:
+            msg = 'Unknown error occurred: ' + str(e)
+        LOG.info(msg)
+        return {'error': msg}
 
 
     @view_config(route_name=Route.EMAIL_CONFIRMATION,
@@ -340,18 +402,26 @@ class AuthenticationRestView:
             email (str): user email.
         """
 
-        username = self.request.params['username']
-        email_token = self.request.params['token']
-        email = self.request.params['email']
-        result = self.authentication.email_confirmation(username, email, email_token)
-        LOG.info('#### result: %s' % result)
-        if result:
-            msg = 'User email confirmed with success.'
-            LOG.info(msg)
-            return {'success': msg}
-        else:
-            msg = 'User email was not confirmed.'
-            LOG.info(msg)
+        msg = ''
+        try:
+            username = self.request.params['username']
+            email_token = self.request.params['token']
+            email = self.request.params['email']
+            result = self.authentication.email_confirmation(username, email, email_token)
+            LOG.info('#### result: %s' % result)
+            if result:
+                msg = 'User email confirmed with success.'
+                LOG.info(msg)
+                return {'success': msg}
+            else:
+                msg = 'User email was not confirmed.'
+                LOG.info(msg)
+        except KeyError as e:
+            msg = 'Missing mandatory parameter: ' + str(e)
+        except Exception as e:
+            msg = 'Unknown error occurred: ' + str(e)
+        LOG.info(msg)
+        return {'error': msg}
 
     @view_config(route_name=Route.SEND_EMAIL_TOKEN,
                  request_method='POST',
@@ -367,15 +437,23 @@ class AuthenticationRestView:
             email (str): user email.
         """
 
-        username = self.request.params['username']
-        email = self.request.params['email']
-        result = self.authentication.send_email_token(username, email)
-        LOG.info('#### result: %s' % result)
-        if result:
-            msg = 'Email sent with success.'
-            LOG.info(msg)
-            return {'success': msg}
-        else:
-            msg = 'Email was not sent.'
-            LOG.info(msg)
+        msg = ''
+        try:
+            username = self.request.params['username']
+            email = self.request.params['email']
+            result = self.authentication.send_email_token(username, email)
+            LOG.info('#### result: %s' % result)
+            if result:
+                msg = 'Email sent with success.'
+                LOG.info(msg)
+                return {'success': msg}
+            else:
+                msg = 'Email was not sent.'
+                LOG.info(msg)
+        except KeyError as e:
+            msg = 'Missing mandatory parameter: ' + str(e)
+        except Exception as e:
+            msg = 'Unknown error occurred: ' + str(e)
+        LOG.info(msg)
+        return {'error': msg}
 

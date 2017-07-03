@@ -8,6 +8,7 @@ from aaa_manager.authorisation import Authorisation
 from aaa_manager.authentication import AuthenticationManager
 from pyramid.view import view_config
 
+
 LOG = logging.getLogger(__name__)
 
 
@@ -42,17 +43,27 @@ class AuthorisationRestView:
             error (str): an error message if an error occured and an empty
             string otherwise.
         """
-        username = self.request.params['username']
-        resource_type = self.request.params['resource_type']
-        resource_name = self.request.params['resource_name']
-        max_used = self.request.params['max']
-        token = self.request.params['token']
-        if self.authentication.verify_token(2, token) != 'invalid token':
-            auth = self.authorisation.create(username, resource_type, resource_name, max_used)
-            if auth is not None:
-                return {'success': 'Rule successfully created.'}
+        msg = ''
+        try:
+            username = self.request.params['username']
+            resource_type = self.request.params['resource_type']
+            resource_name = self.request.params['resource_name']
+            max_used = self.request.params['max']
+            token = self.request.params['token']
+            if self.authentication.verify_token(2, token) != 'invalid token':
+                auth = self.authorisation.create(username, resource_type, resource_name, max_used)
+                if auth is not None:
+                    return {'success': 'Rule successfully created.'}
+                else:
+                    return {'error':  'Invalid rule'}
             else:
-                return {'error':  'Invalid rule'}
+                return {'error': 'Invalid token'}
+        except KeyError as e:
+            msg = 'Missing mandatory parameter: ' + str(e)
+        except Exception as e:
+            msg = 'Unknown error occurred: ' + str(e)
+        LOG.info(msg)
+        return {'error': msg}
             
     @view_config(route_name=Route.USE_RESOURCE,
                  request_method='POST',
@@ -73,15 +84,29 @@ class AuthorisationRestView:
             error (str): an error message if an error occured and an empty
             string otherwise.
         """
-        username = self.request.params['username']
-        resource_name = self.request.params['resource_name']
-        token = self.request.params['token']
-        if self.authentication.verify_token(2, token) != 'invalid token':
-            auth = self.authorisation.use_resource(username, resource_name)
-            if auth is not None:
-                return {'success': 'User is authorised.'}
+        msg = ''
+        try:
+            username = self.request.params['username']
+            resource_name = self.request.params['resource_name']
+            resource_category = self.request.params['resource_category']
+            token = self.request.params['token']
+            if self.authentication.verify_token(2, token) != 'invalid token':
+                auth = self.authorisation.use_resource(
+                        username, 
+                        resource_name, 
+                        resource_category)
+                if auth is not None:
+                    return {'success': 'User is authorised.'}
+                else:
+                    return {'error':  'User is not authorised.'}
             else:
-                return {'error':  'User is not authorised.'}
+                return {'error': 'Invalid token'}
+        except KeyError as e:
+            msg = 'Missing mandatory parameter: ' + str(e)
+        except Exception as e:
+            msg = 'Unknown error occurred: ' + str(e)
+        LOG.info(msg)
+        return {'error': msg}
     
     @view_config(route_name=Route.READ_AUTHORISATION,
                  request_method='POST',
@@ -102,20 +127,31 @@ class AuthorisationRestView:
             error (str): an error message if an error occured and an empty
             string otherwise.
         """
-        username = self.request.params['username']
-        resource_name = self.request.params['resource_name']
-        resource_category = self.request.params['resource_category']
-        max_allowed = self.request.params['max_allowed']
-        token = self.request.params['token']
-        if self.authentication.verify_token(2, token) != 'invalid token':
-            auth = self.authorisation.update(
-                    username, 
-                    resource_name, 
-                    resource_category)
-            if auth is not None:
-                return {'success': 'Rule successfully read.'}
+        LOG.info('entrou')
+        msg = ''
+        try:
+            LOG.info('params: %s' % self.request.params)
+            username = self.request.params['username']
+            resource_name = self.request.params['resource_name']
+            resource_category = self.request.params['resource_category']
+            token = self.request.params['token']
+            if self.authentication.verify_token(2, token) != 'invalid token':
+                auth = self.authorisation.read(
+                        username, 
+                        resource_name, 
+                        resource_category)
+                if auth is not None:
+                    return {'success': 'Rule successfully read.'}
+                else:
+                    return {'error':  'Rule not found.'}
             else:
-                return {'error':  'Rule not found.'}
+                return {'error': 'Invalid token'}
+        except KeyError as e:
+            msg = 'Missing mandatory parameter: ' + str(e)
+        except Exception as e:
+            msg = 'Unknown error occurred: ' + str(e)
+        LOG.info(msg)
+        return {'error': msg}
     
     @view_config(route_name=Route.READ_AUTHORISATIONS,
                  request_method='POST',
@@ -134,15 +170,28 @@ class AuthorisationRestView:
             error (str): an error message if an error occured and an empty
             string otherwise.
         """
-        username = self.request.params['username']
-        token = self.request.params['token']
-        if self.authentication.verify_token(2, token) != 'invalid token':
-            auths = self.authorisation.read_authorisations(username)
-            if auths is not None:
-                return {'success': 'Rule successfully read.',
-                        'data': auths}
+        msg = ''
+        try:
+            username = self.request.params['username']
+            token = self.request.params['token']
+            if self.authentication.verify_token(2, token) != 'invalid token':
+                auths = self.authorisation.read_authorisations(username)
+                if auths is not None:
+                    return {'success': 'Rule successfully read.',
+                            'data': auths}
+                else:
+                    return {'error':  'Rule not found.'}
             else:
-                return {'error':  'Rule not found.'}
+                return {'error': 'Invalid token'}
+        except KeyError as e:
+            msg = 'Missing mandatory parameter: ' + str(e)
+        except Exception as e:
+            msg = 'Unknown error occurred: ' + str(e)
+        LOG.info(msg)
+        return {'error': msg}
+
+
+
             
     @view_config(route_name=Route.UPDATE_AUTHORISATION,
                  request_method='POST',
@@ -162,21 +211,31 @@ class AuthorisationRestView:
             error (str): an error message if an error occured and an empty
             string otherwise.
         """
-        username = self.request.params['username']
-        resource_name = self.request.params['resource_name']
-        resource_category = self.request.params['resource_category']
-        max_allowed = self.request.params['max_allowed']
-        token = self.request.params['token']
-        if self.authentication.verify_token(2, token) != 'invalid token':
-            auth = self.authorisation.update(
-                    username, 
-                    resource_name, 
-                    resource_category,
-                    max_allowed)
-            if auth is not None:
-                return {'success': 'Rule successfully updated.'}
+        msg = ''
+        try:
+            username = self.request.params['username']
+            resource_name = self.request.params['resource_name']
+            resource_category = self.request.params['resource_category']
+            max_allowed = self.request.params['max_allowed']
+            token = self.request.params['token']
+            if self.authentication.verify_token(2, token) != 'invalid token':
+                auth = self.authorisation.update(
+                        username, 
+                        resource_name, 
+                        resource_category,
+                        max_allowed)
+                if auth is not None:
+                    return {'success': 'Rule successfully updated.'}
+                else:
+                    return {'error':  'Rule not found.'}
             else:
-                return {'error':  'Rule not found.'}
+                return {'error': 'Invalid token'}
+        except KeyError as e:
+            msg = 'Missing mandatory parameter: ' + str(e)
+        except Exception as e:
+            msg = 'Unknown error occurred: ' + str(e)
+        LOG.info(msg)
+        return {'error': msg}
             
     @view_config(route_name=Route.DELETE_AUTHORISATION,
                  request_method='POST',
@@ -196,17 +255,27 @@ class AuthorisationRestView:
             error (str): an error message if an error occured and an empty
             string otherwise.
         """
-        username = self.request.params['username']
-        resource_name = self.request.params['resource_name']
-        resource_category = self.request.params['resource_category']
-        max_allowed = self.request.params['max_allowed']
-        token = self.request.params['token']
-        if self.authentication.verify_token(2, token) != 'invalid token':
-            auth = self.authorisation.delete(
-                    username, 
-                    resource_name, 
-                    resource_category)
-            if auth is not None:
-                return {'success': 'Rule successfully deleted.'}
+        msg = ''
+        try:
+            username = self.request.params['username']
+            resource_name = self.request.params['resource_name']
+            resource_category = self.request.params['resource_category']
+            max_allowed = self.request.params['max_allowed']
+            token = self.request.params['token']
+            if self.authentication.verify_token(2, token) != 'invalid token':
+                auth = self.authorisation.delete(
+                        username, 
+                        resource_name, 
+                        resource_category)
+                if auth is not None:
+                    return {'success': 'Rule successfully deleted.'}
+                else:
+                    return {'error':  'Rule not found.'}
             else:
-                return {'error':  'Rule not found.'}
+                return {'error': 'Invalid token'}
+        except KeyError as e:
+            msg = 'Missing mandatory parameter: ' + str(e)
+        except Exception as e:
+            msg = 'Unknown error occurred: ' + str(e)
+        LOG.info(msg)
+        return {'error': msg}

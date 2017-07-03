@@ -336,7 +336,7 @@ class AuthenticationManager:
 
 
     def read_user_info(self, app_id, token):
-        """Verify token validity.
+        """Read user information.
 
         Args:
             app_id (int): application id;

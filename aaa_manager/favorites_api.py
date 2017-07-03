@@ -39,28 +39,36 @@ class FavoritesRestView:
             error (str): an error message if an error occured and an empty
             string otherwise.
         """
-        username = self.request.params['username']
-        item_id = self.request.params['item_id']
-        item_type = self.request.params['item_type']
-        city_id = int(self.request.params['city_id'])
-        country_id = int(self.request.params['country_id'])
-        favorite_id = self.request.params['favorite_id']
-        data = self.request.params['data']
-        token = self.request.params['token']
-        auth = self.favorites.create(
-                2,
-                username, 
-                item_id,
-                item_type,
-                city_id,
-                country_id,
-                favorite_id,
-                data,
-                token)
-        if auth is not None:
-            return {'success': 'Favorite association successfully created.'}
-        else:
-            return {'error':  'Invalid favorite.'}
+        msg = ''
+        try:
+            username = self.request.params['username']
+            item_id = self.request.params['item_id']
+            item_type = self.request.params['item_type']
+            city_id = int(self.request.params['city_id'])
+            country_id = int(self.request.params['country_id'])
+            favorite_id = self.request.params['favorite_id']
+            data = self.request.params['data']
+            token = self.request.params['token']
+            auth = self.favorites.create(
+                    2,
+                    username, 
+                    item_id,
+                    item_type,
+                    city_id,
+                    country_id,
+                    favorite_id,
+                    data,
+                    token)
+            if auth is not None:
+                return {'success': 'Favorite association successfully created.'}
+            else:
+                return {'error':  'Invalid favorite.'}
+        except KeyError as e:
+            msg = 'Missing mandatory parameter: ' + str(e)
+        except Exception as e:
+            msg = 'Unknown error occurred: ' + str(e)
+        LOG.info(msg)
+        return {'error': msg}
             
     @view_config(route_name=Route.READ_FAVORITE,
                  request_method='POST',
@@ -81,17 +89,25 @@ class FavoritesRestView:
             error (str): an error message if an error occured and an empty
             string otherwise.
         """
-        username = self.request.params['username']
-        city_id = int(self.request.params['city_id'])
-        country_id = int(self.request.params['country_id'])
-        token = self.request.params['token']
-        fav = self.favorites.read(2, username, city_id, country_id, token)
-        if fav is not None and 'data' in fav:
-            return {'success': 'Favorite association successfully read.',
-                    'data': fav['data']
-                    }
-        else:
-            return {'error':  'Invalid favorite.'}
+        msg = ''
+        try:
+            username = self.request.params['username']
+            city_id = int(self.request.params['city_id'])
+            country_id = int(self.request.params['country_id'])
+            token = self.request.params['token']
+            fav = self.favorites.read(2, username, city_id, country_id, token)
+            if fav is not None and 'data' in fav:
+                return {'success': 'Favorite association successfully read.',
+                        'data': fav['data']
+                        }
+            else:
+                return {'error':  'Invalid favorite.'}
+        except KeyError as e:
+            msg = 'Missing mandatory parameter: ' + str(e)
+        except Exception as e:
+            msg = 'Unknown error occurred: ' + str(e)
+        LOG.info(msg)
+        return {'error': msg}
     
     @view_config(route_name=Route.DELETE_FAVORITE,
                  request_method='POST',
@@ -111,11 +127,19 @@ class FavoritesRestView:
             error (str): an error message if an error occured and an empty
             string otherwise.
         """
-        username = self.request.params['username']
-        item_id = self.request.params['item_id']
-        token = self.request.params['token']
-        fav = self.favorites.delete(2, username, item_id, token)
-        if fav is not None:
-            return {'success': 'Favorite association successfully deleted.'}
-        else:
-            return {'error':  'Invalid favorite.'}
+        msg = ''
+        try:
+            username = self.request.params['username']
+            item_id = self.request.params['item_id']
+            token = self.request.params['token']
+            fav = self.favorites.delete(2, username, item_id, token)
+            if fav is not None:
+                return {'success': 'Favorite association successfully deleted.'}
+            else:
+                return {'error':  'Invalid favorite.'}
+        except KeyError as e:
+            msg = 'Missing mandatory parameter: ' + str(e)
+        except Exception as e:
+            msg = 'Unknown error occurred: ' + str(e)
+        LOG.info(msg)
+        return {'error': msg}
