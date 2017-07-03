@@ -45,7 +45,8 @@ class AccountingRestView:
         try:
             username = self.request.params['username']
             token = self.request.params['token']
-            if self.authentication.verify_token(2, token) != 'invalid token':
+            usr = self.authentication.verify_token(2, token)
+            if usr != 'invalid token' and usr == username:
                 data = self.accounting.get(username)
                 if data is not None:
                     return {'success': 'User accounting information read successfully.',

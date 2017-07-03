@@ -402,6 +402,16 @@ class AuthenticationRestView:
             email (str): user email.
         """
 
+        resultOK = """
+            <HTML>
+            <HEAD>
+            <TITLE>Email confirmation</TITLE>
+            </HEAD>
+            <BODY>
+            <CENTER><H1>Email successfully confirmed.</H1></CENTER>
+            </BODY>
+            </HTML>
+        """
         msg = ''
         try:
             username = self.request.params['username']
@@ -412,7 +422,8 @@ class AuthenticationRestView:
             if result:
                 msg = 'User email confirmed with success.'
                 LOG.info(msg)
-                return {'success': msg}
+                #return {'success': msg}
+                return resultOK
             else:
                 msg = 'User email was not confirmed.'
                 LOG.info(msg)

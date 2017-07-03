@@ -46,7 +46,8 @@ class EmailsRestView:
             username = self.request.params['username']
             email_info = {'email': self.request.params['email']}
             token = self.request.params['token']
-            if self.authentication.verify_token(2, token) != 'invalid token':
+            usr = self.authentication.verify_token(2, token)
+            if usr != 'invalid token' and usr == username:
                 auth = self.emails.create(username, email_info)
                 if auth is not None:
                     return {'success': 'Email association successfully created.'}
@@ -81,7 +82,8 @@ class EmailsRestView:
         try:
             username = self.request.params['username']
             token = self.request.params['token']
-            if self.authentication.verify_token(2, token) != 'invalid token':
+            usr = self.authentication.verify_token(2, token)
+            if usr != 'invalid token' and usr == username:
                 result = self.emails.read_all(username)
                 if result is not None:
                     return {'success': 'Email association successfully read.'}
@@ -118,7 +120,8 @@ class EmailsRestView:
             username = self.request.params['username']
             email = self.request.params['email']
             token = self.request.params['token']
-            if self.authentication.verify_token(2, token) != 'invalid token':
+            usr = self.authentication.verify_token(2, token)
+            if usr != 'invalid token' and usr == username:
                 result = self.emails.delete(username, email)
                 if result is not None:
                     return {'success': 'Email association successfully deleted.'}

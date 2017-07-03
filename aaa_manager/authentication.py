@@ -148,7 +148,10 @@ class AuthenticationManager:
             auth_info.
         """
 
-        if self.verify_token(app_id, user_info['token']) != 'invalid token':
+        username = user_info['username']
+        token = user_info['token']
+        usr = self.verify_token(app_id, token)
+        if usr != 'invalid token' and usr == username:
             return self.basedb.remove_list_item(
                     USER_COLLECTION, 
                     APP_KEY, 

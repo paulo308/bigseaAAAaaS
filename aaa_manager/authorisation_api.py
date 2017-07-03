@@ -50,8 +50,13 @@ class AuthorisationRestView:
             resource_name = self.request.params['resource_name']
             max_used = self.request.params['max']
             token = self.request.params['token']
-            if self.authentication.verify_token(2, token) != 'invalid token':
-                auth = self.authorisation.create(username, resource_type, resource_name, max_used)
+            usr = self.authentication.verify_token(2, token)
+            if usr != 'invalid token' and usr == username:
+                auth = self.authorisation.create(
+                        username, 
+                        resource_type, 
+                        resource_name, 
+                        max_used)
                 if auth is not None:
                     return {'success': 'Rule successfully created.'}
                 else:
@@ -90,7 +95,8 @@ class AuthorisationRestView:
             resource_name = self.request.params['resource_name']
             resource_category = self.request.params['resource_category']
             token = self.request.params['token']
-            if self.authentication.verify_token(2, token) != 'invalid token':
+            usr = self.authentication.verify_token(2, token)
+            if usr != 'invalid token' and usr == username:
                 auth = self.authorisation.use_resource(
                         username, 
                         resource_name, 
@@ -135,7 +141,8 @@ class AuthorisationRestView:
             resource_name = self.request.params['resource_name']
             resource_category = self.request.params['resource_category']
             token = self.request.params['token']
-            if self.authentication.verify_token(2, token) != 'invalid token':
+            usr = self.authentication.verify_token(2, token)
+            if usr != 'invalid token' and usr == username:
                 auth = self.authorisation.read(
                         username, 
                         resource_name, 
@@ -174,7 +181,8 @@ class AuthorisationRestView:
         try:
             username = self.request.params['username']
             token = self.request.params['token']
-            if self.authentication.verify_token(2, token) != 'invalid token':
+            usr = self.authentication.verify_token(2, token)
+            if usr != 'invalid token' and usr == username:
                 auths = self.authorisation.read_authorisations(username)
                 if auths is not None:
                     return {'success': 'Rule successfully read.',
@@ -218,7 +226,8 @@ class AuthorisationRestView:
             resource_category = self.request.params['resource_category']
             max_allowed = self.request.params['max_allowed']
             token = self.request.params['token']
-            if self.authentication.verify_token(2, token) != 'invalid token':
+            usr = self.authentication.verify_token(2, token)
+            if usr != 'invalid token' and usr == username:
                 auth = self.authorisation.update(
                         username, 
                         resource_name, 
@@ -262,7 +271,8 @@ class AuthorisationRestView:
             resource_category = self.request.params['resource_category']
             max_allowed = self.request.params['max_allowed']
             token = self.request.params['token']
-            if self.authentication.verify_token(2, token) != 'invalid token':
+            usr = self.authentication.verify_token(2, token)
+            if usr != 'invalid token' and usr == username:
                 auth = self.authorisation.delete(
                         username, 
                         resource_name, 

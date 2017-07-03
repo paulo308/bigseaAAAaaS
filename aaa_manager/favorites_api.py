@@ -5,6 +5,7 @@ import logging
 
 from aaa_manager import Route
 from aaa_manager.favorites import Favorites
+from aaa_manager.authentication import AuthenticationManager
 from pyramid.view import view_config
 
 LOG = logging.getLogger(__name__)
@@ -20,6 +21,7 @@ class FavoritesRestView:
         self._settings = request.registry.settings
         self._data = self._settings['data']
         self.favorites = Favorites()
+        self.authentication = AuthenticationManager()
 
     @view_config(route_name=Route.CREATE_FAVORITE,
                  request_method='POST',
@@ -49,20 +51,22 @@ class FavoritesRestView:
             favorite_id = self.request.params['favorite_id']
             data = self.request.params['data']
             token = self.request.params['token']
-            auth = self.favorites.create(
-                    2,
-                    username, 
-                    item_id,
-                    item_type,
-                    city_id,
-                    country_id,
-                    favorite_id,
-                    data,
-                    token)
-            if auth is not None:
-                return {'success': 'Favorite association successfully created.'}
-            else:
-                return {'error':  'Invalid favorite.'}
+            usr = self.authentication.verify_token(2, token)
+            if usr != 'invalid token' and usr == username:
+                auth = self.favorites.create(
+                        2,
+                        username, 
+                        item_id,
+                        item_type,
+                        city_id,
+                        country_id,
+                        favorite_id,
+                        data,
+                        token)
+                if auth is not None:
+                    return {'success': 'Favorite association successfully created.'}
+                else:
+                    return {'error':  'Invalid favorite.'}
         except KeyError as e:
             msg = 'Missing mandatory parameter: ' + str(e)
         except Exception as e:
@@ -95,13 +99,15 @@ class FavoritesRestView:
             city_id = int(self.request.params['city_id'])
             country_id = int(self.request.params['country_id'])
             token = self.request.params['token']
-            fav = self.favorites.read(2, username, city_id, country_id, token)
-            if fav is not None and 'data' in fav:
-                return {'success': 'Favorite association successfully read.',
-                        'data': fav['data']
-                        }
-            else:
-                return {'error':  'Invalid favorite.'}
+            usr = self.authentication.verify_token(2, token)
+            if usr != 'invalid token' and usr == username:
+                fav = self.favorites.read(2, username, city_id, country_id, token)
+                if fav is not None and 'data' in fav:
+                    return {'success': 'Favorite association successfully read.',
+                            'data': fav['data']
+                            }
+                else:
+                    return {'error':  'Invalid favorite.'}
         except KeyError as e:
             msg = 'Missing mandatory parameter: ' + str(e)
         except Exception as e:
@@ -132,11 +138,13 @@ class FavoritesRestView:
             username = self.request.params['username']
             item_id = self.request.params['item_id']
             token = self.request.params['token']
-            fav = self.favorites.delete(2, username, item_id, token)
-            if fav is not None:
-                return {'success': 'Favorite association successfully deleted.'}
-            else:
-                return {'error':  'Invalid favorite.'}
+            usr = self.authentication.verify_token(2, token)
+            if usr != 'invalid token' and usr == username:
+                fav = self.favorites.delete(2, username, item_id, token)
+                if fav is not None:
+                    return {'success': 'Favorite association successfully deleted.'}
+                else:
+                    return {'error':  'Invalid favorite.'}
         except KeyError as e:
             msg = 'Missing mandatory parameter: ' + str(e)
         except Exception as e:
