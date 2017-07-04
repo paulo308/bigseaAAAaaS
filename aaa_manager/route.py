@@ -10,6 +10,7 @@ class Route:
     WEB_MANAGE_AUTH = "manage_info_auth"
     WEB_MANAGE_USER = "manage_info_user"
     WEB_MANAGE_ADMIN = "manage_info_admin"
+    WEB_EMAIL_CONFIRMATION = "web_email_confirmation"
     # REST API routes
     GET_CHECKIN = "checkin_data"
     GET_CHECKOUT = "checkout_data"

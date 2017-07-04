@@ -66,3 +66,11 @@ class WebView:
         This method is called from **/web/manage_info_admin**.
         """
         return ''
+    
+    @view_config(route_name=Route.WEB_EMAIL_CONFIRMATION,
+                 renderer='email_confirmation.jinja2')
+    def email_confirmation(self):
+        """
+        This method is called from **/web/email_confirmation**.
+        """
+        return ''

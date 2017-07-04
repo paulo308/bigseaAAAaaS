@@ -566,9 +566,22 @@ class AuthenticationManager:
         Returns:
             bool: True if valid and False otherwise.
         """
-        
-        self.insert_email_token(username, email, token, True)
-        return True
+        result = False
+        data = self.basedb.get('EmailToken', 'email', email)
+        for item in data:
+            for elem in item['data']:
+                if elem['token'] == token:
+                    new_elem = copy.deepcopy(elem) 
+                    new_elem['valid'] = True
+                    self.basedb.update(
+                            'EmailToken',
+                            'email',
+                            email,
+                            'data',
+                            elem,
+                            new_elem)
+                    result = True
+        return result
 
     def send_email_token(self, username, email):
         """
@@ -612,7 +625,7 @@ class AuthenticationManager:
         gmail_pwd = EMAIL_PWD
         FROM = EMAIL
         TO = email
-        CONFIRM_EMAIL_PATH = 'https://eubrabigsea.dei.uc.pt/engine/api/email_confirmation'
+        CONFIRM_EMAIL_PATH = 'https://eubrabigsea.dei.uc.pt/web/email_confirmation'
         URL = CONFIRM_EMAIL_PATH + '?username='+username+'&email='+email+'&token='+token
         SUBJECT = 'EUBRA-BigSea: email confirmation'
         #TEXT = 'token: ' + token
