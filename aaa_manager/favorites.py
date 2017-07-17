@@ -74,17 +74,36 @@ class Favorites:
             token (str): token.
             
         """
-        if self.auth.verify_token(app_id, token) != 'invalid token':
-            result = self.basedb.get(
-                    FAVORITE_COLLECTION, 
-                    FAVORITE_KEY,
-                    username)
-            for item in result:
-                for elem in item['favorites']:
-                    if elem['city_id'] == city_id and\
-                            elem['country_id'] == country_id:
-                        return elem
+        result = self.basedb.get(
+                FAVORITE_COLLECTION, 
+                FAVORITE_KEY,
+                username)
+        for item in result:
+            for elem in item['favorites']:
+                if elem['city_id'] == city_id and\
+                        elem['country_id'] == country_id:
+                    return elem
         return None
+    
+    def read_all(self, app_id, username):
+        """
+        Read favorites information for username. 
+
+        Args: 
+            username (str): username;
+            city_id (dict): city_id (external);
+            ccountry_id (dict): country_id (external);
+            token (str): token.
+            
+        """
+        result = self.basedb.get(
+                FAVORITE_COLLECTION, 
+                FAVORITE_KEY,
+                username)
+        res = list(result)
+        for item in res:
+            del item['_id']
+        return res
 
     def update(self, username, item_id):
         pass

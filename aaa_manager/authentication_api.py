@@ -49,7 +49,7 @@ class AuthenticationRestView:
             usr = self.request.params['user']
             pwd = self.request.params['pwd']
             # TODO: aap_id = 2 is hardcoded
-            user = self.authentication.access_app(
+            user, msg = self.authentication.access_app(
                     2, 
                     usr, 
                     pwd, 
@@ -66,18 +66,26 @@ class AuthenticationRestView:
                         'error': ''
                         }
             else:
-                LOG.info('User not authenticated.')
+                error_msg = ''
+                if msg == '':
+                    LOG.info('User not authenticated.')
+                    error_msg = 'Invalid username or password.'
+                else: 
+                    LOG.info(msg)
+                    error_msg = msg
                 return {
                         'success': False, 
                         'cancelled': False, 
                         'user_info': None, 
-                        'error': 'Invalid username or password.'
+                        'error': error_msg 
                         }
             return {}
         except KeyError as e:
             msg = 'Missing mandatory parameter: ' + str(e)
+            raise e
         except Exception as e:
             msg = 'Unknown error occurred: ' + str(e)
+            raise e
         LOG.info(msg)
         return {'error': msg}
 
@@ -116,8 +124,10 @@ class AuthenticationRestView:
             return {}
         except KeyError as e:
             msg = 'Missing mandatory parameter: ' + str(e)
+            raise e
         except Exception as e:
             msg = 'Unknown error occurred: ' + str(e)
+            raise e
         LOG.info(msg)
         return {'error': msg}
 
@@ -145,8 +155,10 @@ class AuthenticationRestView:
             return {'response': response}
         except KeyError as e:
             msg = 'Missing mandatory parameter: ' + str(e)
+            raise e
         except Exception as e:
             msg = 'Unknown error occurred: ' + str(e)
+            raise e
         LOG.info(msg)
         return {'error': msg}
     
@@ -175,8 +187,10 @@ class AuthenticationRestView:
                     'success': 'User info read successfully.'}
         except KeyError as e:
             msg = 'Missing mandatory parameter: ' + str(e)
+            raise e
         except Exception as e:
             msg = 'Unknown error occurred: ' + str(e)
+            raise e
         LOG.info(msg)
         return {'error': msg}
 
@@ -205,13 +219,15 @@ class AuthenticationRestView:
             fname = self.request.params['fname']
             lname = self.request.params['lname']
             email = self.request.params['email']
+            stayin = True if self.request.params['stayin']=='true' else False
 
             user_info = {
                     'username': usr, 
                     'password': pwd, 
                     'fname': fname, 
                     'lname': lname,
-                    'email': email
+                    'email': email,
+                    'stayin': stayin
                     }
             # app_id = 2 is hardcoded for now.
             # TODO: remove hardcoded data
@@ -231,8 +247,10 @@ class AuthenticationRestView:
             return {}
         except KeyError as e:
             msg = 'Missing mandatory parameter: ' + str(e)
+            raise e
         except Exception as e:
             msg = 'Unknown error occurred: ' + str(e)
+            raise e
         LOG.info(msg)
         return {'error': msg}
 
@@ -258,20 +276,19 @@ class AuthenticationRestView:
             usr = self.request.params['user']
             fname = self.request.params['fname']
             lname = self.request.params['lname']
-            email = self.request.params['email']
+            stayin = self.request.params['stayin']
             token = self.request.params['token']
                 
             LOG.info('#### usr: %s' % usr)
             LOG.info('#### fname: %s' % fname)
             LOG.info('#### lname: %s' % lname)
-            LOG.info('#### email: %s' % email)
             LOG.info('#### token: %s' % token)
 
             user_info = {
                     'username': usr, 
                     'fname': fname, 
                     'lname': lname,
-                    'email': email, 
+                    'stayin': stayin, 
                     'token': token
                     }
             result = self.authentication.update_user(2, user_info)
@@ -286,8 +303,10 @@ class AuthenticationRestView:
                 return {'error': msg}
         except KeyError as e:
             msg = 'Missing mandatory parameter: ' + str(e)
+            raise e
         except Exception as e:
             msg = 'Unknown error occurred: ' + str(e)
+            raise e
         LOG.info(msg)
         return {'error': msg}
     
@@ -337,8 +356,10 @@ class AuthenticationRestView:
                 return {'error': msg}
         except KeyError as e:
             msg = 'Missing mandatory parameter: ' + str(e)
+            raise e
         except Exception as e:
             msg = 'Unknown error occurred: ' + str(e)
+            raise e
         LOG.info(msg)
         return {'error': msg}
 
@@ -348,7 +369,7 @@ class AuthenticationRestView:
                  renderer='json')
     def delete_user(self):
         """
-        This method is called from **/engine/api/update_user
+        This method is called from **/engine/api/delete_user
         Method used to delete user information from application.
 
         Args:
@@ -381,8 +402,10 @@ class AuthenticationRestView:
                 return {'error': msg}
         except KeyError as e:
             msg = 'Missing mandatory parameter: ' + str(e)
+            raise e
         except Exception as e:
             msg = 'Unknown error occurred: ' + str(e)
+            raise e
         LOG.info(msg)
         return {'error': msg}
 
@@ -416,8 +439,10 @@ class AuthenticationRestView:
                 msg = 'User email was not confirmed.'
         except KeyError as e:
             msg = 'Missing mandatory parameter: ' + str(e)
+            raise e
         except Exception as e:
             msg = 'Unknown error occurred: ' + str(e)
+            raise e
         LOG.info(msg)
         return {'error': msg}
 
@@ -450,8 +475,45 @@ class AuthenticationRestView:
                 LOG.info(msg)
         except KeyError as e:
             msg = 'Missing mandatory parameter: ' + str(e)
+            raise e
         except Exception as e:
             msg = 'Unknown error occurred: ' + str(e)
+            raise e
         LOG.info(msg)
         return {'error': msg}
 
+    @view_config(route_name=Route.FORGOT_PASSWORD,
+                 request_method='POST',
+                 accept='application/json',
+                 renderer='json')
+    def forgot_password(self):
+        """
+        This method is called from **/engine/api/forgot_password
+        Method used to change password.
+
+        Args:
+            username (str): username;
+            email (str): user email.
+        """
+
+        msg = ''
+        try:
+            username = self.request.params['username']
+            email = self.request.params['email']
+            result = self.authentication.gen_password(2, username, email)
+            LOG.info('#### result: %s' % result)
+            if result:
+                msg = 'Email sent with success.'
+                LOG.info(msg)
+                return {'success': msg}
+            else:
+                msg = 'Email was not sent.'
+                LOG.info(msg)
+        except KeyError as e:
+            msg = 'Missing mandatory parameter: ' + str(e)
+            raise e
+        except Exception as e:
+            msg = 'Unknown error occurred: ' + str(e)
+            raise e
+        LOG.info(msg)
+        return {'error': msg}

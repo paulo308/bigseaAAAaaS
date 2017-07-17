@@ -67,10 +67,14 @@ class FavoritesRestView:
                     return {'success': 'Favorite association successfully created.'}
                 else:
                     return {'error':  'Invalid favorite.'}
+            else:
+                return {'error':  'Invalid token'}
         except KeyError as e:
             msg = 'Missing mandatory parameter: ' + str(e)
+            raise e
         except Exception as e:
             msg = 'Unknown error occurred: ' + str(e)
+            raise e
         LOG.info(msg)
         return {'error': msg}
             
@@ -108,10 +112,56 @@ class FavoritesRestView:
                             }
                 else:
                     return {'error':  'Invalid favorite.'}
+            else:
+                return {'error':  'Invalid token'}
         except KeyError as e:
             msg = 'Missing mandatory parameter: ' + str(e)
+            raise e
         except Exception as e:
             msg = 'Unknown error occurred: ' + str(e)
+            raise e
+        LOG.info(msg)
+        return {'error': msg}
+    
+    @view_config(route_name=Route.READ_FAVORITES,
+                 request_method='POST',
+                 renderer='json')
+    def read_all(self):
+        """ 
+        This method is called from **/engine/api/read_favorites**.
+        This method is used to read favorite association.
+
+        Arguments:
+            username (str): the username;
+
+        Returns:
+            success (bool): True if sucessfully created and False
+            otherwise;
+            error (str): an error message if an error occured and an empty
+            string otherwise.
+        """
+        msg = ''
+        try:
+            username = self.request.params['username']
+            token = self.request.params['token']
+            usr = self.authentication.verify_token(2, token)
+            if usr != 'invalid token' and usr == username:
+                fav = self.favorites.read_all(2, username)
+                LOG.info('#### fav: %s' % fav)
+                if fav is not None:
+                    return {'success': 'Favorite association successfully read.',
+                            'data': fav
+                            }
+                else:
+                    return {'error':  'Invalid favorite.'}
+            else:
+                return {'error':  'Invalid token'}
+        except KeyError as e:
+            msg = 'Missing mandatory parameter: ' + str(e)
+            raise e
+        except Exception as e:
+            msg = 'Unknown error occurred: ' + str(e)
+            raise e
         LOG.info(msg)
         return {'error': msg}
     
@@ -145,9 +195,13 @@ class FavoritesRestView:
                     return {'success': 'Favorite association successfully deleted.'}
                 else:
                     return {'error':  'Invalid favorite.'}
+            else:
+                return {'error':  'Invalid token'}
         except KeyError as e:
             msg = 'Missing mandatory parameter: ' + str(e)
+            raise e
         except Exception as e:
             msg = 'Unknown error occurred: ' + str(e)
+            raise e
         LOG.info(msg)
         return {'error': msg}

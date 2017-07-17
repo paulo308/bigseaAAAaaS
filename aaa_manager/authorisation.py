@@ -40,6 +40,7 @@ class Authorisation:
                 username))
         for item in resources:
             for elem in item['resource_rule']:
+                LOG.info('elem: %s' % elem)
                 if elem['resource_name'] == resource_name and\
                     elem['resource_category'] == resource_category:
                         return True
@@ -54,6 +55,7 @@ class Authorisation:
                 username)
         for item in resources:
             for elem in item['resource_rule']:
+                LOG.info('elem: %s' % elem)
                 if elem['resource_name'] == resource_name and\
                         elem['resource_category'] == resource_category:
                     old_item = copy.deepcopy(item)

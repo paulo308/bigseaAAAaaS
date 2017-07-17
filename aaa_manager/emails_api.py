@@ -55,8 +55,10 @@ class EmailsRestView:
                     return {'error':  'Invalid email.'}
         except KeyError as e:
             msg = 'Missing mandatory parameter: ' + str(e)
+            raise e
         except Exception as e:
             msg = 'Unknown error occurred: ' + str(e)
+            raise e
         LOG.info(msg)
         return {'error': msg}
             
@@ -91,8 +93,10 @@ class EmailsRestView:
                     return {'error':  'Invalid username.'}
         except KeyError as e:
             msg = 'Missing mandatory parameter: ' + str(e)
+            raise e
         except Exception as e:
             msg = 'Unknown error occurred: ' + str(e)
+            raise e
         LOG.info(msg)
         return {'error': msg}
     
@@ -129,7 +133,9 @@ class EmailsRestView:
                     return {'error':  'Invalid username.'}
         except KeyError as e:
             msg = 'Missing mandatory parameter: ' + str(e)
+            raise e
         except Exception as e:
             msg = 'Unknown error occurred: ' + str(e)
+            raise e
         LOG.info(msg)
         return {'error': msg}

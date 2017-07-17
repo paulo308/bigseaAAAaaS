@@ -37,6 +37,7 @@ def main(global_config, **settings):
     config.add_route(Route.GET_READ_USER_INFO, '/json/read_user_info')
     config.add_route(Route.GET_UPDATE_USER, '/json/update')
     config.add_route(Route.GET_CHANGE_PASSWORD, '/json/change_password')
+    config.add_route(Route.GET_FORGOT_PASSWORD, '/json/forgot_password')
     config.add_route(Route.GET_DELETE_USER, '/json/delete')
     config.add_route(Route.GET_EMAIL_CONFIRMATION, '/json/email_confirmation')
     config.add_route(Route.GET_SEND_EMAIL_TOKEN, '/json/send_email_token')
@@ -47,6 +48,7 @@ def main(global_config, **settings):
     config.add_route(Route.GET_DELETE_EMAIL, '/json/delete_email')
     config.add_route(Route.GET_CREATE_FAVORITE, '/json/create_favorite')
     config.add_route(Route.GET_READ_FAVORITE, '/json/read_favorite')
+    config.add_route(Route.GET_READ_FAVORITES, '/json/read_favorites')
     config.add_route(Route.GET_DELETE_FAVORITE, '/json/delete_favorite')
     config.add_route(Route.GET_READ_ACCOUNTING, '/json/read_accounting')
 
@@ -58,6 +60,7 @@ def main(global_config, **settings):
     config.add_route(Route.READ_USER_INFO, '/engine/api/read_user_info')
     config.add_route(Route.UPDATE_USER, '/engine/api/update_user')
     config.add_route(Route.CHANGE_PASSWORD, '/engine/api/change_password')
+    config.add_route(Route.FORGOT_PASSWORD, '/engine/api/forgot_password')
     config.add_route(Route.DELETE_USER, '/engine/api/delete_user')
     config.add_route(Route.EMAIL_CONFIRMATION, '/engine/api/email_confirmation')
     config.add_route(Route.SEND_EMAIL_TOKEN, '/engine/api/send_email_token')
@@ -72,6 +75,7 @@ def main(global_config, **settings):
     config.add_route(Route.DELETE_EMAIL, '/engine/api/delete_email')
     config.add_route(Route.CREATE_FAVORITE, '/engine/api/create_favorite')
     config.add_route(Route.READ_FAVORITE, '/engine/api/read_favorite')
+    config.add_route(Route.READ_FAVORITES, '/engine/api/read_favorites')
     config.add_route(Route.DELETE_FAVORITE, '/engine/api/delete_favorite')
     config.add_route(Route.READ_ACCOUNTING, '/engine/api/read_accounting')
 

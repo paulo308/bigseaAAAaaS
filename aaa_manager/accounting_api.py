@@ -52,11 +52,13 @@ class AccountingRestView:
                     return {'success': 'User accounting information read successfully.',
                             'data': json.dumps(data)}
                 else:
-                    return {'error':  'User is not authorised.'}
+                    return {'error':  'Accounting information not found.'}
         except KeyError as e:
             msg = 'Missing mandatory parameter: ' + str(e)
+            raise e
         except Exception as e:
             msg = 'Unknown error occurred: ' + str(e)
+            raise e
         LOG.info(msg)
         return {'error': msg}
             

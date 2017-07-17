@@ -11,6 +11,7 @@ import datetime
 from jsonschema import validate, ValidationError
 from enum import Enum
 from aaa_manager.basedb import BaseDB
+from aaa_manager.genpwd import genpwd
 import bcrypt
 import base64
 
@@ -31,9 +32,12 @@ USER_ITEM = 'auth'
 SECRET = '4I3+jNeddexZAgvvh6TS47dZVPp5ezPX+sJ1AW/QvwY='
 # expiration is measured in minutes
 TOKEN_EXPIRATION = 720 
+TOKEN_EXPIRATION_STAYIN = 10080 
 
 EMAIL = 'auth.eubrabigsea@gmail.com'
 EMAIL_PWD = 'Serverbigsea2017'
+EMAIL_CONFIRMED = 'EmailConfirmed'
+
 
 class Auth(Enum):
     """ 
@@ -187,19 +191,10 @@ class AuthenticationManager:
         auth['password'] = self._hashpwd(auth['password'])
         if not self._is_user_unique(app_id, auth['username']):
             return None, 'users'
-        
-        email_token = self.generate_token(user_info)
-        LOG.info('email_token: %s' % email_token)
+
+        #LOG.info('email_token: %s' % email_token)
         LOG.info('auth: %s' % auth)
-        result_insert = self.insert_email_token(
-                auth['username'], 
-                auth['email'], 
-                email_token,
-                False)
-        result_email = self.send_email(
-                auth['username'], 
-                user_info['email'], 
-                email_token)
+        result_email = self.send_email_token(auth['username'], auth['email'])
 
         return self.basedb.insert(USER_COLLECTION, APP_KEY, app_id,
                                         USER_ITEM, auth), ''
@@ -353,13 +348,18 @@ class AuthenticationManager:
         for item in result:
             if 'data' in item:
                 for data in item['data']:
-                    if 'app_id' in data\
-                            and data['app_id'] == app_id\
-                            and 'created' in data\
-                            and (datetime.datetime.now() - datetime.timedelta(minutes=TOKEN_EXPIRATION) < data['created']):
-                        LOG.info('#### %s' % (datetime.datetime.now() - datetime.timedelta(minutes=TOKEN_EXPIRATION) < data['created']))
-                        LOG.info('#### created: %s' % data['created'])
-                        return data['user']
+                    if 'app_id' in data and data['app_id'] == app_id\
+                            and 'created' in data and\
+                            'user' in data and 'stayin' in data['user']:
+                        if (data['user']['stayin'] == True\
+                                and (datetime.datetime.now() - datetime.timedelta(minutes=TOKEN_EXPIRATION_STAYIN) < data['created']))\
+                                or (data['user']['stayin'] == False\
+                                and (datetime.datetime.now() - datetime.timedelta(minutes=TOKEN_EXPIRATION) < data['created'])):
+                            LOG.info('#### %s' % (datetime.datetime.now() - datetime.timedelta(minutes=TOKEN_EXPIRATION) < data['created']))
+                            LOG.info('#### %s' % (datetime.datetime.now() - datetime.timedelta(minutes=TOKEN_EXPIRATION_STAYIN) < data['created']))
+                            LOG.info('#### created: %s' % data['created'])
+                            LOG.info('#### stayin: %s' % data['user']['stayin'])
+                            return data['user']
         return 'invalid token'
 
     def get_token(self, app_id, user):
@@ -399,12 +399,14 @@ class AuthenticationManager:
         for user in users:  
             if auth_type == Auth.USERS:
                 for user_info in user[USER_ITEM]:
+                    if self.verify_email(username, user_info['email']) == False:
+                        return None, "Please confirm your account. Check your inbox or spam folders."
                     if user_info['username'] == username:
                         hashpwd = user_info['password'] 
                         if self._validatepwd(hashpwd.encode('utf-8'), password):
                             del user_info['password']
-                            return user_info
-        return None
+                            return user_info, ""
+        return None, ""
 
     def get_user(self, app_id, username):
         """Returns user information based on username field. 
@@ -448,8 +450,7 @@ class AuthenticationManager:
                 if resdel > 0:
                     userelem['fname'] = user_new['fname']
                     userelem['lname'] = user_new['lname']
-                    userelem['email'] = user_new['email']
-                    LOG.info('#### userelem: %s' % userelem)
+                    userelem['stayin'] = user_new['stayin']
                     resinsert = self.basedb.insert(
                             USER_COLLECTION, 
                             APP_KEY, 
@@ -463,11 +464,11 @@ class AuthenticationManager:
             raise Exception('Error while updating user information') from err 
         return 0
     
-    def change_password(self, app_id, user_new):
+    def change_password(self, app_id, user_new, check=True):
         """Updates user information with `user_new` json content. 
         
         Args: 
-            app_id (int): application id
+            app_id (int): application id;
             username (str): the inserted username;
             user_new (dict): user information.
 
@@ -475,7 +476,7 @@ class AuthenticationManager:
             (dict): user information if exists or None otherwise. 
         """
         try:
-            if self.verify_token(app_id, user_new['token']) != 'invalid token':
+            if not check or self.verify_token(app_id, user_new['token']) != 'invalid token':
                 userelem = {}
                 res = self.basedb.get(USER_COLLECTION, APP_KEY, app_id)
                 oldpassword = ""
@@ -484,10 +485,17 @@ class AuthenticationManager:
                         if elem['username'] == user_new['username']:
                             userelem = elem
                             oldpassword = elem['password']
-                oldpwd = user_new['oldpwd'] 
-                if self._validatepwd(oldpassword.encode('utf-8'), oldpwd):
-                    resdel = self.delete_user(app_id, user_new)
-                    del user_new['token']
+                oldpwd = user_new['oldpwd'] if 'oldpwd' in user_new else ''
+                if not check or self._validatepwd(oldpassword.encode('utf-8'), oldpwd):
+                    #resdel = self.delete_user(app_id, user_new)
+                    resdel = self.basedb.remove_list_item(
+                            USER_COLLECTION, 
+                            APP_KEY, 
+                            app_id,
+                            USER_ITEM, 
+                            {'username': user_new['username']})
+                    if 'token' in user_new: 
+                        del user_new['token']
                     if resdel > 0:
                         newpassword = self._hashpwd(user_new['newpwd'])
                         userelem['password'] = newpassword
@@ -534,8 +542,11 @@ class AuthenticationManager:
                      "type" : "string",
                      "pattern": "[^@]+@[^@]+\.[^@]+",
                      },
+                 "stayin" : {
+                    "type" : "boolean"
+                     }
             },
-             "required" : ["username", "fname", "lname", "email"]
+             "required" : ["username", "fname", "lname", "email", "stayin"]
         }
         try:
             validate(user, SCHEMA)
@@ -573,12 +584,24 @@ class AuthenticationManager:
                 if elem['token'] == token:
                     new_elem = copy.deepcopy(elem) 
                     new_elem['valid'] = True
-                    self.basedb.update(
+                    """res = self.basedb.update(
                             'EmailToken',
                             'email',
                             email,
                             'data',
                             elem,
+                            new_elem)"""
+                    res = self.basedb.remove_list_item(
+                            'EmailToken',
+                            'email',
+                            email,
+                            'data',
+                            elem)
+                    res = self.basedb.insert(
+                            'EmailToken',
+                            'email',
+                            email,
+                            'data',
                             new_elem)
                     result = True
         return result
@@ -589,9 +612,26 @@ class AuthenticationManager:
         """
         token = self.generate_token(username+email)
         self.insert_email_token(username, email, token, False)
-        self.send_email(username, email, token)
+        self.send_email_with_token(username, email, token)
         return token
 
+    def gen_password(self, app_id, username, email):
+        """
+        Generate password.
+        """
+        if self.verify_email(username, email):
+            pwd = genpwd()
+            LOG.info('pwd: %s' % pwd)
+            user_new = {'username': username,'newpwd': pwd}
+            res = self.change_password(app_id, user_new, False)
+            SUBJECT = 'EUBRA-BigSea: forgot password'
+            TEXT = """
+            A new password was automatically generated. Use it to login and change it. 
+
+            New password: """ + pwd
+            self.send_email(email, SUBJECT, TEXT)
+            return res
+        return 0
 
       
     def verify_email(self, username, email):
@@ -611,28 +651,22 @@ class AuthenticationManager:
         for item in result:
             if 'data' in item:
                 data = item['data']
-                if data['valid']: 
-                    return True
+                for elem in data:
+                    if elem['valid'] == True: 
+                        return True
         return False
 
 
-
-    def send_email(self, username, email, token):
+    def send_email(self, email, subject, text):
         """
-        Send email with token.
+        Send email.
         """
         gmail_user = EMAIL
         gmail_pwd = EMAIL_PWD
         FROM = EMAIL
         TO = email
-        CONFIRM_EMAIL_PATH = 'https://eubrabigsea.dei.uc.pt/web/email_confirmation'
-        URL = CONFIRM_EMAIL_PATH + '?username='+username+'&email='+email+'&token='+token
-        SUBJECT = 'EUBRA-BigSea: email confirmation'
-        #TEXT = 'token: ' + token
-        TEXT = 'Click on the following link to confirm the email:\n' + URL 
-
         message = """From: %s\nTo: %s\nSubject: %s\n\n%s
-        """ % (FROM, TO, SUBJECT, TEXT)
+        """ % (FROM, TO, subject, text)
         try:
             server = smtplib.SMTP("smtp.gmail.com", 587)
             server.ehlo()
@@ -643,5 +677,17 @@ class AuthenticationManager:
             LOG.info('successfully sent the mail')
         except:
             LOG.info('failed to send mail')
-        
+
+    def send_email_with_token(self, username, email, token):
+        """
+        Send email with token.
+        """
+        CONFIRM_EMAIL_PATH = 'https://eubrabigsea.dei.uc.pt/web/email_confirmation'
+        #CONFIRM_EMAIL_PATH = 'http://localhost:9000/web/email_confirmation'
+        URL = CONFIRM_EMAIL_PATH + '?username='+username+'&email='+email+'&token='+token
+        SUBJECT = 'EUBRA-BigSea: email confirmation'
+        #TEXT = 'token: ' + token
+        TEXT = 'Click on the following link to confirm the email:\n' + URL 
+
+        return self.send_email(email, SUBJECT, TEXT)        
 

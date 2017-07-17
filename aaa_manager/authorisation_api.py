@@ -46,7 +46,7 @@ class AuthorisationRestView:
         msg = ''
         try:
             username = self.request.params['username']
-            resource_type = self.request.params['resource_type']
+            resource_category = self.request.params['resource_category']
             resource_name = self.request.params['resource_name']
             max_used = self.request.params['max']
             token = self.request.params['token']
@@ -65,8 +65,10 @@ class AuthorisationRestView:
                 return {'error': 'Invalid token'}
         except KeyError as e:
             msg = 'Missing mandatory parameter: ' + str(e)
+            raise e
         except Exception as e:
             msg = 'Unknown error occurred: ' + str(e)
+            raise e
         LOG.info(msg)
         return {'error': msg}
             
@@ -109,8 +111,10 @@ class AuthorisationRestView:
                 return {'error': 'Invalid token'}
         except KeyError as e:
             msg = 'Missing mandatory parameter: ' + str(e)
+            raise e
         except Exception as e:
             msg = 'Unknown error occurred: ' + str(e)
+            raise e
         LOG.info(msg)
         return {'error': msg}
     
@@ -155,8 +159,10 @@ class AuthorisationRestView:
                 return {'error': 'Invalid token'}
         except KeyError as e:
             msg = 'Missing mandatory parameter: ' + str(e)
+            raise e
         except Exception as e:
             msg = 'Unknown error occurred: ' + str(e)
+            raise e
         LOG.info(msg)
         return {'error': msg}
     
@@ -193,8 +199,10 @@ class AuthorisationRestView:
                 return {'error': 'Invalid token'}
         except KeyError as e:
             msg = 'Missing mandatory parameter: ' + str(e)
+            raise e
         except Exception as e:
             msg = 'Unknown error occurred: ' + str(e)
+            raise e
         LOG.info(msg)
         return {'error': msg}
 
@@ -241,8 +249,10 @@ class AuthorisationRestView:
                 return {'error': 'Invalid token'}
         except KeyError as e:
             msg = 'Missing mandatory parameter: ' + str(e)
+            raise e
         except Exception as e:
             msg = 'Unknown error occurred: ' + str(e)
+            raise e
         LOG.info(msg)
         return {'error': msg}
             
@@ -285,7 +295,9 @@ class AuthorisationRestView:
                 return {'error': 'Invalid token'}
         except KeyError as e:
             msg = 'Missing mandatory parameter: ' + str(e)
+            raise e
         except Exception as e:
             msg = 'Unknown error occurred: ' + str(e)
+            raise e
         LOG.info(msg)
         return {'error': msg}

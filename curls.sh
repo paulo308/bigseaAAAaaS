@@ -53,18 +53,30 @@ function send_email_token() {
 	fi
 }
 
+function test_manage_user() {
+	get_token "user=teste&pwd=@bC12345"
+	call "user=teste&fname=teste_new&lname=teste_new&email=eduardo.morais@gmail.com&token=$token" "update_user" "User updated with success."
+	call "user=teste&token=$token" "delete_user" "User deleted with success."
+
+}
 
 function test_signup() {
-	call "user=teste&pwd=@bC12345&fname=teste&lname=teste&email=teste@teste.com" "signup_data" "User signed up with success."
+	call "user=teste&pwd=@bC12345&fname=teste&lname=teste&email=eduardo.morais@gmail.com&stayin=true" "signup_data" "User signed up with success."
 	get_token "user=teste&pwd=@bC12345"
-	call "token=$token" "read_user_info" "User info read successfully."
-	checkout "token=$token"
+	if [ "$token" == "null" ]
+	then
+		echo 'null token!'
+	else
+		call "token=$token" "read_user_info" "User info read successfully."
+		checkout "token=$token"
+	fi
 }
 
 function test_favorite() {
 	get_token "user=teste&pwd=@bC12345"
 	call "username=teste&item_id=b&item_type=a&city_id=1&country_id=2&favorite_id=b&data=aaa&token=$token" "create_favorite" "Favorite association successfully created."
 	call "username=teste&city_id=1&country_id=2&token=$token" "read_favorite" "Favorite association successfully read." 
+	call "username=teste&token=$token" "read_favorites" "Favorite association successfully read." 
 	call "username=teste&item_id=b&token=$token" "delete_favorite" "Favorite association successfully deleted."
 	#call "username=teste&item_id=b&token=$token" "delete_favorite" "Favorite association successfully deleted."
 }
@@ -100,17 +112,22 @@ function test_authorisation() {
 
 function test_use_resource() {
 	get_token "user=teste&pwd=@bC12345"
-	call "username=teste&resource_type=teste&resource_name=teste&max=10&token=$token" "create_authorisation" "Rule successfully created."
+	call "username=teste&resource_name=teste&resource_category=teste&max=10&token=$token" "create_authorisation" "Rule successfully created."
 	call "username=teste&resource_name=teste&resource_category=teste&token=$token" "use_resource" "User is authorised."
 	call "username=teste&token=$token" "read_accounting" "User accounting information read successfully."
 }
 
+function test_forgot_password() {
+	call "username=teste&email=eduardo.morais@gmail.com" "forgot_password" "Email sent with success." 
+}
 
-test_signup
-test_favorite
-test_email_association
-test_email
-test_use_resource
+#test_signup
+#test_favorite
+#test_email_association
+#test_email
+#test_use_resource
+#test_manage_user
+test_forgot_password
 
 
 
