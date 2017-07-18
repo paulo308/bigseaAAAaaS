@@ -134,19 +134,22 @@ Please introduce your username and password:</h1>
 <fieldset>
 <p>
 	<label for="user">Username:</label>
+    </p>
         <input name="user" id="user" maxlength="32" type="text" required/>
 </p>
 <p>
-        <label for="pwd">Password:</label>
+        <p style="text-align:left;"><label for="pwd">Password:</label><span style="float:right;"> <a id="btn_forgotpw" href="/web/forgot_password">Forgot Password</a></span>
         <input name="pwd" id="pwd" type="password" required/>
 </p>
 
 
 <p><input id="btn_login" type="submit" value="Sign In"></p>
 
+<p><input id="stay_signed_box" type="checkbox" name="StaySign" value="True"> I want to stay Signed In
+
 <font size="2"><p>Do not have an account yet? &nbsp </font><a id="btn_tosignup" href="/web/signup">Sign Up</a>
 
-<h1><strong>You can also Sign In with your Google account(in development).</strong><br><br>
+<h1><strong>You can also Sign In with your Google account (available soon)</strong><br><br>
 <div class="g-signin2" data-onsuccess="onSignIn"></div>
 
 <a href="#" onclick="signOut();">Sign out from Google.</a>
