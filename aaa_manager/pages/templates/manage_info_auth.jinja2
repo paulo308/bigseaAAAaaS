@@ -124,7 +124,7 @@ width: 250px;
 <body>
 <div id="login">
 <h1><strong>Account Management</strong><br><br>
-Please sign in to confirm your identity before continuing to change your data:</h1>
+Please sign in to confirm your identity before continuing and changing your data:</h1>
 
 <form data-parsley-validate name="signinform" id="signinform" action="javascript:void(0);" method="get">
 <fieldset>
@@ -133,7 +133,7 @@ Please sign in to confirm your identity before continuing to change your data:</
         <input name="user" id="user" maxlength="32" type="text" required/>
 </p>
 <p>
-        <label for="pwd">Password:</label>
+        <p style="text-align:left;"><label for="pwd">Password:</label><span style="float:right;"> <a id="btn_forgotpw" href="/web/forgot_password">Forgot Password</a></span>
         <input name="pwd" id="pwd" type="password" required/>
 </p>
 
