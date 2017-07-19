@@ -3,34 +3,26 @@ Email class is responsible for managing email information associated to a
 certain user, which will be identified by username.
 
 """
-from aaa_manager.authentication import _DEFAULT_DB_HOST, _DEFAULT_DB_PORT
-from aaa_manager.basedb import BaseDB
-from jsonschema import validate, ValidationError
 import logging
+from aaa_manager.basedb import BaseDB
+from aaa_manager.email_token import EmailToken
+from jsonschema import validate, ValidationError
 
 
-LOG = logging.getLogger(__name__)
+USER_COLLECTION = 'users'
+APP_KEY = 'app_id'
+USER_ITEM = 'auth'
 EMAIL_COLLECTION = 'Emails'
 EMAIL_KEY = 'username'
 EMAIL_ITEM = 'emails'
 
+LOG = logging.getLogger(__name__)
+
 class Emails:
 
-    def __init__(self, host=_DEFAULT_DB_HOST, port=_DEFAULT_DB_PORT):
-        self.host = host
-        self.port = port
-        self.basedb = BaseDB(host, port)
-
-    def exists(self, email):
-        result = self.basedb.get_all(EMAIL_COLLECTION)
-        for item in result:
-            for elem in item[EMAIL_ITEM]:
-                LOG.info('elem: %s' % elem)
-                if 'email' in elem:
-                    email_item = elem['email']
-                    if email_item == email:
-                        return False
-        return True
+    def __init__(self):
+        self.basedb = BaseDB()
+        self.emailToken = EmailToken()
 
     def create(self, username, email_info):
         """
@@ -44,7 +36,8 @@ class Emails:
             database response
         """
         if self.validate_email(email_info):
-            if self.exists(email_info['email']):
+            if self.is_email_unique(email_info['email']):
+                self.emailToken.send_email_token(username, email_info['email'])
                 return self.basedb.insert(
                         EMAIL_COLLECTION,
                         EMAIL_KEY,
@@ -53,6 +46,30 @@ class Emails:
                         email_info)
         return None
     
+    def is_unique(self, username, email):
+        """
+        Verifies that the email is unique for the user.
+        """
+        result = self.basedb.get(EMAIL_COLLECTION, EMAIL_KEY, username)
+        for item in result:
+            for elem in item['email']:
+                if elem['email'] == email:
+                    return False
+        return True
+    
+    def is_email_unique(self, email):
+        """
+        Verifies that the email is unique for the app.
+        """
+        users = self.basedb.get(USER_COLLECTION, APP_KEY, 2)
+        for user in users:
+            for user_info in user[USER_ITEM]:
+                if email == user_info['email']:
+                    return False
+                if self.is_unique(user_info['username'], email) == False:
+                    return False
+        return True
+
     def read_all(self, username):
         """
         Read email information for username. 

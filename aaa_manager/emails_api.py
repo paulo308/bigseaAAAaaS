@@ -5,6 +5,7 @@ import logging
 
 from aaa_manager import Route
 from aaa_manager.emails import Emails
+from aaa_manager.token import Token
 from aaa_manager.authentication import AuthenticationManager
 from pyramid.view import view_config
 
@@ -20,8 +21,8 @@ class EmailsRestView:
         self.request = request
         self._settings = request.registry.settings
         self._data = self._settings['data']
-        self.authentication = AuthenticationManager()
         self.emails = Emails()
+        self.token = Token()
 
     @view_config(route_name=Route.CREATE_EMAIL,
                  request_method='POST',
@@ -46,7 +47,7 @@ class EmailsRestView:
             username = self.request.params['username']
             email_info = {'email': self.request.params['email']}
             token = self.request.params['token']
-            usr = self.authentication.verify_token(2, token)
+            usr = self.token.verify_token(2, token)
             if usr != 'invalid token' and usr == username:
                 auth = self.emails.create(username, email_info)
                 if auth is not None:
@@ -84,7 +85,7 @@ class EmailsRestView:
         try:
             username = self.request.params['username']
             token = self.request.params['token']
-            usr = self.authentication.verify_token(2, token)
+            usr = self.token.verify_token(2, token)
             if usr != 'invalid token' and usr == username:
                 result = self.emails.read_all(username)
                 if result is not None:
@@ -124,7 +125,7 @@ class EmailsRestView:
             username = self.request.params['username']
             email = self.request.params['email']
             token = self.request.params['token']
-            usr = self.authentication.verify_token(2, token)
+            usr = self.token.verify_token(2, token)
             if usr != 'invalid token' and usr == username:
                 result = self.emails.delete(username, email)
                 if result is not None:

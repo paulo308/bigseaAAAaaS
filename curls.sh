@@ -55,7 +55,7 @@ function send_email_token() {
 
 function test_manage_user() {
 	get_token "user=teste&pwd=@bC12345"
-	call "user=teste&fname=teste_new&lname=teste_new&email=eduardo.morais@gmail.com&token=$token" "update_user" "User updated with success."
+	call "user=teste&fname=teste_new&lname=teste_new&email=eduardo.morais@gmail.com&stayin=true&token=$token" "update_user" "User information updated successfully."
 	call "user=teste&token=$token" "delete_user" "User deleted with success."
 
 }
@@ -121,13 +121,13 @@ function test_forgot_password() {
 	call "username=teste&email=eduardo.morais@gmail.com" "forgot_password" "Email sent with success." 
 }
 
-#test_signup
+test_signup
 #test_favorite
 #test_email_association
 #test_email
 #test_use_resource
-#test_manage_user
-test_forgot_password
+test_manage_user
+#test_forgot_password
 
 
 

@@ -14,12 +14,12 @@ sudo rm -rf data/*
 sudo rm -rf dump/*
 sed -i 's/mongod\ --port\ 27017.*/mongod\ --port\ 27017\ --dbpath\ \/data\/db/' docker-compose.yml
 
-# criacao de usuario
+# user creation
 docker-compose run --entrypoint python3 --name aaa_manager aaa_manager -m db_scripts.create_mongo_user
 #stop_cont aaa_manager mongo
 
 
-# Gerar dump do banco de dados
+# Generate database dump
 docker exec mongo mongodump
 #stop_cont mongo
 

@@ -12,15 +12,12 @@ from jsonschema import validate, ValidationError
 from enum import Enum
 from aaa_manager.basedb import BaseDB
 from aaa_manager.genpwd import genpwd
+from aaa_manager.emails import Emails
+from aaa_manager.email_token import EmailToken
+from aaa_manager.send_email import SendEmail
+from aaa_manager.token import Token
 import bcrypt
 import base64
-
-# Import smtplib for the actual sending function
-import smtplib
-
-# Import the email modules we'll need
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
 
 LOG = logging.getLogger(__name__)
 _DEFAULT_DB_HOST = 'mongo'
@@ -29,15 +26,6 @@ _DEFAULT_DB_PORT = 27017
 USER_COLLECTION = 'users'
 APP_KEY = 'app_id'
 USER_ITEM = 'auth'
-SECRET = '4I3+jNeddexZAgvvh6TS47dZVPp5ezPX+sJ1AW/QvwY='
-# expiration is measured in minutes
-TOKEN_EXPIRATION = 720 
-TOKEN_EXPIRATION_STAYIN = 10080 
-
-EMAIL = 'auth.eubrabigsea@gmail.com'
-EMAIL_PWD = 'Serverbigsea2017'
-EMAIL_CONFIRMED = 'EmailConfirmed'
-
 
 class Auth(Enum):
     """ 
@@ -54,10 +42,12 @@ class AuthenticationManager:
     the utilization of `app_id` parameter.
     """
 
-    def __init__(self, host=_DEFAULT_DB_HOST, port=_DEFAULT_DB_PORT):
-        self.host = host
-        self.port = port
-        self.basedb = BaseDB(host, port)
+    def __init__(self):
+        self.basedb = BaseDB()
+        self.emails = Emails()
+        self.emailToken = EmailToken()
+        self.sendEmail = SendEmail() 
+        self.token = Token()
 
     def _format_user_dict(self, user):
         return {
@@ -154,7 +144,7 @@ class AuthenticationManager:
 
         username = user_info['username']
         token = user_info['token']
-        usr = self.verify_token(app_id, token)
+        usr = self.token.verify_token(app_id, token)
         if usr != 'invalid token' and usr == username:
             return self.basedb.remove_list_item(
                     USER_COLLECTION, 
@@ -184,6 +174,9 @@ class AuthenticationManager:
             return None, 'invalid user information'
         if not self.validate_pwd(user_info):
             return None, 'invalid password'
+        if not self.emails.is_email_unique(user_info['email']):
+            return None, 'invalid email'
+
         users = self.basedb.get(USER_COLLECTION, APP_KEY, app_id)
         if user_info['username'] == 'admin':
             return None, 'admin'
@@ -192,9 +185,8 @@ class AuthenticationManager:
         if not self._is_user_unique(app_id, auth['username']):
             return None, 'users'
 
-        #LOG.info('email_token: %s' % email_token)
         LOG.info('auth: %s' % auth)
-        result_email = self.send_email_token(auth['username'], auth['email'])
+        result_email = self.emailToken.send_email_token(auth['username'], auth['email'])
 
         return self.basedb.insert(USER_COLLECTION, APP_KEY, app_id,
                                         USER_ITEM, auth), ''
@@ -266,120 +258,6 @@ class AuthenticationManager:
         return self.basedb.remove(USER_COLLECTION, APP_KEY, app_id)
 
 
-    def generate_token(self, user):
-        """
-        Generate a token that can be used to authenticate user to 
-        access app. 
-
-        Args:
-            user (dict): user information.
-
-        Returns: 
-            str: base64 representation of token.
-        """
-        #return self._hash(json.dumps(user)+datetime.datetime.now().
-        #        strftime("%Y-%m-%d %H:%M:%S"))
-        result = bcrypt.hashpw(
-                (SECRET+json.dumps(user)).encode('utf-8'), 
-                bcrypt.gensalt())
-        return base64.b64encode(result).decode('utf-8')
-    
-    def remove_token(self, token):
-        """
-        Remove token from DB.
-
-        Args:
-            token (str): base64 token
-
-        Returns: 
-            obj: mongodb result
-        """
-        return self.basedb.remove('Token', 'token', token)
-
-    def insert_token(self, app_id, user, token):
-        """Insert token into DB.
-
-        Args:
-            app_id (int): application id;
-            user (dict): user information;
-            token (str): hexidecimal token.
-
-        Returns: 
-            obj: mongodb result
-        """
-        return self.basedb.insert('Token', 'token', token, 'data', 
-                {
-                    'app_id': app_id, 
-                    'user': user, 
-                    'created': datetime.datetime.now()
-                    })
-    
-
-    def verify_token(self, app_id, token):
-        """Verify token validity.
-
-        Args:
-            app_id (int): application id;
-            token (str): base64 token.
-
-        Returns:
-            str: username corresponding to token if valid, 
-            'invalid token' otherwise
-        """
-        result = self.read_user_info(app_id, token)
-        if result != 'invalid token':
-            return result['username']
-        else:
-            return 'invalid token'
-
-
-    def read_user_info(self, app_id, token):
-        """Read user information.
-
-        Args:
-            app_id (int): application id;
-            token (str): base64 token.
-
-        Returns:
-            str: username corresponding to token if valid, 
-            'invalid token' otherwise
-        """
-        result = list(self.basedb.get('Token', 'token', token))
-        for item in result:
-            if 'data' in item:
-                for data in item['data']:
-                    if 'app_id' in data and data['app_id'] == app_id\
-                            and 'created' in data and\
-                            'user' in data and 'stayin' in data['user']:
-                        if (data['user']['stayin'] == True\
-                                and (datetime.datetime.now() - datetime.timedelta(minutes=TOKEN_EXPIRATION_STAYIN) < data['created']))\
-                                or (data['user']['stayin'] == False\
-                                and (datetime.datetime.now() - datetime.timedelta(minutes=TOKEN_EXPIRATION) < data['created'])):
-                            LOG.info('#### %s' % (datetime.datetime.now() - datetime.timedelta(minutes=TOKEN_EXPIRATION) < data['created']))
-                            LOG.info('#### %s' % (datetime.datetime.now() - datetime.timedelta(minutes=TOKEN_EXPIRATION_STAYIN) < data['created']))
-                            LOG.info('#### created: %s' % data['created'])
-                            LOG.info('#### stayin: %s' % data['user']['stayin'])
-                            return data['user']
-        return 'invalid token'
-
-    def get_token(self, app_id, user):
-        """Gets token from database.
-
-        Args:
-            app_id (int): application id;
-            user (dict): user information;
-
-        Returns:
-            token if user exists or None otherwise.
-        """
-        result = list(self.basedb.get_all('Token'))
-        for item in result:
-            if 'data' in item:
-                for data in item['data']:
-                    if 'app_id' in data and data['app_id'] == app_id and\
-                        'user' in data and data['user'] == user:
-                            return item['token']
-        return None
 
     def access_app(self, app_id, username, password, auth_type=Auth.USERS):
         """Retrieves a user based on a user username/password credential.
@@ -399,7 +277,7 @@ class AuthenticationManager:
         for user in users:  
             if auth_type == Auth.USERS:
                 for user_info in user[USER_ITEM]:
-                    if self.verify_email(username, user_info['email']) == False:
+                    if self.emailToken.verify_email(username, user_info['email']) == False:
                         return None, "Please confirm your account. Check your inbox or spam folders."
                     if user_info['username'] == username:
                         hashpwd = user_info['password'] 
@@ -438,7 +316,7 @@ class AuthenticationManager:
             (dict): user information if exists or None otherwise. 
         """
         try:
-            if self.verify_token(app_id, user_new['token']) != 'invalid token':
+            if self.token.verify_token(app_id, user_new['token']) != 'invalid token':
                 userelem = {}
                 res = self.basedb.get(USER_COLLECTION, APP_KEY, app_id)
                 for item in list(res):
@@ -476,7 +354,7 @@ class AuthenticationManager:
             (dict): user information if exists or None otherwise. 
         """
         try:
-            if not check or self.verify_token(app_id, user_new['token']) != 'invalid token':
+            if not check or self.token.verify_token(app_id, user_new['token']) != 'invalid token':
                 userelem = {}
                 res = self.basedb.get(USER_COLLECTION, APP_KEY, app_id)
                 oldpassword = ""
@@ -554,67 +432,7 @@ class AuthenticationManager:
             LOG.error('Invalid user information')
             raise Exception('Invalid user information') from err 
         return True
-
-    def insert_email_token(self, username, email, token, valid):
-        result = self.basedb.insert('EmailToken', 'email', email, 'data', 
-                {
-                    'token': token, 
-                    'username': username, 
-                    'validated': datetime.datetime.now(),
-                    'valid': valid
-                    })
-        return result
-
-    def email_confirmation(self, username, email, token):
-        """
-        Verifies if given token is valid.
-
-        Args: 
-            username (str): username;
-            email (str): user email;
-            token (str): email token encoded in base64.
-
-        Returns:
-            bool: True if valid and False otherwise.
-        """
-        result = False
-        data = self.basedb.get('EmailToken', 'email', email)
-        for item in data:
-            for elem in item['data']:
-                if elem['token'] == token:
-                    new_elem = copy.deepcopy(elem) 
-                    new_elem['valid'] = True
-                    """res = self.basedb.update(
-                            'EmailToken',
-                            'email',
-                            email,
-                            'data',
-                            elem,
-                            new_elem)"""
-                    res = self.basedb.remove_list_item(
-                            'EmailToken',
-                            'email',
-                            email,
-                            'data',
-                            elem)
-                    res = self.basedb.insert(
-                            'EmailToken',
-                            'email',
-                            email,
-                            'data',
-                            new_elem)
-                    result = True
-        return result
-
-    def send_email_token(self, username, email):
-        """
-        Send email with new generated token.
-        """
-        token = self.generate_token(username+email)
-        self.insert_email_token(username, email, token, False)
-        self.send_email_with_token(username, email, token)
-        return token
-
+    
     def gen_password(self, app_id, username, email):
         """
         Generate password.
@@ -629,65 +447,11 @@ class AuthenticationManager:
             A new password was automatically generated. Use it to login and change it. 
 
             New password: """ + pwd
-            self.send_email(email, SUBJECT, TEXT)
+            self.sendEmail.send_email(email, SUBJECT, TEXT)
             return res
         return 0
 
-      
-    def verify_email(self, username, email):
-        """
-        Verifies if given token is valid.
-        TODO: must grant that only the last one is valid.
-
-        Args: 
-            username (str): username;
-            email (str): user email;
-            token (str): email token encoded in base64.
-
-        Returns:
-            bool: True if valid and False otherwise.
-        """
-        result = list(self.basedb.get('EmailToken', 'email', email))
-        for item in result:
-            if 'data' in item:
-                data = item['data']
-                for elem in data:
-                    if elem['valid'] == True: 
-                        return True
-        return False
+    
 
 
-    def send_email(self, email, subject, text):
-        """
-        Send email.
-        """
-        gmail_user = EMAIL
-        gmail_pwd = EMAIL_PWD
-        FROM = EMAIL
-        TO = email
-        message = """From: %s\nTo: %s\nSubject: %s\n\n%s
-        """ % (FROM, TO, subject, text)
-        try:
-            server = smtplib.SMTP("smtp.gmail.com", 587)
-            server.ehlo()
-            server.starttls()
-            server.login(gmail_user, gmail_pwd)
-            server.sendmail(FROM, TO, message)
-            server.close()
-            LOG.info('successfully sent the mail')
-        except:
-            LOG.info('failed to send mail')
-
-    def send_email_with_token(self, username, email, token):
-        """
-        Send email with token.
-        """
-        CONFIRM_EMAIL_PATH = 'https://eubrabigsea.dei.uc.pt/web/email_confirmation'
-        #CONFIRM_EMAIL_PATH = 'http://localhost:9000/web/email_confirmation'
-        URL = CONFIRM_EMAIL_PATH + '?username='+username+'&email='+email+'&token='+token
-        SUBJECT = 'EUBRA-BigSea: email confirmation'
-        #TEXT = 'token: ' + token
-        TEXT = 'Click on the following link to confirm the email:\n' + URL 
-
-        return self.send_email(email, SUBJECT, TEXT)        
 

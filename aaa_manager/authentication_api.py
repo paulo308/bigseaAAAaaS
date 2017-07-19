@@ -6,6 +6,9 @@ import logging
 
 from aaa_manager import Route
 from aaa_manager.authentication import AuthenticationManager, Auth
+from aaa_manager.send_email import SendEmail
+from aaa_manager.email_token import EmailToken
+from aaa_manager.token import Token
 from pyramid.view import view_config
 
 LOG = logging.getLogger(__name__)
@@ -21,6 +24,9 @@ class AuthenticationRestView:
         self._settings = request.registry.settings
         self._data = self._settings['data']
         self.authentication = AuthenticationManager()
+        self.sendEmail = SendEmail()
+        self.emailToken = EmailToken()
+        self.token = Token()
 
     @view_config(route_name=Route.CHECKIN,
                  request_method='POST',
@@ -56,8 +62,8 @@ class AuthenticationRestView:
                     Auth.USERS)
 
             if user is not None:
-                token = self.authentication.generate_token(user)
-                response = self.authentication.insert_token(2, user, token)
+                token = self.token.generate_token(user)
+                response = self.token.insert_token(2, user, token)
                 LOG.info('Successfully authenticated.')
                 return {
                         'success': True, 
@@ -104,7 +110,7 @@ class AuthenticationRestView:
         msg = ''
         try:
             token = self.request.params['token']
-            result = self.authentication.remove_token(token)
+            result = self.token.remove_token(token)
             if result is not None:
                 LOG.info('Successfully checkout.')
                 return {
@@ -182,7 +188,7 @@ class AuthenticationRestView:
         try:
             token = self.request.params['token']
             LOG.info('#### Input token: %s' % token)
-            response = self.authentication.read_user_info(2, token)
+            response = self.token.read_user_info(2, token)
             return {'response': response,
                     'success': 'User info read successfully.'}
         except KeyError as e:
@@ -430,7 +436,7 @@ class AuthenticationRestView:
             username = self.request.params['username']
             email_token = self.request.params['token']
             email = self.request.params['email']
-            result = self.authentication.email_confirmation(username, email, email_token)
+            result = self.emailToken.email_confirmation(username, email, email_token)
             if result:
                 msg = 'User email confirmed with success.'
                 LOG.info(msg)
@@ -464,7 +470,7 @@ class AuthenticationRestView:
         try:
             username = self.request.params['username']
             email = self.request.params['email']
-            result = self.authentication.send_email_token(username, email)
+            result = self.sendEmail.send_email_token(username, email)
             LOG.info('#### result: %s' % result)
             if result:
                 msg = 'Email sent with success.'

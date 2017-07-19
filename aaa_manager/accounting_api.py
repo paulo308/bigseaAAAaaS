@@ -5,6 +5,7 @@ import logging
 import json
 
 from aaa_manager import Route
+from aaa_manager.token import Token
 from aaa_manager.accounting import Accounting
 from aaa_manager.authentication import AuthenticationManager
 from pyramid.view import view_config
@@ -23,6 +24,7 @@ class AccountingRestView:
         self._data = self._settings['data']
         self.accounting = Accounting()
         self.authentication = AuthenticationManager()
+        self.token = Token()
 
     @view_config(route_name=Route.READ_ACCOUNTING,
                  request_method='POST',
@@ -45,7 +47,7 @@ class AccountingRestView:
         try:
             username = self.request.params['username']
             token = self.request.params['token']
-            usr = self.authentication.verify_token(2, token)
+            usr = self.token.verify_token(2, token)
             if usr != 'invalid token' and usr == username:
                 data = self.accounting.get(username)
                 if data is not None:

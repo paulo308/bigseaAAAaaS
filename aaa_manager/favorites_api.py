@@ -3,9 +3,11 @@ This file contains the Favorites REST interface.
 """
 import logging
 
+from aaa_manager.basedb import BaseDB
 from aaa_manager import Route
 from aaa_manager.favorites import Favorites
 from aaa_manager.authentication import AuthenticationManager
+from aaa_manager.token import Token
 from pyramid.view import view_config
 
 LOG = logging.getLogger(__name__)
@@ -22,6 +24,7 @@ class FavoritesRestView:
         self._data = self._settings['data']
         self.favorites = Favorites()
         self.authentication = AuthenticationManager()
+        self.token = Token()
 
     @view_config(route_name=Route.CREATE_FAVORITE,
                  request_method='POST',
@@ -51,7 +54,7 @@ class FavoritesRestView:
             favorite_id = self.request.params['favorite_id']
             data = self.request.params['data']
             token = self.request.params['token']
-            usr = self.authentication.verify_token(2, token)
+            usr = self.token.verify_token(2, token)
             if usr != 'invalid token' and usr == username:
                 auth = self.favorites.create(
                         2,
@@ -103,7 +106,7 @@ class FavoritesRestView:
             city_id = int(self.request.params['city_id'])
             country_id = int(self.request.params['country_id'])
             token = self.request.params['token']
-            usr = self.authentication.verify_token(2, token)
+            usr = self.token.verify_token(2, token)
             if usr != 'invalid token' and usr == username:
                 fav = self.favorites.read(2, username, city_id, country_id, token)
                 if fav is not None and 'data' in fav:
@@ -144,7 +147,7 @@ class FavoritesRestView:
         try:
             username = self.request.params['username']
             token = self.request.params['token']
-            usr = self.authentication.verify_token(2, token)
+            usr = self.token.verify_token(2, token)
             if usr != 'invalid token' and usr == username:
                 fav = self.favorites.read_all(2, username)
                 LOG.info('#### fav: %s' % fav)
@@ -188,7 +191,7 @@ class FavoritesRestView:
             username = self.request.params['username']
             item_id = self.request.params['item_id']
             token = self.request.params['token']
-            usr = self.authentication.verify_token(2, token)
+            usr = self.token.verify_token(2, token)
             if usr != 'invalid token' and usr == username:
                 fav = self.favorites.delete(2, username, item_id, token)
                 if fav is not None:
@@ -205,3 +208,4 @@ class FavoritesRestView:
             raise e
         LOG.info(msg)
         return {'error': msg}
+    
