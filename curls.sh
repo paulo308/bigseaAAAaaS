@@ -89,6 +89,8 @@ function test_email() {
 function test_email_association() {
 	get_token "user=teste&pwd=@bC12345"
 	call "username=teste&email=teste@teste.com&token=$token" "create_email" "Email association successfully created."	
+	# test now if system detects repetition
+	call "username=teste&email=teste@teste.com&token=$token" "create_email" "Invalid email."	
 	call "username=teste&token=$token" "read_emails" "Email association successfully read."
 	call "username=teste&email=teste@teste.com&token=$token" "delete_email" "Email association successfully deleted."
 }
@@ -126,7 +128,7 @@ test_signup
 #test_email_association
 #test_email
 #test_use_resource
-test_manage_user
+#test_manage_user
 #test_forgot_password
 
 

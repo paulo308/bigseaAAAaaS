@@ -146,6 +146,7 @@ class AuthenticationManager:
         token = user_info['token']
         usr = self.token.verify_token(app_id, token)
         if usr != 'invalid token' and usr == username:
+            # REMOVE OTHER COLS? 
             return self.basedb.remove_list_item(
                     USER_COLLECTION, 
                     APP_KEY, 
