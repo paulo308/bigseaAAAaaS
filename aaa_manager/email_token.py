@@ -85,6 +85,7 @@ class EmailToken:
             bool: True if valid and False otherwise.
         """
         result = list(self.basedb.get('EmailToken', 'email', email))
+        LOG.info('result: %s' % result)
         for item in result:
             LOG.info('item: %s' % item)
             if 'data' in item:
