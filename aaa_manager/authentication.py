@@ -278,9 +278,9 @@ class AuthenticationManager:
         for user in users:  
             if auth_type == Auth.USERS:
                 for user_info in user[USER_ITEM]:
-                    if self.emailToken.verify_email(username, user_info['email']) == False:
-                        return None, "Please confirm your account. Check your inbox or spam folders."
                     if user_info['username'] == username:
+                        if self.emailToken.verify_email(username, user_info['email']) == False:
+                            return None, "Please confirm your account. Check your inbox or spam folders."
                         hashpwd = user_info['password'] 
                         if self._validatepwd(hashpwd.encode('utf-8'), password):
                             del user_info['password']
