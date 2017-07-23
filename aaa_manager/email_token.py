@@ -41,6 +41,7 @@ class EmailToken:
         result = False
         data = self.basedb.get('EmailToken', 'email', email)
         for item in data:
+            LOG.info('item: %s' % item)
             for elem in item['data']:
                 if elem['token'] == token:
                     new_elem = copy.deepcopy(elem) 
@@ -85,6 +86,7 @@ class EmailToken:
         """
         result = list(self.basedb.get('EmailToken', 'email', email))
         for item in result:
+            LOG.info('item: %s' % item)
             if 'data' in item:
                 data = item['data']
                 for elem in data:
