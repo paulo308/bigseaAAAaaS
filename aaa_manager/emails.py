@@ -52,7 +52,9 @@ class Emails:
         """
         result = self.basedb.get(EMAIL_COLLECTION, EMAIL_KEY, username)
         for item in result:
+            LOG.info('item: %' % item)
             for elem in item['email']:
+                LOG.info('elem: %' % elem)
                 if elem['email'] == email:
                     return False
         return True
