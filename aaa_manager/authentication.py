@@ -304,6 +304,29 @@ class AuthenticationManager:
                     return user_info
         return None
 
+    def update_user_stayin(self, user, stayin):
+        """
+        Update stayin field into user data.
+        """
+        userelem = copy.deepcopy(user)
+        res = self.basedb.get(USER_COLLECTION, APP_KEY, 2)
+        for item in list(res):
+            for elem in item['auth']:
+                if elem['username'] == user['username']:
+                    userelem['password'] = elem['password']
+        resdel = self.delete_user(2, userelem)
+        if resdel > 0:
+            userelem['stayin'] = True if stayin=="true" else False
+            resinsert = self.basedb.insert(
+                    USER_COLLECTION, 
+                    APP_KEY, 
+                    2,
+                    USER_ITEM, 
+                    userelem)
+            if resinsert is not None:
+                user['stayin'] = userelem['stayin']
+                return 1
+        return 0
 
     def update_user(self, app_id, user_new):
         """Updates user information with `user_new` json content. 

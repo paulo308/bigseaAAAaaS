@@ -61,9 +61,15 @@ class AuthenticationRestView:
                     pwd, 
                     Auth.USERS)
 
+
             if user is not None:
                 token = self.token.generate_token(user)
                 response = self.token.insert_token(2, user, token)
+                if 'stayin' in self.request.params:
+                    user['token'] = token
+                    res = self.authentication.update_user_stayin(user, self.request.params['stayin'])
+                    del user['token']
+                    LOG.info('res %s' % res)
                 LOG.info('Successfully authenticated.')
                 return {
                         'success': True, 
