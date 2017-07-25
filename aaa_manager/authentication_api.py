@@ -231,7 +231,7 @@ class AuthenticationRestView:
             fname = self.request.params['fname']
             lname = self.request.params['lname']
             email = self.request.params['email']
-            stayin = True if self.request.params['stayin']=='true' else False
+            stayin = False
 
             user_info = {
                     'username': usr, 

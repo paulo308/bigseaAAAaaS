@@ -89,7 +89,8 @@ class EmailsRestView:
             if usr != 'invalid token' and usr == username:
                 result = self.emails.read_all(username)
                 if result is not None:
-                    return {'success': 'Email association successfully read.'}
+                    return {'success': 'Email association successfully read.',
+                            'data': result}
                 else:
                     return {'error':  'Invalid username.'}
         except KeyError as e:

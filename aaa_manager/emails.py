@@ -82,10 +82,13 @@ class Emails:
         Returns:
             array of email_info.
         """
-        result = self.basedb.get(
+        res = self.basedb.get(
                 EMAIL_COLLECTION, 
                 EMAIL_KEY,
                 username)
+        result = list(res)
+        for item in result:
+            del item['_id']
         return result
 
     def read(self, username, email):
