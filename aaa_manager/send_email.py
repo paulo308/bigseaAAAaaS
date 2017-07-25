@@ -42,8 +42,8 @@ class SendEmail:
         """
         Send email with token.
         """
-        #CONFIRM_EMAIL_PATH = 'https://eubrabigsea.dei.uc.pt/web/email_confirmation'
-        CONFIRM_EMAIL_PATH = 'http://localhost:9000/web/email_confirmation'
+        CONFIRM_EMAIL_PATH = 'https://eubrabigsea.dei.uc.pt/web/email_confirmation'
+        #CONFIRM_EMAIL_PATH = 'http://localhost:9000/web/email_confirmation'
         URL = CONFIRM_EMAIL_PATH + '?username='+username+'&email='+email+'&token='+token
         SUBJECT = 'EUBRA-BigSea: email confirmation'
         #TEXT = 'token: ' + token
