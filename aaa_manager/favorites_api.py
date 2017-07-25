@@ -148,15 +148,18 @@ class FavoritesRestView:
             username = self.request.params['username']
             token = self.request.params['token']
             usr = self.token.verify_token(2, token)
-            if usr != 'invalid token' and usr == username:
-                fav = self.favorites.read_all(2, username)
-                LOG.info('#### fav: %s' % fav)
-                if fav is not None:
-                    return {'success': 'Favorite association successfully read.',
-                            'data': fav
-                            }
+            if usr != 'invalid token':
+                if usr == username:
+                    fav = self.favorites.read_all(2, username)
+                    LOG.info('#### fav: %s' % fav)
+                    if fav is not None:
+                        return {'success': 'Favorite association successfully read.',
+                                'data': fav
+                                }
+                    else:
+                        return {'error':  'Invalid favorite.'}
                 else:
-                    return {'error':  'Invalid favorite.'}
+                    return {'error': 'Invalid username.'}
             else:
                 return {'error':  'Invalid token'}
         except KeyError as e:
