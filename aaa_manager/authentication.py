@@ -461,7 +461,7 @@ class AuthenticationManager:
         """
         Generate password.
         """
-        if self.verify_email(username, email):
+        if self.emailToken.verify_email(username, email):
             pwd = genpwd()
             LOG.info('pwd: %s' % pwd)
             user_new = {'username': username,'newpwd': pwd}
