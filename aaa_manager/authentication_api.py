@@ -476,7 +476,7 @@ class AuthenticationRestView:
         try:
             username = self.request.params['username']
             email = self.request.params['email']
-            result = self.sendEmail.send_email_token(username, email)
+            result = self.emailToken.send_email_token(username, email)
             LOG.info('#### result: %s' % result)
             if result:
                 msg = 'Email sent with success.'
