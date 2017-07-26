@@ -275,16 +275,22 @@ class AuthenticationManager:
             otherwise.
         """
         users = self.basedb.get(USER_COLLECTION, APP_KEY, app_id)
+        LOG.info('#### users: %s' % users)
         for user in users:  
+            LOG.info('#### user: %s' % user)
             if auth_type == Auth.USERS:
                 for user_info in user[USER_ITEM]:
+                    LOG.info('#### user_info: %s' % user_info)
                     if user_info['username'] == username:
+                        LOG.info('#### entrou!')
                         if self.emailToken.verify_email(username, user_info['email']) == False:
                             return None, "Please confirm your account. Check your inbox or spam folders."
+                        LOG.info('#### passou email verification!')
                         hashpwd = user_info['password'] 
                         if self._validatepwd(hashpwd.encode('utf-8'), password):
                             del user_info['password']
                             return user_info, ""
+                        LOG.info('#### passou tudo! :(')
         return None, ""
 
     def get_user(self, app_id, username):
@@ -466,13 +472,14 @@ class AuthenticationManager:
             LOG.info('pwd: %s' % pwd)
             user_new = {'username': username,'newpwd': pwd}
             res = self.change_password(app_id, user_new, False)
-            SUBJECT = 'EUBRA-BigSea: forgot password'
-            TEXT = """
-            A new password was automatically generated. Use it to login and change it. 
+            if res == 1:
+                SUBJECT = 'EUBRA-BigSea: forgot password'
+                TEXT = """
+                A new password was automatically generated. Use it to login and change it. 
 
-            New password: """ + pwd
-            self.sendEmail.send_email(email, SUBJECT, TEXT)
-            return res
+                New password: """ + pwd
+                self.sendEmail.send_email(email, SUBJECT, TEXT)
+                return res
         return 0
 
     

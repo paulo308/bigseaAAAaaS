@@ -514,7 +514,7 @@ class AuthenticationRestView:
             email = self.request.params['email']
             result = self.authentication.gen_password(2, username, email)
             LOG.info('#### result: %s' % result)
-            if result:
+            if result == 1:
                 msg = 'Email sent with success.'
                 LOG.info(msg)
                 return {'success': msg}
