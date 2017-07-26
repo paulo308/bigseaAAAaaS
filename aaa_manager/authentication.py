@@ -409,8 +409,11 @@ class AuthenticationManager:
                         userelem['password'] = newpassword
                         if self._validatepwd(newpassword.encode('utf-8'), user_new['newpwd']):
                             LOG.info('#### validou!!!!!!!!!!!')
+                            LOG.info('#### newpassword: %s' % newpassword)
+                            LOG.info('#### newpwd: %s' % user_new['newpwd'])
                         else:
                             LOG.info('#### não validou :( :( :(')
+                        LOG.info('#### userelem: %s' % userelem)
                         resinsert = self.basedb.insert(
                                 USER_COLLECTION,
                                 APP_KEY,
