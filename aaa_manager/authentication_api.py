@@ -162,7 +162,7 @@ class AuthenticationRestView:
         try:
             token = self.request.params['token']
             LOG.info('#### Input token: %s' % token)
-            response = self.authentication.verify_token(2, token)
+            response = self.token.verify_token(2, token)
             return {'response': response}
         except KeyError as e:
             msg = 'Missing mandatory parameter: ' + str(e)
