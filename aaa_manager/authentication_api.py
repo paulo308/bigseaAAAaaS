@@ -69,7 +69,6 @@ class AuthenticationRestView:
                     user['token'] = token
                     res = self.authentication.update_user_stayin(user, self.request.params['stayin'])
                     del user['token']
-                    LOG.info('res %s' % res)
                 LOG.info('Successfully authenticated.')
                 return {
                         'success': True, 
@@ -477,7 +476,6 @@ class AuthenticationRestView:
             username = self.request.params['username']
             email = self.request.params['email']
             result = self.emailToken.send_email_token(username, email)
-            LOG.info('#### result: %s' % result)
             if result:
                 msg = 'Email sent with success.'
                 LOG.info(msg)
@@ -513,7 +511,6 @@ class AuthenticationRestView:
             username = self.request.params['username']
             email = self.request.params['email']
             result = self.authentication.gen_password(2, username, email)
-            LOG.info('#### result: %s' % result)
             if result == 1:
                 msg = 'Email sent with success.'
                 LOG.info(msg)

@@ -275,22 +275,16 @@ class AuthenticationManager:
             otherwise.
         """
         users = self.basedb.get(USER_COLLECTION, APP_KEY, app_id)
-        LOG.info('#### users: %s' % users)
         for user in users:  
-            LOG.info('#### user: %s' % user)
             if auth_type == Auth.USERS:
                 for user_info in user[USER_ITEM]:
-                    LOG.info('#### user_info: %s' % user_info)
                     if user_info['username'] == username:
-                        LOG.info('#### entrou!')
                         if self.emailToken.verify_email(username, user_info['email']) == False:
                             return None, "Please confirm your account. Check your inbox or spam folders."
-                        LOG.info('#### passou email verification!')
                         hashpwd = user_info['password'] 
                         if self._validatepwd(hashpwd.encode('utf-8'), password):
                             del user_info['password']
                             return user_info, ""
-                        LOG.info('#### passou tudo! :(')
         return None, ""
 
     def get_user(self, app_id, username):
@@ -395,7 +389,6 @@ class AuthenticationManager:
                             oldpassword = elem['password']
                 oldpwd = user_new['oldpwd'] if 'oldpwd' in user_new else ''
                 if not check or self._validatepwd(oldpassword.encode('utf-8'), oldpwd):
-                    #resdel = self.delete_user(app_id, user_new)
                     resdel = self.basedb.remove_list_item(
                             USER_COLLECTION, 
                             APP_KEY, 
@@ -407,13 +400,6 @@ class AuthenticationManager:
                     if resdel > 0:
                         newpassword = self._hashpwd(user_new['newpwd'])
                         userelem['password'] = newpassword
-                        if self._validatepwd(newpassword.encode('utf-8'), user_new['newpwd']):
-                            LOG.info('#### validou!!!!!!!!!!!')
-                            LOG.info('#### newpassword: %s' % newpassword)
-                            LOG.info('#### newpwd: %s' % user_new['newpwd'])
-                        else:
-                            LOG.info('#### não validou :( :( :(')
-                        LOG.info('#### userelem: %s' % userelem)
                         resinsert = self.basedb.insert(
                                 USER_COLLECTION,
                                 APP_KEY,
@@ -476,7 +462,6 @@ class AuthenticationManager:
         """
         if self.emailToken.verify_email(username, email):
             pwd = genpwd()
-            LOG.info('pwd: %s' % pwd)
             user_new = {'username': username,'newpwd': pwd}
             res = self.change_password(app_id, user_new, False)
             if res == 1:
