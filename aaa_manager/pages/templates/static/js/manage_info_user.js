@@ -58,6 +58,7 @@ $(function() {
         f.parsley().validate();
         if (f.parsley().isValid()) {
                 console.log('email is valid. proceed to submit form and add secondary email');
+		console.log('sec email:',$('#secemail'));
                 addEmail();
         } else {
                 console.log('email validation failed');
@@ -185,12 +186,12 @@ function changePW(){
 
 
 function addEmail(){
-    var newtoken2;
-    newtoken2 = String(token);
+    var newtoken3;
+    newtoken3 = String(token);
     $.ajax({
         url: '/engine/api/create_email',
         type: 'post',
-        data: {'username': $('#user').val(), 'email': $('#email').val(), 'token': newtoken2},
+        data: {'username': $('#user').val(), 'email': $('#secemail').val(), 'token': newtoken3},
         success: function (result) {
             view_data = result;
             console.log(result);
