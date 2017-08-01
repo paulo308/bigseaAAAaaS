@@ -50,6 +50,20 @@ $(function() {
                 console.log('password validation failed');
         }
     });
+
+
+    $( "#btn_addemail" ).click(function() {
+        console.log('clickAddEmail');
+        var f = $('#addemailform');
+        f.parsley().validate();
+        if (f.parsley().isValid()) {
+                console.log('email is valid. proceed to submit form and add secondary email');
+		console.log('sec email:',$('#secemail'));
+                addEmail();
+        } else {
+                console.log('email validation failed');
+        }
+    });
 });
 
 
@@ -161,6 +175,36 @@ function changePW(){
                 $('#error').show();
             } else {
                 msg = "Password changed with success!";
+                $('#error').text('');
+                $('#error').hide();
+                $('#success').text(msg);
+                $('#success').show();
+            }
+        }
+    });
+}
+
+
+function addEmail(){
+    var newtoken3;
+    newtoken3 = String(token);
+    $.ajax({
+        url: '/engine/api/create_email',
+        type: 'post',
+        data: {'username': $('#user').val(), 'email': $('#secemail').val(), 'token': newtoken3},
+        success: function (result) {
+            view_data = result;
+            console.log(result);
+            console.log(result['error']);
+            error = result['error'];
+            if (error) {
+                //alert(error);
+                $('#success').text('');
+                $('#success').hide();
+                $('#error').text(error);
+                $('#error').show();
+            } else {
+                msg = "Email added with success!";
                 $('#error').text('');
                 $('#error').hide();
                 $('#success').text(msg);
