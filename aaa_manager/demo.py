@@ -67,6 +67,14 @@ class WebView:
         """
         return ''
     
+    @view_config(route_name=Route.WEB_SIGNIN_OPTIONS,
+                 renderer='signin_options.jinja2')
+    def signin_options(self):
+        """
+        This method is called from **/web/singin_options**.
+        """
+        return ''
+    
     @view_config(route_name=Route.WEB_EMAIL_CONFIRMATION,
                  renderer='email_confirmation.jinja2')
     def email_confirmation(self):
