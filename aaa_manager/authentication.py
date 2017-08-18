@@ -20,8 +20,6 @@ import bcrypt
 import base64
 
 LOG = logging.getLogger(__name__)
-_DEFAULT_DB_HOST = 'mongo'
-_DEFAULT_DB_PORT = 27017
 
 USER_COLLECTION = 'users'
 APP_KEY = 'app_id'

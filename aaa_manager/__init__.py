@@ -78,6 +78,8 @@ def main(global_config, **settings):
     config.add_route(Route.READ_FAVORITES, '/engine/api/read_favorites')
     config.add_route(Route.DELETE_FAVORITE, '/engine/api/delete_favorite')
     config.add_route(Route.READ_ACCOUNTING, '/engine/api/read_accounting')
+    config.add_route(Route.CHECKIN_DATA_INFRA, '/engine/api/checkin_data_infra')
+    config.add_route(Route.INSERT_DATA_INFRA, '/engine/api/insert_data_infra')
 
     LOG.info("AAA module initiated.")
     # Scan and load classes with configuration decoration (@view_config)

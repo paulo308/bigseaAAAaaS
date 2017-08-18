@@ -8,9 +8,6 @@ from aaa_manager.db_client import DBClient
 
 LOG = logging.getLogger(__name__)
 
-_DEFAULT_DB_HOST = 'mongo'
-_DEFAULT_DB_PORT = 27017
-_DEFAULT_DB_NAME = 'AAADB'
 
 
 class BaseDB:
@@ -18,15 +15,13 @@ class BaseDB:
     Provides an interface to use database.
     """
 
-    def __init__(self, host=_DEFAULT_DB_HOST, port=_DEFAULT_DB_PORT):
-        self.host = host
-        self.port = port
+    def __init__(self):
         self.db_client = None
 
     def _connect(self):
-        self.db_client = DBClient(self.host, self.port)
+        self.db_client = DBClient()
         self.db_client.connect()
-        self.db_client.use_db(_DEFAULT_DB_NAME)
+        self.db_client.use_db()
 
     def _close(self):
         self.db_client.close()

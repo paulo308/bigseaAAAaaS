@@ -63,6 +63,8 @@ class Route:
     READ_FAVORITES = "read_favorites"
     DELETE_FAVORITE = "delete_favorite"
     READ_ACCOUNTING = "read_accounting"
+    CHECKIN_DATA_INFRA = "checkin_data_infra"
+    INSERT_DATA_INFRA = "insert_data_infra"
     # json routes
     CHECKIN_STATE = "get_checkin_state"
     CHECKOUT_STATE = "get_checkout_state"
