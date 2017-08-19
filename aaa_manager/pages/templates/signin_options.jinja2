@@ -1,0 +1,157 @@
+{% extends "base_template.jinja2" %}
+
+
+{% set description = 'Home Page' %}
+{% set title = 'EUBra-BIGSEA' %}
+
+{% block scripts %}
+    {{ super() }}
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script src="/static/js/signin_options.js"></script>
+    <script src="/static/js/parsley.min.js"></script>
+{% endblock %}
+
+{% block styles %}
+    {{ super() }}
+{% endblock %}
+
+{% block main_content %}
+
+<html>
+<head>
+<meta charset="utf-8">
+<title>EUBra-BIGSEA Forgot Password</title>
+<style type="text/css">
+body {
+background-color: #f4f4f4;
+color: #5a5656;
+font-family: 'Open Sans', Arial, Helvetica, sans-serif;
+font-size: 16px;
+line-height: 1.5em;
+}
+a { text-decoration: none; }
+h1 { font-size: 1em; }
+h1, p {
+margin-bottom: 10px;
+}
+strong {
+font-weight: bold;
+}
+.uppercase { text-transform: uppercase; }
+
+/* ---------- LOGIN ---------- */
+#login {
+margin: 50px auto;
+width: 300px;
+}
+form fieldset input[type="text"], input[type="password"],input[type="email"] {
+background-color: #e5e5e5;
+border: none;
+border-radius: 3px;
+-moz-border-radius: 3px;
+-webkit-border-radius: 3px;
+color: #5a5656;
+font-family: 'Open Sans', Arial, Helvetica, sans-serif;
+font-size: 14px;
+height: 50px;
+outline: none;
+padding: 0px 10px;
+width: 300px;
+-webkit-appearance:none;
+}
+form fieldset input[type="submit"] {
+background-color: #008dde;
+border: none;
+border-radius: 3px;
+-moz-border-radius: 3px;
+-webkit-border-radius: 3px;
+color: #f4f4f4;
+cursor: pointer;
+font-family: 'Open Sans', Arial, Helvetica, sans-serif;
+height: 50px;
+text-transform: uppercase;
+width: 300px;
+-webkit-appearance:none;
+}
+
+form fieldset a {
+color: #5a5656;
+font-size: 10px;
+}
+form fieldset a:hover { text-decoration: underline; }
+.btn-round {
+background-color: #5a5656;
+border-radius: 50%;
+-moz-border-radius: 50%;
+-webkit-border-radius: 50%;
+color: #f4f4f4;
+display: block;
+font-size: 12px;
+height: 50px;
+line-height: 50px;
+margin: 30px 125px;
+text-align: center;
+text-transform: uppercase;
+width: 50px;
+}
+.google-before {
+background-color: #0064ab;
+border-radius: 3px 0px 0px 3px;
+-moz-border-radius: 3px 0px 0px 3px;
+-webkit-border-radius: 3px 0px 0px 3px;
+<fieldset>color: #f4f4f4;
+display: block;
+float: left;
+height: 50px;
+line-height: 50px;
+text-align: center;
+width: 50px;
+}
+.google {
+background-color: #0079ce;
+border: none;
+border-radius: 0px 3px 3px 0px;
+-moz-border-radius: 0px 3px 3px 0px;
+-webkit-border-radius: 0px 3px 3px 0px;
+color: #f4f4f4;
+cursor: pointer;
+height: 50px;
+text-transform: uppercase;
+width: 250px;
+}
+
+</style>
+</head>
+<body>
+<div id="login">
+<h1><strong>Forgot Password</strong><br><br>
+After introducing your username and email please click "Reset Password".</h1>
+
+<form data-parsley-validate name="forgotpwform" id="forgotpwform" action="javascript:void(0);" method="get">
+<fieldset>
+			<p>
+				<label for="user">Username:</label>
+				<input name="user" id="user" type="text" required/>
+			</p>
+			<p>
+				<label for="email">E-Mail:</label>
+				<input name="email" id="email" maxlength="1024" type="email" data-parsley-trigger="change" required/>
+                        </p>
+                  
+<p><input id="btn_reset_pw" type="submit" value="Reset Password"></p>
+<!--
+<font size="2"><p>If your username and email are correct, you will receive shortly a new password on your email.</p>
+-->
+</fieldset>
+</form>
+
+
+<div id="error" class="alert alert-danger alert-dismissable">
+</div>
+<div id="success" class="alert alert-success alert-dismissable">
+</div>
+
+</body>
+</html>
+{% endblock %}
+

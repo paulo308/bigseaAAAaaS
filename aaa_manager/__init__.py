@@ -28,6 +28,7 @@ def main(global_config, **settings):
     config.add_route(Route.WEB_MANAGE_USER, 'web/manage_info_user')
     config.add_route(Route.WEB_MANAGE_ADMIN, 'web/manage_info_admin')
     config.add_route(Route.WEB_EMAIL_CONFIRMATION, 'web/email_confirmation')
+    config.add_route(Route.WEB_SIGNIN_OPTIONS, 'web/signin_options')
 
     # json routes
     config.add_route(Route.GET_CHECKIN, '/json/checkin')

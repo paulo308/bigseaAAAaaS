@@ -155,6 +155,21 @@ Update your information and click "Save".</h1>
 
 <hr>
 
+<h1>To add a secondary email to your account, please introduce it and click "Add Email".</h1>
+
+<form data-parsley-validate name="addemailform" id="addemailform" action="javascript:void(0);" method="get">
+<fieldset>
+			<p>
+				<label for="secemail">E-Mail:</label>
+				<input name="secemail" id="secemail" maxlength="1024" type="email" data-parsley-trigger="change" required/>
+                        </p>
+<p><input id="btn_addemail" type="submit" value="Add Email"></p>
+</fieldset>
+</form>
+
+
+<hr>
+
 <h1>To change password introduce your old and new password and click "Change Password".</h1>
 
 <form data-parsley-validate name="passwordform" id="passwordform" action="javascript:void(0);" method="get">
