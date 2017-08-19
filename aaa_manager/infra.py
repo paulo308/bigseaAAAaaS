@@ -29,13 +29,18 @@ class Infra:
         Returns:
             database response
         """
-        if self.validate_infra(infra_info):
-            return self.basedb.insert(
-                    INFRA_COLLECTION,
-                    INFRA_KEY,
-                    username,
-                    INFRA_ITEM,
-                    infra_info)
+        result = read(username)
+        if result is not None:
+            if self.validate_infra(infra_info):
+                return self.basedb.insert(
+                        INFRA_COLLECTION,
+                        INFRA_KEY,
+                        username,
+                        INFRA_ITEM,
+                        infra_info)
+        else:
+            return None, "alerady has infra data"
+
         return None
     
 
