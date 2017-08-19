@@ -139,12 +139,37 @@ After introducing your username and email please click "Reset Password".</h1>
                         </p>
                   
 <p><input id="btn_reset_pw" type="submit" value="Reset Password"></p>
-<!--
+
 <font size="2"><p>If your username and email are correct, you will receive shortly a new password on your email.</p>
--->
+
 </fieldset>
 </form>
 
+<hr>
+
+<h1><strong>Resend Email to Confirm Account</strong><br><br>
+If you did not receive the confirmation email, please introduce your username and email. Then, click "Resend Email" and check your inbox.</h1>
+
+<form data-parsley-validate name="resendemailform" id="resendemailform" action="javascript:void(0);" method="get">
+<fieldset>
+
+			<p>
+                                <label for="user">Username:</label>
+                                <input name="user" id="user" type="text" required/>
+                        </p>
+                        <p>
+                                <label for="email">E-Mail:</label>
+                                <input name="email" id="email" maxlength="1024" type="email" data-parsley-trigger="change" required/>
+                        </p>
+
+
+<p><input id="btn_resend_email" type="submit" value="Resend Confirmation Email"></p>
+
+
+<font size="2"><p>If your username and email are correct, you will receive shortly an email with a link to confirm your account.</p>
+
+</fieldset>
+</form>
 
 <div id="error" class="alert alert-danger alert-dismissable">
 </div>
@@ -153,5 +178,6 @@ After introducing your username and email please click "Reset Password".</h1>
 
 </body>
 </html>
+
 {% endblock %}
 
