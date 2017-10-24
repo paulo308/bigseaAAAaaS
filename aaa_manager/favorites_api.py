@@ -8,6 +8,7 @@ from aaa_manager import Route
 from aaa_manager.favorites import Favorites
 from aaa_manager.authentication import AuthenticationManager
 from aaa_manager.token import Token
+from aaa_manager.authorisation import Authorisation
 from pyramid.view import view_config
 
 LOG = logging.getLogger(__name__)
@@ -24,6 +25,7 @@ class FavoritesRestView:
         self._data = self._settings['data']
         self.favorites = Favorites()
         self.authentication = AuthenticationManager()
+        self.authorisation = Authorisation()
         self.token = Token()
 
     @view_config(route_name=Route.CREATE_FAVORITE,
@@ -56,20 +58,30 @@ class FavoritesRestView:
             token = self.request.params['token']
             usr = self.token.verify_token(2, token)
             if usr != 'invalid token' and usr == username:
-                auth = self.favorites.create(
-                        2,
+                LOG.info('############ OK1')
+                auth = self.authorisation.use_resource(
                         username, 
-                        item_id,
-                        item_type,
-                        city_id,
-                        country_id,
-                        favorite_id,
-                        data,
-                        token)
+                        'Favorites', 
+                        'Software')
+                LOG.info('############ OK2: %s' % auth)
                 if auth is not None:
-                    return {'success': 'Favorite association successfully created.'}
+                    LOG.info('############ OK3')
+                    result = self.favorites.create(
+                            2,
+                            username, 
+                            item_id,
+                            item_type,
+                            city_id,
+                            country_id,
+                            favorite_id,
+                            data,
+                            token)
+                    if result is not None:
+                        return {'success': 'Favorite association successfully created.'}
+                    else:
+                        return {'error':  'Invalid favorite.'}
                 else:
-                    return {'error':  'Invalid favorite.'}
+                    return {'error': 'Not authorized'}
             else:
                 return {'error':  'Invalid token'}
         except KeyError as e:

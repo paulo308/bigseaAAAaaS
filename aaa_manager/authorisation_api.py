@@ -154,7 +154,8 @@ class AuthorisationRestView:
                         resource_name, 
                         resource_category)
                 if auth is not None:
-                    return {'success': 'Rule successfully read.'}
+                    return {'success': 'Rule successfully read.',
+                            'data': auth}
                 else:
                     return {'error':  'Rule not found.'}
             else:

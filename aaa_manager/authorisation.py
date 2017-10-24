@@ -43,8 +43,8 @@ class Authorisation:
                 LOG.info('elem: %s' % elem)
                 if elem['resource_name'] == resource_name and\
                     elem['resource_category'] == resource_category:
-                        return True
-        return False
+                        return True, elem
+        return False, elem
     
     def update_resource_item(self, username, resource_name, resource_category):
         """
@@ -75,7 +75,8 @@ class Authorisation:
         is responsible for triggering the accounting mechanism and updating the
         database to increment the number of times that resource was used. 
         """
-        if self.verify(username, resource_name, resource_category):
+        result, elem = self.verify(username, resource_name, resource_category)
+        if result and elem['used'] + 1 <= elem['max_used']:
             # add 1 to used field
             self.update_resource_item(username, resource_name, resource_category)
             # account it  
@@ -83,8 +84,8 @@ class Authorisation:
             LOG.info('msg: %s' % msg)
             category = INFO
             self.accounting.register(username, msg, category)
-            return {'msg': msg}
-        return None
+            return {'msg': msg}, elem['max_used']
+        return None, elem['max_used']
 
 
 
