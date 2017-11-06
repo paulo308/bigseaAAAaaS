@@ -176,7 +176,6 @@ class AuthenticationManager:
         if not self.emails.is_email_unique(user_info['email']):
             return None, 'invalid email'
 
-        users = self.basedb.get(USER_COLLECTION, APP_KEY, app_id)
         if user_info['username'] == 'admin':
             return None, 'admin'
         auth = copy.deepcopy(user_info)
@@ -186,6 +185,8 @@ class AuthenticationManager:
 
         LOG.info('auth: %s' % auth)
         result_email = self.emailToken.send_email_token(auth['username'], auth['email'])
+
+        result_fav = self.favorites.insert_default(auth['username'])
 
         return self.basedb.insert(USER_COLLECTION, APP_KEY, app_id,
                                         USER_ITEM, auth), ''
