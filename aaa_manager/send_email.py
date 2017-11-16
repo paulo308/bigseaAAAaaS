@@ -46,7 +46,6 @@ class SendEmail:
         #CONFIRM_EMAIL_PATH = 'http://localhost:9000/web/email_confirmation'
         URL = CONFIRM_EMAIL_PATH + '?username='+username+'&email='+email+'&token='+token
         SUBJECT = 'EUBRA-BigSea: email confirmation'
-        #TEXT = 'token: ' + token
         TEXT = 'Click on the following link to confirm the email:\n' + URL 
 
         return self.send_email(email, SUBJECT, TEXT)        

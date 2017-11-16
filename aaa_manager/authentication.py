@@ -16,6 +16,7 @@ from aaa_manager.emails import Emails
 from aaa_manager.email_token import EmailToken
 from aaa_manager.send_email import SendEmail
 from aaa_manager.token import Token
+from aaa_manager.favorites import Favorites
 import bcrypt
 import base64
 
@@ -46,6 +47,7 @@ class AuthenticationManager:
         self.emailToken = EmailToken()
         self.sendEmail = SendEmail() 
         self.token = Token()
+        self.favorites = Favorites()
 
     def _format_user_dict(self, user):
         return {

@@ -45,6 +45,7 @@ class AuthorisationRestView:
             error (str): an error message if an error occured and an empty
             string otherwise.
         """
+        LOG.info('#### entrou')
         msg = ''
         try:
             username = self.request.params['username']
@@ -52,6 +53,7 @@ class AuthorisationRestView:
             resource_name = self.request.params['resource_name']
             max_used = self.request.params['max']
             token = self.request.params['token']
+            LOG.info('#### token: %s' % token)
             usr = self.token.verify_token(2, token)
             if usr != 'invalid token' and usr == username:
                 auth = self.authorisation.create(
@@ -59,6 +61,7 @@ class AuthorisationRestView:
                         resource_category, 
                         resource_name, 
                         max_used)
+                LOG.info('#### auth: %s' % auth)
                 if auth is not None:
                     return {'success': 'Rule successfully created.'}
                 else:

@@ -58,7 +58,6 @@ services:
             - "27017:27017"
         command: --smallfiles --rest
         entrypoint: mongod --port 27017 --clusterAuthMode x509 --sslMode requireSSL --sslPEMKeyFile /certs/mongo_crt.pem --sslCAFile /certs/root_ca.pem --dbpath /data/db
-        #entrypoint: mongod --port 27017 --clusterAuthMode x509 --sslMode requireSSL --sslPEMKeyFile /certs/mongo_crt.pem --sslCAFile /certs/root_ca.pem --dbpath /data/db
         networks:
             backend:
                 ipv4_address: 172.250.0.88

@@ -59,7 +59,7 @@ class FavoritesRestView:
             usr = self.token.verify_token(2, token)
             if usr != 'invalid token' and usr == username:
                 LOG.info('############ OK1')
-                auth = self.authorisation.use_resource(
+                auth, max_used = self.authorisation.use_resource(
                         username, 
                         'Favorites', 
                         'Software')
@@ -81,9 +81,9 @@ class FavoritesRestView:
                     else:
                         return {'error':  'Invalid favorite.'}
                 else:
-                    return {'error': 'Not authorized'}
+                    return {'error': 'Not authorized, max limit: ' + max_used}
             else:
-                return {'error':  'Invalid token'}
+                return {'error':  'Invalid token.'}
         except KeyError as e:
             msg = 'Missing mandatory parameter: ' + str(e)
             raise e

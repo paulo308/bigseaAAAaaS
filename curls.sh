@@ -131,7 +131,7 @@ function test_infra() {
 	call "username=teste2&pwd=@bC12345" "checkin_data_infra" "Infra data successfully read." 
 }
 
-test_signup
+#test_signup
 test_favorite
 #test_email_association
 #test_email
