@@ -75,7 +75,7 @@ function test_signup() {
 function test_favorite() {
 	get_token "user=teste&pwd=@bC12345"
 	call "username=teste&resource_category=Software&resource_name=Favorites&max=10&token=$token" "create_authorisation" "Rule successfully created."
-	call "username=teste&item_id=b&item_type=a&city_id=1&country_id=2&favorite_id=b&data=aaa&token=$token" "create_favorite" "Favorite association successfully created."
+	call "username=teste&item_id=l&item_type=a&city_id=1&country_id=2&favorite_id=b&data=aaa&token=$token" "create_favorite" "Favorite association successfully created."
 	call "username=teste&city_id=1&country_id=2&token=$token" "read_favorite" "Favorite association successfully read." 
 	call "username=teste&token=$token" "read_favorites" "Favorite association successfully read." 
 	call "username=teste&token=errado" "read_favorites" "Invalid token." 

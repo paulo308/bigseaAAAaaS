@@ -81,7 +81,7 @@ class FavoritesRestView:
                     else:
                         return {'error':  'Invalid favorite.'}
                 else:
-                    return {'error': 'Not authorized, max limit: ' + max_used}
+                    return {'error': 'Not authorized, max limit: ' + str(max_used)}
             else:
                 return {'error':  'Invalid token.'}
         except KeyError as e:
